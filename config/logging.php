@@ -54,8 +54,14 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', env('LOG_STACK', 'single')),
+            'channels' => ['single', 'telescope'],
             'ignore_exceptions' => false,
+        ],
+
+        'telescope' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/telescope.log'),
+            'level' => 'debug',
         ],
 
         'single' => [

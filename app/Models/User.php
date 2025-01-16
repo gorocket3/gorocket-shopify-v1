@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
@@ -9,6 +10,7 @@ use Osiset\ShopifyApp\Traits\ShopModel;
 
 /**
  * @method static where(string $string, string $toNative)
+ * @method static find(int $shopId)
  */
 class User extends Authenticatable implements IShopModel
 {
@@ -41,4 +43,12 @@ class User extends Authenticatable implements IShopModel
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get the shops for the user.
+     */
+    public function shops(): HasMany
+    {
+        return $this->hasMany(Shop::class, 'myshopify_domain', 'name');
+    }
 }

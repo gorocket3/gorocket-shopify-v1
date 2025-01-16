@@ -357,19 +357,15 @@ return [
 
     'listen' => [
         \Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent::class => [
-            // \App\Listeners\MyListener::class,
+            \App\Listeners\HandleShopUpdateListener::class,
         ],
         \Osiset\ShopifyApp\Messaging\Events\ShopAuthenticatedEvent::class => [
-            // \App\Listeners\MyListener::class,
         ],
         \Osiset\ShopifyApp\Messaging\Events\ShopDeletedEvent::class => [
-            // \App\Listeners\MyListener::class,
         ],
         \Osiset\ShopifyApp\Messaging\Events\AppUninstalledEvent::class => [
-            // \App\Listeners\MyListener::class,
         ],
         \Osiset\ShopifyApp\Messaging\Events\PlanActivatedEvent::class => [
-            // \App\Listeners\MyListener::class,
         ],
     ],
 
@@ -389,12 +385,24 @@ return [
 
     'webhooks' => [
         [
+            'topic' => 'SHOP_UPDATE',
+            'address' => 'https://4c09-121-67-5-167.ngrok-free.app/handle/shop-update',
+        ],
+        [
+            'topic' => 'PRODUCTS_CREATE',
+            'address' => 'https://4c09-121-67-5-167.ngrok-free.app/handle/products-create'
+        ],
+        [
             'topic' => 'PRODUCTS_UPDATE',
-            'address' => 'https://7617-121-67-5-167.ngrok-free.app/webhooks/products-update'
+            'address' => 'https://4c09-121-67-5-167.ngrok-free.app/handle/products-update'
+        ],
+        [
+            'topic' => 'PRODUCTS_DELETE',
+            'address' => 'https://4c09-121-67-5-167.ngrok-free.app/handle/products-delete'
         ],
         [
             'topic' => 'APP_UNINSTALLED',
-            'address' => 'https://7617-121-67-5-167.ngrok-free.app/webhook/app-uninstalled'
+            'address' => 'https://4c09-121-67-5-167.ngrok-free.app/webhook/app-uninstalled'
         ]
     ],
 
@@ -434,11 +442,12 @@ return [
      * @see
      */
     'after_authenticate_job' => [
-        [
-            'job' => \App\Jobs\AfterAuthenticateJob::class,
-            'inline' => true // False = dispatch job for later, true = dispatch immediately
-        ],
-    ],
+        /*
+            [
+                'job' => env('AFTER_AUTHENTICATE_JOB'), // example: \App\Jobs\AfterAuthorizeJob::class
+                'inline' => env('AFTER_AUTHENTICATE_JOB_INLINE', false) // False = dispatch job for later, true = dispatch immediately
+            ],
+        */],
 
     /*
     |--------------------------------------------------------------------------
