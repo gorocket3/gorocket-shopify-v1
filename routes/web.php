@@ -16,4 +16,5 @@ Route::get('/', [ShopifyController::class, 'home'])->middleware(['verify.shopify
 Route::middleware(['auth.webhook'])->group(function () {
     Route::post('/handle/shop-update', [ShopifyController::class, 'handleShopUpdate']);
     Route::post('/handle/products-update', [ShopifyController::class, 'handleProductUpdate']);
+    Route::post('/handle/products-delete', [ShopifyController::class, 'handleProductDelete']);
 });

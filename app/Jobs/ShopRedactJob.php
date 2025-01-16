@@ -51,12 +51,12 @@ class ShopRedactJob implements ShouldQueue
 
             if ($shop) {
                 $shop->delete();
-                Log::info("상점 데이터 삭제 완료 - 도메인: {$this->shopDomain->toNative()}");
+                Log::info("Shop data successfully deleted - Domain: {$this->shopDomain->toNative()}");
             } else {
-                Log::warning("상점 정보를 찾을 수 없음 - 도메인: {$this->shopDomain->toNative()}");
+                Log::warning("Shop not found - Domain: {$this->shopDomain->toNative()}");
             }
         } catch (Exception $e) {
-            Log::error("상점 데이터 삭제 실패: {$e->getMessage()}");
+            Log::error("Failed to delete shop data: {$e->getMessage()}");
         }
     }
 }

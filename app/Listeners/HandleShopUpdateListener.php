@@ -23,13 +23,13 @@ class HandleShopUpdateListener
 
             $shop = User::find($shopId);
             if (!$shop) {
-                Log::error("스토어 정보를 찾을 수 없습니다. Shop ID: {$shopId}");
+                Log::error("Shop not found. Shop ID: {$shopId}");
                 return;
             }
 
             $response = $shop->api()->rest('GET', '/admin/api/2025-01/shop.json');
             if ($response['errors'] ?? false) {
-                Log::error("Shopify API 호출 실패 - Shop ID: {$shopId}");
+                Log::error("Failed to call Shopify API - Shop ID: {$shopId}");
                 return;
             }
 
@@ -37,9 +37,9 @@ class HandleShopUpdateListener
 
             HandleShopUpdateJob::dispatch($container);
 
-            Log::info("스토어 정보 큐 등록 완료 - 도메인: {$container['myshopify_domain']}");
+            Log::info("Shop information queued successfully - Domain: {$container['myshopify_domain']}");
         } catch (Exception $e) {
-            Log::error("앱 설치 처리 중 오류 발생: " . $e->getMessage());
+            Log::error("Error occurred during app installation handling: " . $e->getMessage());
         }
     }
 }
