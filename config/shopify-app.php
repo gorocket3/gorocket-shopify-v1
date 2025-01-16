@@ -400,6 +400,8 @@ return [
             'topic' => 'PRODUCTS_DELETE',
             'address' => 'https://4c09-121-67-5-167.ngrok-free.app/handle/products-delete'
         ],
+
+
         [
             'topic' => 'APP_UNINSTALLED',
             'address' => 'https://4c09-121-67-5-167.ngrok-free.app/webhook/app-uninstalled'
