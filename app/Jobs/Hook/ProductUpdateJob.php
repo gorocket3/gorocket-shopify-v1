@@ -43,6 +43,7 @@ class ProductUpdateJob implements ShouldQueue
             Product::updateOrCreate(
                 ['product_id' => $this->data['id']],
                 [
+                    'user_id'              => $this->data['user_id'],
                     'admin_graphql_api_id' => $this->data['admin_graphql_api_id'],
                     'title'                => $this->data['title'],
                     'handle'               => $this->data['handle'],
@@ -58,9 +59,9 @@ class ProductUpdateJob implements ShouldQueue
                 ]
             );
 
-            Log::info("Product updated or created successfully - {$this->data['id']}");
+            Log::info("[HOOK][PRODUCT] Update success - {$this->data['id']}");
         } catch (Exception $e) {
-            Log::error("Failed to update or create product - {$this->data['id']}, Error: {$e->getMessage()}");
+            Log::error("[HOOK][PRODUCT] Update failed - {$this->data['id']}, Error: {$e->getMessage()}");
         }
 
     }

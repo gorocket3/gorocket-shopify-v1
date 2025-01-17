@@ -67,9 +67,9 @@ class ProductUpdateJob implements ShouldQueue
                     ]
                 );
 
-                Log::info("Product updated or created successfully - {$product['id']}");
+                Log::info("[SETUP][PRODUCT] Update success - {$product['id']}");
             } catch (Exception $e) {
-                Log::error("Failed to update or create product - {$product['id']}, Error: {$e->getMessage()}");
+                Log::error("[SETUP][PRODUCT] Update failed - {$product['id']}, Error: {$e->getMessage()}");
             }
         }
     }

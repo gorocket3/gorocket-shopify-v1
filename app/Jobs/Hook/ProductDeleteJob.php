@@ -44,12 +44,12 @@ class ProductDeleteJob implements ShouldQueue
 
             if ($productId) {
                 Product::where('product_id', $productId)->delete();
-                Log::info("Product deleted - {$productId}");
+                Log::info("[HOOK][PRODUCT] Delete success - {$productId}");
             } else {
-                Log::warning("Product ID is missing - {$productId}");
+                Log::warning("[HOOK][PRODUCT] Id is missing - {$productId}");
             }
         } catch (Exception $e) {
-            Log::error("Product delete failed - {$e->getMessage()}");
+            Log::error("[HOOK][PRODUCT] Delete failed - {$productId}, Error: {$e->getMessage()}");
         }
     }
 }

@@ -47,8 +47,8 @@ class CustomersDataRequestJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        Log::info('Received customers/data_request webhook for shop: ' . $this->shopDomain->toNative());
+        Log::info("[GDPR] customers/data_request - {$this->shopDomain->toNative()}");
     }
 }

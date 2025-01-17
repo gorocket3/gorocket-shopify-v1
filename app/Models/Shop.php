@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
+ * @method static where(string $string, array|string|null $shopDomain)
  */
 class Shop extends Model
 {

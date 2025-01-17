@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\Hook\ProductDeleteJob;
 use App\Jobs\Hook\ProductUpdateJob;
 use App\Jobs\Hook\ShopUpdateJob;
+use App\Models\Shop;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -20,8 +21,15 @@ class WebhookController extends Controller
      */
     private function handleWebhook(Request $request, string $type): JsonResponse
     {
+        $user_id = Shop::where('myshopify_domain', $request->header('x-shopify-shop-domain'))->value('user_id');
+        if (!$user_id) {
+            Log::error("[HOOK][HANDLE] Shop not found - {$request->header('x-shopify-shop-domain')}");
+            return response()->json(['status' => 'error', 'message' => 'Shop not found'], 404);
+        }
+        $request->merge(['user_id' => $user_id]);
+
         $data = $request->all();
-        Log::info(ucfirst($type) . " Webhook Data", $data);
+        Log::info("[HOOK][HANDLE] Webhook received - {$type}", $data);
 
         $jobClass = match ($type) {
             'shop-update'       => ShopUpdateJob::class,

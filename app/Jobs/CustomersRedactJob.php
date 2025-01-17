@@ -49,6 +49,6 @@ class CustomersRedactJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info('Received customers/redact webhook for shop: ' . $this->shopDomain->toNative());
+        Log::info("[GDPR] customers/redact - {$this->shopDomain->toNative()}");
     }
 }

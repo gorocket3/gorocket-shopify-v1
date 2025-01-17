@@ -30,13 +30,13 @@ class ShopUpdateListener implements ShouldQueue
             $shop = User::find($shopId);
 
             if (!$shop) {
-                Log::error("Shop not found - {$shopId}");
+                Log::error("[LISTENER][SHOP] Shop not found - {$shopId}");
                 return;
             }
 
             $response = $shop->api()->rest('GET', '/admin/api/2025-01/shop.json');
             if (($response['errors'] ?? false) || !isset($response['body']['shop'])) {
-                Log::error("Failed to call Shopify API - {$shopId}");
+                Log::error("[LISTENER][SHOP] API failed - {$shopId}");
                 return;
             }
 
@@ -67,9 +67,9 @@ class ShopUpdateListener implements ShouldQueue
 
             ShopUpdateJob::dispatch($data);
 
-            Log::info("Shop information queued successfully - {$shopId}");
+            Log::info("[LISTENER][SHOP] Queued success - {$shopId}");
         } catch (Exception $e) {
-            Log::error("Failed to queue shop information - {$shopId}, Error: {$e->getMessage()}");
+            Log::error("[LISTENER][SHOP] Queue failed - {$shopId}, Error: {$e->getMessage()}");
         }
     }
 }

@@ -67,9 +67,9 @@ class ShopUpdateJob implements ShouldQueue
                 ]
             );
 
-            Log::info("Shop updated or created successfully - {$this->data['id']}");
+            Log::info("[SETUP][SHOP] Update success - {$this->data['id']}");
         } catch (Exception $e) {
-            Log::error("Failed to update or create shop - {$this->data['id']}, Error: {$e->getMessage()}");
+            Log::error("[SETUP][SHOP] Update failed - {$this->data['id']}, Error: {$e->getMessage()}");
         }
     }
 }
