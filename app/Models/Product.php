@@ -27,5 +27,18 @@ class Product extends Model
         'published_scope',
         'tags',
         'published_at',
+        'created_at',
+        'updated_at'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'published_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 }

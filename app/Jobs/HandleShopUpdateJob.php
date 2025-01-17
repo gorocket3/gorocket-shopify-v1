@@ -20,16 +20,16 @@ class HandleShopUpdateJob implements ShouldQueue
      *
      * @var array
      */
-    protected array $container;
+    protected array $data;
 
     /**
      * Create a new job instance.
      *
-     * @param array $container
+     * @param array $data
      */
-    public function __construct(array $container)
+    public function __construct(array $data)
     {
-        $this->container = $container;
+        $this->data = $data;
     }
 
     /**
@@ -41,34 +41,34 @@ class HandleShopUpdateJob implements ShouldQueue
     {
         try {
             Shop::updateOrCreate(
-                ['myshopify_domain' => $this->container['myshopify_domain']],
+                ['shopify_id' => $this->data['id']],
                 [
-                    'shopify_id' => $this->container['id'],
-                    'name' => $this->container['name'],
-                    'shop_owner' => $this->container['shop_owner'],
-                    'email' => $this->container['email'],
-                    'customer_email' => $this->container['customer_email'],
-                    'domain' => $this->container['domain'],
-                    'country' => $this->container['country'],
-                    'country_code' => $this->container['country_code'],
-                    'currency' => $this->container['currency'],
-                    'timezone' => $this->container['timezone'],
-                    'plan_name' => $this->container['plan_name'],
-                    'plan_display_name' => $this->container['plan_display_name'],
-                    'has_storefront' => $this->container['has_storefront'],
-                    'password_enabled' => $this->container['password_enabled'],
-                    'checkout_api_supported' => $this->container['checkout_api_supported'],
-                    'enabled_presentment_currencies' => json_encode($this->container['enabled_presentment_currencies']),
-                    'multi_location_enabled' => $this->container['multi_location_enabled'],
-                    'shop_created_at' => Carbon::parse($this->container['created_at'])->timezone('UTC')->format('Y-m-d H:i:s'),
-                    'shop_updated_at' => Carbon::parse($this->container['updated_at'])->timezone('UTC')->format('Y-m-d H:i:s'),
-                    'updated_at' => now()
+                    'myshopify_domain'               => $this->data['myshopify_domain'],
+                    'name'                           => $this->data['name'],
+                    'shop_owner'                     => $this->data['shop_owner'],
+                    'email'                          => $this->data['email'],
+                    'customer_email'                 => $this->data['customer_email'],
+                    'domain'                         => $this->data['domain'],
+                    'country'                        => $this->data['country'],
+                    'country_code'                   => $this->data['country_code'],
+                    'currency'                       => $this->data['currency'],
+                    'timezone'                       => $this->data['timezone'],
+                    'plan_name'                      => $this->data['plan_name'],
+                    'plan_display_name'              => $this->data['plan_display_name'],
+                    'has_storefront'                 => $this->data['has_storefront'],
+                    'password_enabled'               => $this->data['password_enabled'],
+                    'checkout_api_supported'         => $this->data['checkout_api_supported'],
+                    'enabled_presentment_currencies' => $this->data['enabled_presentment_currencies'],
+                    'multi_location_enabled'         => $this->data['multi_location_enabled'],
+                    'shop_created_at'                => $this->data['created_at'],
+                    'shop_updated_at'                => $this->data['updated_at'],
+                    'updated_at'                     => now()
                 ]
             );
 
-            Log::info("Shop updated or created successfully - Domain: {$this->container['myshopify_domain']}");
+            Log::info("Shop updated or created successfully - Domain: {$this->data['name']}");
         } catch (Exception $e) {
-            Log::error("Failed to update or create shop - Domain: {$this->container['myshopify_domain']}, Error: {$e->getMessage()}");
+            Log::error("Failed to update or create shop - Domain: {$this->data['name']}, Error: {$e->getMessage()}");
         }
     }
 }

@@ -1,8 +1,8 @@
 <?php
+
 namespace App\Jobs;
 
 use App\Models\Product;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,16 +20,16 @@ class HandleProductUpdateJob implements ShouldQueue
      *
      * @var array
      */
-    protected array $container;
+    protected array $data;
 
     /**
      * Create a new job instance.
      *
-     * @param array $container
+     * @param array $data
      */
-    public function __construct(array $container)
+    public function __construct(array $data)
     {
-        $this->container = $container;
+        $this->data = $data;
     }
 
     /**
@@ -39,28 +39,48 @@ class HandleProductUpdateJob implements ShouldQueue
      */
     public function handle(): void
     {
-        try {
-            Product::updateOrCreate(
-                ['product_id' => $this->container['id']],
-                [
-                    'admin_graphql_api_id' => $this->container['admin_graphql_api_id'],
-                    'title' => $this->container['title'],
-                    'handle' => $this->container['handle'],
-                    'body_html' => $this->container['body_html'],
-                    'product_type' => $this->container['product_type'],
-                    'vendor' => $this->container['vendor'],
-                    'status' => $this->container['status'],
-                    'published_scope' => $this->container['published_scope'],
-                    'tags' => $this->container['tags'],
-                    'published_at' => Carbon::parse($this->container['published_at'])->timezone('UTC')->format('Y-m-d H:i:s'),
-                    'created_at' => Carbon::parse($this->container['created_at'])->timezone('UTC')->format('Y-m-d H:i:s'),
-                    'updated_at' => Carbon::parse($this->container['updated_at'])->timezone('UTC')->format('Y-m-d H:i:s')
-                ]
-            );
+        $products = $this->isMultiple($this->data) ? $this->data : [$this->data];
 
-            Log::info("Product updated or created successfully - ID: {$this->container['id']}");
-        } catch (Exception $e) {
-            Log::error("Failed to update or create product - ID: {$this->container['id']}, Error: {$e->getMessage()}");
+        foreach ($products as $product) {
+            try {
+                if (empty($product['id'])) {
+                    Log::error("Product ID is missing - {$product['id']}");
+                    continue;
+                }
+
+                Product::updateOrCreate(
+                    ['product_id' => $product['id']],
+                    [
+                        'admin_graphql_api_id' => $product['admin_graphql_api_id'],
+                        'title'                => $product['title'],
+                        'handle'               => $product['handle'],
+                        'body_html'            => $product['body_html'],
+                        'product_type'         => $product['product_type'],
+                        'vendor'               => $product['vendor'],
+                        'status'               => $product['status'],
+                        'published_scope'      => $product['published_scope'],
+                        'tags'                 => $product['tags'],
+                        'published_at'         => $product['published_at'],
+                        'created_at'           => $product['created_at'],
+                        'updated_at'           => $product['updated_at'],
+                    ]
+                );
+
+                Log::info("Product updated or created successfully - ID: {$product['id']}");
+            } catch (Exception $e) {
+                Log::error("Failed to update or create product - ID: {$product['id']}, Error: {$e->getMessage()}");
+            }
         }
+    }
+
+    /**
+     * Check if the data is multiple.
+     *
+     * @param array $data
+     * @return bool
+     */
+    protected function isMultiple(array $data): bool
+    {
+        return isset($data[0]) && is_array($data[0]);
     }
 }

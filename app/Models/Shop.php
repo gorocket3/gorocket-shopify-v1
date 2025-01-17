@@ -42,6 +42,32 @@ class Shop extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'shop_created_at'                => 'datetime',
+        'shop_updated_at'                => 'datetime',
+        'enabled_presentment_currencies' => 'array',
+        'has_storefront'                 => 'boolean',
+        'password_enabled'               => 'boolean',
+        'checkout_api_supported'         => 'boolean',
+        'multi_location_enabled'         => 'boolean',
+        'updated_at'                     => 'datetime'
+    ];
+
+    /**
+     * The attributes that should be indexed uniquely.
+     *
+     * @var array
+     */
+    protected array $uniqueKeys = [
+        'shopify_id',
+        'myshopify_domain'
+    ];
+
+    /**
      * Get the user that owns the shop.
      */
     public function user(): BelongsTo
