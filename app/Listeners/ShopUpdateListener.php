@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Jobs\HandleShopUpdateJob;
+use App\Jobs\Setup\ShopUpdateJob;
 use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
 
-class HandleShopUpdateListener implements ShouldQueue
+class ShopUpdateListener implements ShouldQueue
 {
     /**
      * The number of times the job may be attempted.
@@ -30,18 +30,19 @@ class HandleShopUpdateListener implements ShouldQueue
             $shop = User::find($shopId);
 
             if (!$shop) {
-                Log::error("Shop not found. Shop ID: {$shopId}");
+                Log::error("Shop not found - {$shopId}");
                 return;
             }
 
             $response = $shop->api()->rest('GET', '/admin/api/2025-01/shop.json');
             if (($response['errors'] ?? false) || !isset($response['body']['shop'])) {
-                Log::error("Failed to call Shopify API - Shop ID: {$shopId}");
+                Log::error("Failed to call Shopify API - {$shopId}");
                 return;
             }
 
             $shopData = $response['body']['shop'];
             $data = [
+                'user_id'                     => $shopId,
                 'id'                          => $shopData['id'],
                 'myshopify_domain'            => $shopData['myshopify_domain'] ?? null,
                 'name'                        => $shopData['name'] ?? null,
@@ -64,11 +65,11 @@ class HandleShopUpdateListener implements ShouldQueue
                 'updated_at'                  => $shopData['updated_at'] ?? null
             ];
 
-            HandleShopUpdateJob::dispatch($data);
+            ShopUpdateJob::dispatch($data);
 
-            Log::info("Shop information queued successfully - Domain: {$data['name']}");
+            Log::info("Shop information queued successfully - {$shopId}");
         } catch (Exception $e) {
-            Log::error("Error occurred during app installation handling: " . $e->getMessage());
+            Log::error("Failed to queue shop information - {$shopId}, Error: {$e->getMessage()}");
         }
     }
 }

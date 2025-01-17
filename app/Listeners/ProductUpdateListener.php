@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Jobs\HandleProductUpdateJob;
+use App\Jobs\Setup\ProductUpdateJob;
 use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
 
-class HandleProductUpdateListener implements ShouldQueue
+class ProductUpdateListener implements ShouldQueue
 {
     /**
      * The number of times the job may be attempted.
@@ -27,10 +27,10 @@ class HandleProductUpdateListener implements ShouldQueue
     {
         try {
             $shopId = $event->shopId->toNative();
-
             $shop = User::find($shopId);
+
             if (!$shop) {
-                Log::error("Shop not found. Shop ID: {$shopId}");
+                Log::error("Shop not found - {$shopId}");
                 return;
             }
 
@@ -42,13 +42,14 @@ class HandleProductUpdateListener implements ShouldQueue
                 ]);
 
                 if (($response['errors'] ?? false) || !isset($response['body']['products'])) {
-                    Log::error("Failed to call Shopify API for products - Shop ID: {$shopId}");
+                    Log::error("Failed to call Shopify API for products - {$shopId}");
                     break;
                 }
 
                 $products = $response['body']['products'];
                 foreach ($products as $product) {
                     $formattedProduct = [
+                        'user_id'                => $shopId,
                         'id'                     => $product['id'],
                         'admin_graphql_api_id'   => $product['admin_graphql_api_id'],
                         'title'                  => $product['title'],
@@ -67,7 +68,7 @@ class HandleProductUpdateListener implements ShouldQueue
                     $productsBatch[] = $formattedProduct;
 
                     if (count($productsBatch) >= 100) {
-                        HandleProductUpdateJob::dispatch($productsBatch);
+                        ProductUpdateJob::dispatch($productsBatch);
                         $productsBatch = [];
                     }
                 }
@@ -75,12 +76,12 @@ class HandleProductUpdateListener implements ShouldQueue
             } while ($nextPage);
 
             if (!empty($productsBatch)) {
-                HandleProductUpdateJob::dispatch($productsBatch);
+                ProductUpdateJob::dispatch($productsBatch);
             }
 
-            Log::info("All product information queued successfully for Shop ID: {$shopId}");
+            Log::info("All product information queued successfully - {$shopId}");
         } catch (Exception $e) {
-            Log::error("Error occurred during product update handling: " . $e->getMessage());
+            Log::error("Failed to queue product information - {$shopId}, Error: {$e->getMessage()}");
         }
     }
 }

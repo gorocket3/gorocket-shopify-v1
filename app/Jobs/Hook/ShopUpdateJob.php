@@ -1,17 +1,17 @@
 <?php
-namespace App\Jobs;
+
+namespace App\Jobs\Hook;
 
 use App\Models\Shop;
-use Carbon\Carbon;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
-class HandleShopUpdateJob implements ShouldQueue
+class ShopUpdateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -41,7 +41,7 @@ class HandleShopUpdateJob implements ShouldQueue
     {
         try {
             Shop::updateOrCreate(
-                ['shopify_id' => $this->data['id']],
+                ['shop_id' => $this->data['id']],
                 [
                     'myshopify_domain'               => $this->data['myshopify_domain'],
                     'name'                           => $this->data['name'],
@@ -66,9 +66,9 @@ class HandleShopUpdateJob implements ShouldQueue
                 ]
             );
 
-            Log::info("Shop updated or created successfully - Domain: {$this->data['name']}");
+            Log::info("Shop updated successfully - {$this->data['id']}");
         } catch (Exception $e) {
-            Log::error("Failed to update or create shop - Domain: {$this->data['name']}, Error: {$e->getMessage()}");
+            Log::error("Failed to update shop - {$this->data['id']}, Error: {$e->getMessage()}");
         }
     }
 }

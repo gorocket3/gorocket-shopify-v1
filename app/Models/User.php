@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
@@ -45,10 +46,18 @@ class User extends Authenticatable implements IShopModel
     ];
 
     /**
-     * Get the shops for the user.
+     * Get the shop for the user.
      */
-    public function shops(): HasMany
+    public function shop(): HasOne
     {
-        return $this->hasMany(Shop::class, 'myshopify_domain', 'name');
+        return $this->HasOne(Shop::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the products for the user.
+     */
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'user_id', 'id');
     }
 }

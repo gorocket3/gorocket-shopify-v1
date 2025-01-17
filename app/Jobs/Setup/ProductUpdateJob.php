@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Setup;
 
 use App\Models\Product;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
-class HandleProductUpdateJob implements ShouldQueue
+class ProductUpdateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -51,6 +51,7 @@ class HandleProductUpdateJob implements ShouldQueue
                 Product::updateOrCreate(
                     ['product_id' => $product['id']],
                     [
+                        'user_id'              => $product['user_id'],
                         'admin_graphql_api_id' => $product['admin_graphql_api_id'],
                         'title'                => $product['title'],
                         'handle'               => $product['handle'],
@@ -62,13 +63,13 @@ class HandleProductUpdateJob implements ShouldQueue
                         'tags'                 => $product['tags'],
                         'published_at'         => $product['published_at'],
                         'created_at'           => $product['created_at'],
-                        'updated_at'           => $product['updated_at'],
+                        'updated_at'           => $product['updated_at']
                     ]
                 );
 
-                Log::info("Product updated or created successfully - ID: {$product['id']}");
+                Log::info("Product updated or created successfully - {$product['id']}");
             } catch (Exception $e) {
-                Log::error("Failed to update or create product - ID: {$product['id']}, Error: {$e->getMessage()}");
+                Log::error("Failed to update or create product - {$product['id']}, Error: {$e->getMessage()}");
             }
         }
     }

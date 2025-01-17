@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShopsTable extends Migration
-{
+return new class extends Migration {
+
     /**
      * Run the migrations.
      */
@@ -13,7 +13,8 @@ class CreateShopsTable extends Migration
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('shopify_id')->unique();
+            $table->unsignedBigInteger('user_id')->unique();
+            $table->unsignedBigInteger('shop_id')->unique();
             $table->string('name');
             $table->string('shop_owner')->nullable();
             $table->string('email')->nullable();
@@ -34,6 +35,8 @@ class CreateShopsTable extends Migration
             $table->timestamp('shop_created_at')->nullable();
             $table->timestamp('shop_updated_at')->nullable();
             $table->timestamps();
+
+
         });
     }
 
@@ -44,4 +47,4 @@ class CreateShopsTable extends Migration
     {
         Schema::dropIfExists('shops');
     }
-}
+};

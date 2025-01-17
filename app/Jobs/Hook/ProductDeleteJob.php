@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Hook;
 
 use App\Models\Product;
 use Exception;
@@ -11,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class HandleProductDeleteJob implements ShouldQueue
+class ProductDeleteJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -44,12 +44,12 @@ class HandleProductDeleteJob implements ShouldQueue
 
             if ($productId) {
                 Product::where('product_id', $productId)->delete();
-                Log::info("Product deleted: ID {$productId}");
+                Log::info("Product deleted - {$productId}");
             } else {
-                Log::warning("Product delete failed: Missing product ID.");
+                Log::warning("Product ID is missing - {$productId}");
             }
         } catch (Exception $e) {
-            Log::error("Product delete error: " . $e->getMessage());
+            Log::error("Product delete failed - {$e->getMessage()}");
         }
     }
 }

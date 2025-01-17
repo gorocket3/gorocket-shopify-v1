@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
@@ -16,7 +17,8 @@ class Shop extends Model
      * @var array
      */
     protected $fillable = [
-        'shopify_id',
+        'user_id',
+        'shop_id',
         'shopify_domain',
         'name',
         'shop_owner',
@@ -58,20 +60,18 @@ class Shop extends Model
     ];
 
     /**
-     * The attributes that should be indexed uniquely.
-     *
-     * @var array
-     */
-    protected array $uniqueKeys = [
-        'shopify_id',
-        'myshopify_domain'
-    ];
-
-    /**
      * Get the user that owns the shop.
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'myshopify_domain', 'name');
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the products for the user.
+     */
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'user_id', 'user_id');
     }
 }

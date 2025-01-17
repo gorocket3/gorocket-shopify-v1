@@ -1,20 +1,17 @@
 <?php
 
-use App\Http\Controllers\ShopifyController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
-
-//Route::get('/', function () {
-//    return view('welcome');
-//})->middleware(['verify.shopify'])->name('home');
-
-
-
-Route::get('/', [ShopifyController::class, 'home'])->middleware(['verify.shopify'])->name('home');
+Route::middleware(['verify.shopify'])->group(function () {
+    Route::get('/', fn() => view('welcome'))->name('home');
+    Route::get('/products', [ProductController::class, 'list'])->name('products');
+});
 
 
 Route::middleware(['auth.webhook'])->group(function () {
-    Route::post('/handle/shop-update', [ShopifyController::class, 'handleShopUpdate']);
-    Route::post('/handle/products-update', [ShopifyController::class, 'handleProductUpdate']);
-    Route::post('/handle/products-delete', [ShopifyController::class, 'handleProductDelete']);
+    Route::post('/handle/shop-update', [WebhookController::class, 'handleShopUpdate']);
+    Route::post('/handle/products-update', [WebhookController::class, 'handleProductUpdate']);
+    Route::post('/handle/products-delete', [WebhookController::class, 'handleProductDelete']);
 });

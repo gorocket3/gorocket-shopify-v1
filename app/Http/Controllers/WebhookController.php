@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\HandleProductDeleteJob;
-use App\Jobs\HandleProductUpdateJob;
-use App\Jobs\HandleShopUpdateJob;
+use App\Jobs\Hook\ProductDeleteJob;
+use App\Jobs\Hook\ProductUpdateJob;
+use App\Jobs\Hook\ShopUpdateJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -24,9 +24,9 @@ class WebhookController extends Controller
         Log::info(ucfirst($type) . " Webhook Data", $data);
 
         $jobClass = match ($type) {
-            'shop-update'       => HandleShopUpdateJob::class,
-            'product-update'    => HandleProductUpdateJob::class,
-            'product-delete'    => HandleProductDeleteJob::class,
+            'shop-update'       => ShopUpdateJob::class,
+            'product-update'    => ProductUpdateJob::class,
+            'product-delete'    => ProductDeleteJob::class,
             default => null,
         };
 

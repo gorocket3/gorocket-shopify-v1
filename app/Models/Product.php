@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
  * @method static where(string $string, mixed $admin_graphql_api_id)
+ * @method static orderBy(string $string, string $string1)
  */
 class Product extends Model
 {
@@ -16,6 +18,7 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
+        'user_id',
         'product_id',
         'admin_graphql_api_id',
         'title',
@@ -41,4 +44,20 @@ class Product extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
+
+    /**
+     * Get the user that owns the product.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the shop that owns the product.
+     */
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(Shop::class, 'user_id', 'user_id');
+    }
 }
