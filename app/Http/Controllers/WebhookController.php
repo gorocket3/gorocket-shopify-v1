@@ -7,25 +7,10 @@ use App\Jobs\HandleProductUpdateJob;
 use App\Jobs\HandleShopUpdateJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-class ShopifyController extends Controller
+class WebhookController extends Controller
 {
-    public function home(): void
-    {
-        $shop = Auth::user();
-        $response = $shop->api()->rest('GET', '/admin/api/2025-01/webhooks.json');
-
-        echo "<pre>";
-        print_r($response['body']);
-    }
-
-
-
-
-
-
     /**
      * Handle incoming webhooks dynamically.
      *
