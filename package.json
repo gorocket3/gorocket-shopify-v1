@@ -20,6 +20,7 @@
         "@shopify/app-bridge-react": "^4.1.6",
         "@shopify/polaris": "^13.9.2",
         "@shopify/polaris-icons": "^9.3.0",
+        "ag-grid-community": "^33.0.4",
         "ag-grid-react": "^33.0.3",
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
