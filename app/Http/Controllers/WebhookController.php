@@ -21,13 +21,14 @@ class WebhookController extends Controller
      */
     private function handleWebhook(Request $request, string $type): JsonResponse
     {
-        $user_id = Shop::where('myshopify_domain', $request->header('x-shopify-shop-domain'))->value('user_id');
+        $shop_domain = $request->header('x-shopify-shop-domain');
+        $user_id = Shop::where('myshopify_domain', $shop_domain)->value('user_id');
         if (!$user_id) {
             Log::error("[HOOK][HANDLE] Shop not found - {$request->header('x-shopify-shop-domain')}");
             return response()->json(['status' => 'error', 'message' => 'Shop not found'], 404);
         }
-        $request->merge(['user_id' => $user_id]);
 
+        $request->merge(['user_id' => $user_id]);
         $data = $request->all();
         Log::info("[HOOK][HANDLE] Webhook received - {$type}", $data);
 
