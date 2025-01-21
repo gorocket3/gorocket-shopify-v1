@@ -18,7 +18,6 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id',
         'product_id',
         'admin_graphql_api_id',
         'title',
@@ -31,7 +30,8 @@ class Product extends Model
         'tags',
         'published_at',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'user_id'
     ];
 
     /**

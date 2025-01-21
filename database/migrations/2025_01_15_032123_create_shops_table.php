@@ -13,7 +13,6 @@ return new class extends Migration {
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->unique();
             $table->unsignedBigInteger('shop_id')->unique();
             $table->string('name');
             $table->string('shop_owner')->nullable();
@@ -35,6 +34,7 @@ return new class extends Migration {
             $table->timestamp('shop_created_at')->nullable();
             $table->timestamp('shop_updated_at')->nullable();
             $table->timestamps();
+            $table->unsignedBigInteger('user_id')->unique();
 
 
         });

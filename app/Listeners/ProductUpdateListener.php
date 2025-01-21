@@ -49,7 +49,6 @@ class ProductUpdateListener implements ShouldQueue
                 $products = $response['body']['products'];
                 foreach ($products as $product) {
                     $formattedProduct = [
-                        'user_id'                => $shopId,
                         'id'                     => $product['id'],
                         'admin_graphql_api_id'   => $product['admin_graphql_api_id'],
                         'title'                  => $product['title'],
@@ -62,7 +61,8 @@ class ProductUpdateListener implements ShouldQueue
                         'tags'                   => $product['tags'],
                         'published_at'           => $product['published_at'],
                         'created_at'             => $product['created_at'],
-                        'updated_at'             => $product['updated_at']
+                        'updated_at'             => $product['updated_at'],
+                        'user_id'                => $shopId
                     ];
 
                     $productsBatch[] = $formattedProduct;

@@ -42,7 +42,6 @@ class ShopUpdateListener implements ShouldQueue
 
             $shopData = $response['body']['shop'];
             $data = [
-                'user_id'                     => $shopId,
                 'id'                          => $shopData['id'],
                 'myshopify_domain'            => $shopData['myshopify_domain'] ?? null,
                 'name'                        => $shopData['name'] ?? null,
@@ -62,7 +61,8 @@ class ShopUpdateListener implements ShouldQueue
                 'enabled_presentment_currencies' => $shopData['enabled_presentment_currencies'] ?? [],
                 'multi_location_enabled'      => $shopData['multi_location_enabled'] ?? null,
                 'created_at'                  => $shopData['created_at'] ?? null,
-                'updated_at'                  => $shopData['updated_at'] ?? null
+                'updated_at'                  => $shopData['updated_at'] ?? null,
+                'user_id'                     => $shopId
             ];
 
             ShopUpdateJob::dispatch($data);

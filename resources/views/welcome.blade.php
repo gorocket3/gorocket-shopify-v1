@@ -16,7 +16,7 @@
         <h1>그리드 에디터</h1>
         <ui-nav-menu>
             <a href="/products">상품</a>
-            <a href="/plan">결제</a>
+            <a href="/billing/2">결제</a>
             <a href="/settings">설정</a>
             <a href="/help">도움</a>
         </ui-nav-menu>

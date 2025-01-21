@@ -18,7 +18,6 @@ class Shop extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id',
         'shop_id',
         'shopify_domain',
         'name',
@@ -41,7 +40,8 @@ class Shop extends Model
         'shop_created_at',
         'shop_updated_at',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'user_id'
     ];
 
     /**

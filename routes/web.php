@@ -4,9 +4,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['verify.shopify'])->group(function () {
+Route::middleware(['verify.shopify', 'billable'])->group(function () {
     Route::get('/', fn() => view('welcome'))->name('home');
-    Route::get('/products', [ProductController::class, 'list'])->name('products');
+    Route::get('/products', [ProductController::class, 'index'])->name('products.list');
 });
 
 

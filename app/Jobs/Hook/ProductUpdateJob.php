@@ -43,7 +43,6 @@ class ProductUpdateJob implements ShouldQueue
             Product::updateOrCreate(
                 ['product_id' => $this->data['id']],
                 [
-                    'user_id'              => $this->data['user_id'],
                     'admin_graphql_api_id' => $this->data['admin_graphql_api_id'],
                     'title'                => $this->data['title'],
                     'handle'               => $this->data['handle'],
@@ -55,7 +54,8 @@ class ProductUpdateJob implements ShouldQueue
                     'tags'                 => $this->data['tags'],
                     'published_at'         => $this->data['published_at'],
                     'created_at'           => $this->data['created_at'],
-                    'updated_at'           => $this->data['updated_at']
+                    'updated_at'           => $this->data['updated_at'],
+                    'user_id'              => $this->data['user_id']
                 ]
             );
 
