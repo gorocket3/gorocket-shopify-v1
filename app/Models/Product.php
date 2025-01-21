@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
@@ -59,5 +60,13 @@ class Product extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the image associated with the product.
+     */
+    public function image(): HasOne
+    {
+        return $this->hasOne(ProductImage::class, 'product_id', 'product_id');
     }
 }

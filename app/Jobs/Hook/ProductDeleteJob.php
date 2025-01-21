@@ -40,7 +40,7 @@ class ProductDeleteJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $productId = $this->container['id'] ?? null;
+            $productId = $this->container['id'];
 
             if ($productId) {
                 Product::where('product_id', $productId)->delete();

@@ -3,6 +3,7 @@
 namespace App\Jobs\Setup;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -66,6 +67,25 @@ class ProductUpdateJob implements ShouldQueue
                         'user_id'              => $product['user_id']
                     ]
                 );
+
+                if (!empty($product['image'])) {
+                    ProductImage::updateOrCreate(
+                        ['image_id' => $product['image']['image_id']],
+                        [
+                            'product_id'           => $product['id'],
+                            'alt'                  => $product['image']['alt'],
+                            'position'             => $product['image']['position'],
+                            'src'                  => $product['image']['src'],
+                            'width'                => $product['image']['width'],
+                            'height'               => $product['image']['height'],
+                            'admin_graphql_api_id' => $product['image']['admin_graphql_api_id'],
+                            'variant_ids'          => $product['image']['variant_ids'] ?? []
+                        ]
+                    );
+                } else {
+                    ProductImage::where('product_id',  $product['id'])->delete();
+                    Log::info("[HOOK][PRODUCT] Image deleted for product - {$product['id']}");
+                }
 
                 Log::info("[SETUP][PRODUCT] Update success - {$product['id']}");
             } catch (Exception $e) {

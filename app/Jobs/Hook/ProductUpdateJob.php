@@ -3,6 +3,7 @@
 namespace App\Jobs\Hook;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -59,7 +60,26 @@ class ProductUpdateJob implements ShouldQueue
                 ]
             );
 
-            Log::info("[HOOK][PRODUCT] Update success - {$this->data['id']}");
+             if (!empty($this->data['image'])) {
+                 ProductImage::updateOrCreate(
+                     ['image_id' => $this->data['image']['id']],
+                     [
+                         'product_id'           => $this->data['id'],
+                         'alt'                  => $this->data['image']['alt'],
+                         'position'             => $this->data['image']['position'],
+                         'src'                  => $this->data['image']['src'],
+                         'width'                => $this->data['image']['width'],
+                         'height'               => $this->data['image']['height'],
+                         'admin_graphql_api_id' => $this->data['image']['admin_graphql_api_id'],
+                         'variant_ids'          => $this->data['image']['variant_ids']
+                     ]
+                 );
+             } else {
+                 ProductImage::where('product_id',  $this->data['id'])->delete();
+                 Log::info("[HOOK][PRODUCT] Image deleted for product - { $this->data['id']}");
+             }
+
+             Log::info("[HOOK][PRODUCT] Update success - {$this->data['id']}");
         } catch (Exception $e) {
             Log::error("[HOOK][PRODUCT] Update failed - {$this->data['id']}, Error: {$e->getMessage()}");
         }

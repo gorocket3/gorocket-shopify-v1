@@ -62,7 +62,17 @@ class ProductUpdateListener implements ShouldQueue
                         'published_at'           => $product['published_at'],
                         'created_at'             => $product['created_at'],
                         'updated_at'             => $product['updated_at'],
-                        'user_id'                => $shopId
+                        'user_id'                => $shopId,
+                        'image'                  => !empty($product['image']) ? [
+                            'image_id'             => $product['image']['id'],
+                            'alt'                  => $product['image']['alt'],
+                            'position'             => $product['image']['position'],
+                            'src'                  => $product['image']['src'],
+                            'width'                => $product['image']['width'],
+                            'height'               => $product['image']['height'],
+                            'admin_graphql_api_id' => $product['image']['admin_graphql_api_id'],
+                            'variant_ids'          => $product['image']['variant_ids'],
+                        ] : null
                     ];
 
                     $productsBatch[] = $formattedProduct;
