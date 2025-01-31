@@ -76,7 +76,7 @@ class ProductUpdateJob implements ShouldQueue
                  );
              } else {
                  ProductImage::where('product_id',  $this->data['id'])->delete();
-                 Log::info("[HOOK][PRODUCT] Image deleted for product - { $this->data['id']}");
+                 Log::info("[HOOK][PRODUCT] Image deleted for product - {$this->data['id']}");
              }
 
              Log::info("[HOOK][PRODUCT] Update success - {$this->data['id']}");

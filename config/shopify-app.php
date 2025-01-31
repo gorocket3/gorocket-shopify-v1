@@ -388,25 +388,25 @@ return [
     'webhooks' => [
         [
             'topic' => 'SHOP_UPDATE',
-            'address' => 'https://2296-121-67-5-167.ngrok-free.app/handle/shop-update',
+            'address' => 'https://37c2-121-67-5-167.ngrok-free.app/handle/shop-update',
         ],
         [
             'topic' => 'PRODUCTS_CREATE',
-            'address' => 'https://2296-121-67-5-167.ngrok-free.app/handle/products-update'
+            'address' => 'https://37c2-121-67-5-167.ngrok-free.app/handle/products-update'
         ],
         [
             'topic' => 'PRODUCTS_UPDATE',
-            'address' => 'https://2296-121-67-5-167.ngrok-free.app/handle/products-update'
+            'address' => 'https://37c2-121-67-5-167.ngrok-free.app/handle/products-update'
         ],
         [
             'topic' => 'PRODUCTS_DELETE',
-            'address' => 'https://2296-121-67-5-167.ngrok-free.app/handle/products-delete'
+            'address' => 'https://37c2-121-67-5-167.ngrok-free.app/handle/products-delete'
         ],
 
 
         [
             'topic' => 'APP_UNINSTALLED',
-            'address' => 'https://2296-121-67-5-167.ngrok-free.app/webhook/app-uninstalled'
+            'address' => 'https://37c2-121-67-5-167.ngrok-free.app/webhook/app-uninstalled'
         ]
     ],
 
