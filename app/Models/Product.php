@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static updateOrCreate(array $array, array $array1)
  * @method static where(string $string, mixed $admin_graphql_api_id)
  * @method static orderBy(string $string, string $string1)
+ * @method static find(mixed $id)
  */
 class Product extends Model
 {

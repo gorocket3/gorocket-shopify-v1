@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('product_id')->unique();
             $table->string('admin_graphql_api_id')->unique();
             $table->string('title');
-            $table->string('handle')->unique();
+            $table->string('handle');
             $table->text('body_html')->nullable();
             $table->string('product_type')->nullable();
             $table->string('vendor')->nullable();
@@ -27,6 +27,8 @@ return new class extends Migration {
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('user_id')->index();
+
+            $table->unique(['handle', 'user_id']);
         });
     }
 
