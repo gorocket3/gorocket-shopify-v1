@@ -41,7 +41,6 @@ class ProductDeleteJob implements ShouldQueue
     {
         try {
             $productId = $this->container['id'];
-
             if ($productId) {
                 Product::where('product_id', $productId)->delete();
                 Log::info("[HOOK][PRODUCT] Delete success - {$productId}");

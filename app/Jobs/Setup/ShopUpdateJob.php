@@ -62,8 +62,7 @@ class ShopUpdateJob implements ShouldQueue
                     'enabled_presentment_currencies' => $this->data['enabled_presentment_currencies'],
                     'multi_location_enabled'         => $this->data['multi_location_enabled'],
                     'shop_created_at'                => $this->data['created_at'],
-                    'shop_updated_at'                => $this->data['updated_at'],
-                    'updated_at'                     => now()
+                    'shop_updated_at'                => $this->data['updated_at']
                 ]
             );
 
