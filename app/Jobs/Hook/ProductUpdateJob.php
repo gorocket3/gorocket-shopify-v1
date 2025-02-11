@@ -60,23 +60,27 @@ class ProductUpdateJob implements ShouldQueue
                 ]
             );
 
-             if (!empty($this->data['image'])) {
-                 ProductImage::updateOrCreate(
-                     ['image_id' => $this->data['image']['id']],
-                     [
-                         'product_id'           => $this->data['id'],
-                         'alt'                  => $this->data['image']['alt'],
-                         'position'             => $this->data['image']['position'],
-                         'src'                  => $this->data['image']['src'],
-                         'width'                => $this->data['image']['width'],
-                         'height'               => $this->data['image']['height'],
-                         'admin_graphql_api_id' => $this->data['image']['admin_graphql_api_id'],
-                         'variant_ids'          => $this->data['image']['variant_ids']
-                     ]
-                 );
+             ProductImage::where('product_id',  $this->data['id'])->delete();
+
+             if (!empty($this->data['images'])) {
+                 foreach ($this->data['images'] as $image) {
+                     ProductImage::updateOrCreate(
+                         ['image_id' => $image['id']],
+                         [
+                             'product_id'           => $this->data['id'],
+                             'alt'                  => $image['alt'],
+                             'position'             => $image['position'],
+                             'src'                  => $image['src'],
+                             'width'                => $image['width'],
+                             'height'               => $image['height'],
+                             'admin_graphql_api_id' => $image['admin_graphql_api_id'],
+                             'variant_ids'          => $image['variant_ids'] ?? []
+                         ]
+                     );
+                 }
+                 Log::info("[HOOK][PRODUCT] Images updated for product - {$this->data['id']}");
              } else {
-                 ProductImage::where('product_id',  $this->data['id'])->delete();
-                 Log::info("[HOOK][PRODUCT] Image deleted for product - {$this->data['id']}");
+                 Log::info("[HOOK][PRODUCT] No images found, all previous images deleted for product - {$this->data['id']}");
              }
 
              Log::info("[HOOK][PRODUCT] Update success - {$this->data['id']}");

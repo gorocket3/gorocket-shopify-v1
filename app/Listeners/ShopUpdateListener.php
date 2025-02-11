@@ -34,7 +34,7 @@ class ShopUpdateListener implements ShouldQueue
                 return;
             }
 
-            $response = $shop->api()->rest('GET', '/admin/api/2025-01/shop.json');
+            $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/shop.json');
             if (($response['errors'] ?? false) || !isset($response['body']['shop'])) {
                 Log::error("[LISTENER][SHOP] API failed - {$shopId}");
                 return;

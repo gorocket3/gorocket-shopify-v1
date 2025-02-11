@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\hasMany;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
@@ -66,8 +66,8 @@ class Product extends Model
     /**
      * Get the image associated with the product.
      */
-    public function image(): HasOne
+    public function images(): hasMany
     {
-        return $this->hasOne(ProductImage::class, 'product_id', 'product_id');
+        return $this->hasMany(ProductImage::class, 'product_id', 'product_id');
     }
 }

@@ -16,7 +16,7 @@ class ProductImage extends Model
      *
      * @var string
      */
-    protected $table = 'product_image';
+    protected $table = 'product_images';
 
     /**
      * The primary key associated with the table.
