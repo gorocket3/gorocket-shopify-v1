@@ -113,7 +113,10 @@ class ProductUpdateJob implements ShouldQueue
                 if (!empty($product['images'])) {
                     foreach ($product['images'] as $image) {
                         ProductImage::updateOrCreate(
-                            ['image_id' => $image['image_id']],
+                            [
+                                'product_id' => $product['id'],
+                                'image_id'   => $image['image_id']
+                            ],
                             [
                                 'product_id'           => $product['id'],
                                 'alt'                  => $image['alt'],
