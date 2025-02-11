@@ -64,10 +64,26 @@ class Product extends Model
     }
 
     /**
+     * Get the variants associated with the product.
+     */
+    public function variants(): hasMany
+    {
+        return $this->hasMany(ProductVariant::class, 'product_id', 'product_id');
+    }
+
+    /**
      * Get the image associated with the product.
      */
     public function images(): hasMany
     {
         return $this->hasMany(ProductImage::class, 'product_id', 'product_id');
+    }
+
+    /**
+     * Get the variants associated with the product.
+     */
+    public function options(): hasMany
+    {
+        return $this->hasMany(ProductOption::class, 'product_id', 'product_id');
     }
 }

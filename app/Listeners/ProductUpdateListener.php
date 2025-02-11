@@ -63,6 +63,36 @@ class ProductUpdateListener implements ShouldQueue
                         'created_at'             => $product['created_at'],
                         'updated_at'             => $product['updated_at'],
                         'user_id'                => $shopId,
+                        'variants'               => !empty($product['variants']) ? array_map(function ($variant) {
+                            return [
+                                'variant_id'            => $variant['id'],
+                                'product_id'            => $variant['product_id'],
+                                'title'                 => $variant['title'],
+                                'price'                 => $variant['price'],
+                                'position'              => $variant['position'],
+                                'inventory_policy'      => $variant['inventory_policy'],
+                                'compare_at_price'      => $variant['compare_at_price'],
+                                'option1'               => $variant['option1'],
+                                'option2'               => $variant['option2'],
+                                'option3'               => $variant['option3'],
+                                'created_at'            => $variant['created_at'],
+                                'updated_at'            => $variant['updated_at'],
+                                'taxable'               => $variant['taxable'],
+                                'barcode'               => $variant['barcode'],
+                                'fulfillment_service'   => $variant['fulfillment_service'],
+                                'grams'                 => $variant['grams'],
+                                'inventory_management'  => $variant['inventory_management'],
+                                'requires_shipping'     => $variant['requires_shipping'],
+                                'sku'                   => $variant['sku'],
+                                'weight'                => $variant['weight'],
+                                'weight_unit'           => $variant['weight_unit'],
+                                'inventory_item_id'     => $variant['inventory_item_id'],
+                                'inventory_quantity'    => $variant['inventory_quantity'],
+                                'old_inventory_quantity'=> $variant['old_inventory_quantity'],
+                                'image_id'              => $variant['image_id'],
+                                'admin_graphql_api_id'  => $variant['admin_graphql_api_id']
+                            ];
+                        }, $product['variants']->toArray()) : [],
                         'images'                 => !empty($product['images']) ? array_map(function ($image) {
                             return [
                                 'image_id'              => $image['id'],

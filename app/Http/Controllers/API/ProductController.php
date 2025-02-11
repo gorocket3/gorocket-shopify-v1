@@ -33,7 +33,7 @@ class ProductController extends Controller
         $startDate = $request->input('start_date') ? $request->input('start_date') . ' 00:00:00' : null;
         $endDate = $request->input('end_date') ? $request->input('end_date') . ' 23:59:59' : null;
 
-        $query = Product::with('image')->where('user_id', 6)
+        $query = Product::with(['variants.image', 'images', 'options'])->where('user_id', 1)
             ->when($title, function ($q) use ($title) {
                 $q->where('title', 'LIKE', "%{$title}%");
             })
@@ -84,14 +84,13 @@ class ProductController extends Controller
                 $product->title = $data['title'];
             }
             $product->save();
-        }
 
-        $response = $shop->api()->rest('PUT', "/admin/api/2025-01/products/7896532123682.json", [
-            'product' => [
-                'id' => 7896532123682,
-                'title' => 'ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ',
-            ],
-        ]);
+            $shop->api()->rest('PUT', "/admin/api/2025-01/products/{$product->product_id}.json", [
+                'product' => [
+                    'title' => $data['title']
+                ]
+            ]);
+        }
 
         return response()->json($shop);
     }
