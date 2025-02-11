@@ -4,6 +4,7 @@ namespace App\Jobs\Hook;
 
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductOption;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,13 +62,12 @@ class ProductUpdateJob implements ShouldQueue
             );
 
              ProductImage::where('product_id',  $this->data['id'])->delete();
-
              if (!empty($this->data['images'])) {
                  foreach ($this->data['images'] as $image) {
                      ProductImage::updateOrCreate(
                          ['image_id' => $image['id']],
                          [
-                             'product_id'           => $this->data['id'],
+                             'product_id'           => $image['product_id'],
                              'alt'                  => $image['alt'],
                              'position'             => $image['position'],
                              'src'                  => $image['src'],
@@ -81,6 +81,24 @@ class ProductUpdateJob implements ShouldQueue
                  Log::info("[HOOK][PRODUCT] Images updated for product - {$this->data['id']}");
              } else {
                  Log::info("[HOOK][PRODUCT] No images found, all previous images deleted for product - {$this->data['id']}");
+             }
+
+             ProductOption::where('product_id', $this->data['id'])->delete();
+             if (!empty($this->data['options'])) {
+                 foreach ($this->data['options'] as $option) {
+                     ProductOption::updateOrCreate(
+                         ['option_id' => $option['id']],
+                         [
+                             'product_id' => $option['product_id'],
+                             'name'       => $option['name'],
+                             'position'   => $option['position'],
+                             'values'     => $option['values'] ?? []
+                         ]
+                     );
+                 }
+                 Log::info("[HOOK][PRODUCT] Options updated for product - {$this->data['id']}");
+             } else {
+                 Log::info("[HOOK][PRODUCT] No options found, all previous options deleted for product - {$this->data['id']}");
              }
 
              Log::info("[HOOK][PRODUCT] Update success - {$this->data['id']}");

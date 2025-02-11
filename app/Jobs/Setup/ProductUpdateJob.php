@@ -4,6 +4,7 @@ namespace App\Jobs\Setup;
 
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductOption;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -69,7 +70,6 @@ class ProductUpdateJob implements ShouldQueue
                 );
 
                 ProductImage::where('product_id', $product['id'])->delete();
-
                 if (!empty($product['images'])) {
                     foreach ($product['images'] as $image) {
                         ProductImage::updateOrCreate(
@@ -89,6 +89,24 @@ class ProductUpdateJob implements ShouldQueue
                     Log::info("[SETUP][PRODUCT] Images updated for product - {$product['id']}");
                 } else {
                     Log::info("[SETUP][PRODUCT] No images found for product - {$product['id']}, all previous images deleted.");
+                }
+
+                ProductOption::where('product_id', $product['id'])->delete();
+                if (!empty($product['options'])) {
+                    foreach ($product['options'] as $option) {
+                        ProductOption::updateOrCreate(
+                            ['option_id' => $option['option_id']],
+                            [
+                                'product_id' => $product['id'],
+                                'name'       => $option['name'],
+                                'position'   => $option['position'],
+                                'values'     => $option['values'] ?? []
+                            ]
+                        );
+                    }
+                    Log::info("[SETUP][PRODUCT] Options updated for product - {$product['id']}");
+                } else {
+                    Log::info("[SETUP][PRODUCT] No options found for product - {$product['id']}, all previous options deleted.");
                 }
 
                 Log::info("[SETUP][PRODUCT] Update success - {$product['id']}");

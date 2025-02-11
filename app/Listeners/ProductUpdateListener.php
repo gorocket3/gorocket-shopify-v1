@@ -65,16 +65,24 @@ class ProductUpdateListener implements ShouldQueue
                         'user_id'                => $shopId,
                         'images'                 => !empty($product['images']) ? array_map(function ($image) {
                             return [
-                                'image_id'             => $image['id'],
-                                'alt'                  => $image['alt'],
-                                'position'             => $image['position'],
-                                'src'                  => $image['src'],
-                                'width'                => $image['width'],
-                                'height'               => $image['height'],
-                                'admin_graphql_api_id' => $image['admin_graphql_api_id'],
-                                'variant_ids'          => $image['variant_ids']
+                                'image_id'              => $image['id'],
+                                'alt'                   => $image['alt'],
+                                'position'              => $image['position'],
+                                'src'                   => $image['src'],
+                                'width'                 => $image['width'],
+                                'height'                => $image['height'],
+                                'admin_graphql_api_id'  => $image['admin_graphql_api_id'],
+                                'variant_ids'           => $image['variant_ids']
                             ];
-                        }, $product['images']->toArray()) : []
+                        }, $product['images']->toArray()) : [],
+                        'options'                => !empty($product['options']) ? array_map(function ($option) {
+                            return [
+                                'option_id'             => $option['id'],
+                                'name'                  => $option['name'],
+                                'position'              => $option['position'],
+                                'values'                => $option['values']
+                            ];
+                        }, $product['options']->toArray()) : [],
                     ];
 
                     $batch[] = $data;
