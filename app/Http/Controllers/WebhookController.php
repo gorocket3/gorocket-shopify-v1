@@ -9,6 +9,7 @@ use App\Models\Shop;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class WebhookController extends Controller
 {
@@ -21,30 +22,70 @@ class WebhookController extends Controller
      */
     private function handleWebhook(Request $request, string $type): JsonResponse
     {
-        $shop_domain = $request->header('x-shopify-shop-domain');
-        $user_id = Shop::where('myshopify_domain', $shop_domain)->value('user_id');
-        if (!$user_id) {
-            Log::error("[HOOK][HANDLE] Shop not found - {$request->header('x-shopify-shop-domain')}");
+        $payload = $request->all();
+        $productId = $payload['id'] ?? null;
+
+        if ($this->shouldSkipWebhook($productId)) {
+            return response()->json(['message' => 'Ignored API'], 200);
+        }
+
+        $shopDomain = $request->header('x-shopify-shop-domain');
+        $shop = Shop::where('myshopify_domain', $shopDomain)->first();
+        if (!$shop) {
+            Log::error("[HOOK][ERROR] Shop not found - {$shopDomain}");
             return response()->json(['status' => 'error', 'message' => 'Shop not found'], 404);
         }
+        $payload['user_id'] = $shop->user_id;
+        Log::info("[HOOK][RECEIVED] Webhook: {$type}", $payload);
 
-        $request->merge(['user_id' => $user_id]);
-        $data = $request->all();
-        Log::info("[HOOK][HANDLE] Webhook received - {$type}", $data);
+        if (!$this->dispatchJob($type, $payload)) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid webhook type'], 400);
+        }
+        return response()->json(['status' => 'success'], 200);
+    }
 
-        $jobClass = match ($type) {
-            'shop-update'       => ShopUpdateJob::class,
-            'product-update'    => ProductUpdateJob::class,
-            'product-delete'    => ProductDeleteJob::class,
-            default => null,
-        };
-
-        if ($jobClass) {
-            $jobClass::dispatch($data);
-            return response()->json(['status' => 'success'], 200);
+    /**
+     * Check if webhook should be skipped.
+     *
+     * @param string|null $productId
+     * @return bool
+     */
+    private function shouldSkipWebhook(?string $productId): bool
+    {
+        if (!$productId) {
+            return false;
         }
 
-        return response()->json(['status' => 'error', 'message' => 'Invalid webhook type'], 400);
+        if (Redis::get($productId)) {
+            Redis::del($productId);
+            Log::info("[HOOK][HANDLE] Webhook ignored - {$productId}");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Dispatch job based on webhook type.
+     *
+     * @param string $type
+     * @param array $payload
+     * @return bool
+     */
+    private function dispatchJob(string $type, array $payload): bool
+    {
+        $jobs = [
+            'shop-update'    => ShopUpdateJob::class,
+            'product-update' => ProductUpdateJob::class,
+            'product-delete' => ProductDeleteJob::class,
+        ];
+
+        if (!isset($jobs[$type])) {
+            Log::error("[HOOK][ERROR] Invalid webhook type: {$type}");
+            return false;
+        }
+
+        dispatch(new $jobs[$type]($payload));
+        return true;
     }
 
     /**
