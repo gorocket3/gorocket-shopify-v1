@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\BillingStatus;
+use App\Services\BillingService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -15,7 +15,7 @@ Artisan::command('inspire', function () {
  * Check billing status for all shops.
  */
 Artisan::command('billing:check', function () {
-    $billingChecker = app(BillingStatus::class);
+    $billingChecker = app(BillingService::class);
     $billingChecker->checkBillingStatus();
     $this->info('Billing status check completed.');
 })->purpose('Check billing status for all shops')->dailyAt('10:00');

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\BillingStatus as BillingStatusChecker;
+use App\Services\BillingService as BillingStatusChecker;
 
 class BillingStatus extends Command
 {

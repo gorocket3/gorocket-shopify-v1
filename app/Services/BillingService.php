@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Osiset\ShopifyApp\Services\ChargeHelper;
 use App\Models\User;
 
-class BillingStatus
+class BillingService
 {
     /**
      * The charge helper.
