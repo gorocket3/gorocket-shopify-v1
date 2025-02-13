@@ -117,8 +117,8 @@ class ProductUpdateListener implements ShouldQueue
 
                     $batch[] = $data;
 
-                    if (count($batch) >= 100) {
-                        ProductUpdateJob::dispatch($batch);
+                    if (count($batch) >= 500) {
+                        ProductUpdateJob::dispatch($batch, $shopId);
                         $batch = [];
                     }
                 }
@@ -126,7 +126,7 @@ class ProductUpdateListener implements ShouldQueue
             } while ($nextPage);
 
             if (!empty($batch)) {
-                ProductUpdateJob::dispatch($batch);
+                ProductUpdateJob::dispatch($batch, $shopId);
             }
 
             Log::info("[LISTENER][PRODUCT] Queue success - {$shopId}");

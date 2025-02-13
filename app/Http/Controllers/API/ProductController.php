@@ -78,12 +78,12 @@ class ProductController extends Controller
     {
         $shop = Auth::user();
         $shopId = new ShopId($shop->id);
-        $redisKey = "ProductSync_{$shop->id}";
+        $redisKey = "product_sync_{$shop->id}";
 
         if (Redis::exists($redisKey)) {
             return response()->json(['message' => 'Already in progress', 'shop_id' => $shop->id], 429);
         }
-        Redis::setex($redisKey, 300, true);
+        Redis::setex($redisKey, 86400, true);
 
         $listener = new ProductUpdateListener();
         $listener->handle(new AppInstalledEvent($shopId));
@@ -112,6 +112,20 @@ class ProductController extends Controller
 
 
 
+    /**
+     * Delete multiple products
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function delete(Request $request): JsonResponse
+    {
+        $shop = Auth::user();
+
+        $shop->api()->rest('DELETE', "/admin/api/2025-01/products/7907458187298.json");
+
+        return response()->json($shop);
+    }
 
 
     /**
