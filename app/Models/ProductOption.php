@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Jobs\App\ChangeLogJob;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -25,9 +25,8 @@ class ProductOption extends BaseModel
             $original = $option->getOriginal();
 
             unset($dirty['updated_at']);
-
             if (!empty($dirty)) {
-                ChangeLog::create([
+                ChangeLogJob::dispatch([
                     'change_id' => self::getRequestChangeId(),
                     'product_id' => $option->product_id,
                     'model_type' => get_class($option),

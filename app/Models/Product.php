@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Jobs\App\ChangeLogJob;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\hasMany;
 
@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
  * @method static orderBy(string $string, string $string1)
  * @method static find(mixed $id)
  */
-class Product extends Model
+class Product extends BaseModel
 {
     /**
      * The "booting" method of the model.
@@ -28,9 +28,9 @@ class Product extends Model
             $original = $product->getOriginal();
 
             unset($dirty['updated_at']);
-
             if (!empty($dirty)) {
-                HistoryLog::create([
+                ChangeLogJob::dispatch([
+                    'change_id' => self::getRequestChangeId(),
                     'product_id' => $product->product_id,
                     'model_type' => get_class($product),
                     'model_id' => $product->id,
@@ -119,6 +119,6 @@ class Product extends Model
      */
     public function logs(): hasMany
     {
-        return $this->hasMany(HistoryLog::class, 'product_id', 'product_id');
+        return $this->hasMany(ChangeLog::class, 'product_id', 'product_id');
     }
 }

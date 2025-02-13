@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Jobs\App\ChangeLogJob;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -26,9 +26,8 @@ class ProductImage extends BaseModel
             $original = $image->getOriginal();
 
             unset($dirty['updated_at']);
-
             if (!empty($dirty)) {
-                ChangeLog::create([
+                ChangeLogJob::dispatch([
                     'change_id' => self::getRequestChangeId(),
                     'product_id' => $image->product_id,
                     'model_type' => get_class($image),
