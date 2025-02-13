@@ -88,29 +88,8 @@ class ProductController extends Controller
         $listener = new ProductUpdateListener();
         $listener->handle(new AppInstalledEvent($shopId));
 
-        return response()->json(['message' => $redisKey, 'shop_id' => $shop->id]);
+        return response()->json(['message' => 'Sync in progress', 'shop_id' => $shop->id]);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Delete multiple products
@@ -122,10 +101,36 @@ class ProductController extends Controller
     {
         $shop = Auth::user();
 
-        $shop->api()->rest('DELETE', "/admin/api/2025-01/products/7907458187298.json");
+        $productIds = $request->input('product_ids', []);
+        if (empty($productIds)) {
+            return response()->json(['message' => 'No products to delete', 'shop_id' => $shop->id], 400);
+        }
 
-        return response()->json($shop);
+        $failedDeletes = [];
+        foreach ($productIds as $productId) {
+            $response = $shop->api()->rest('DELETE', "/admin/api/2025-01/products/{$productId}.json");
+
+            if (isset($response['errors']) && $response['errors']) {
+                $failedDeletes[] = $productId;
+            }
+        }
+
+        if (!empty($failedDeletes)) {
+            return response()->json([
+                'message' => 'Some products failed to delete',
+                'failed_products' => $failedDeletes
+            ], 207);
+        }
+
+        return response()->json(['message' => 'Products deleted successfully', 'shop_id' => $shop->id]);
     }
+
+
+
+
+
+
+
 
 
     /**
