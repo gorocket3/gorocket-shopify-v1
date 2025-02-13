@@ -26,7 +26,7 @@ class WebhookController extends Controller
         $productId = $payload['id'] ?? null;
 
         if ($this->shouldSkipWebhook($productId)) {
-            return response()->json(['message' => 'Ignored API'], 200);
+            return response()->json(['message' => 'Ignored API']);
         }
 
         $shopDomain = $request->header('x-shopify-shop-domain');
@@ -41,7 +41,7 @@ class WebhookController extends Controller
         if (!$this->dispatchJob($type, $payload)) {
             return response()->json(['status' => 'error', 'message' => 'Invalid webhook type'], 400);
         }
-        return response()->json(['status' => 'success'], 200);
+        return response()->json(['status' => 'success']);
     }
 
     /**
@@ -56,7 +56,7 @@ class WebhookController extends Controller
             return false;
         }
 
-        if (Redis::get($productId)) {
+        if (Redis::exists($productId)) {
             Redis::del($productId);
             Log::info("[HOOK][HANDLE] Webhook ignored - {$productId}");
             return true;

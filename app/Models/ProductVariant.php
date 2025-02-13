@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static where(string $string, mixed $id)
  * @method static updateOrCreate(array $array, array $array1)
  */
-class ProductVariant extends Model
+class ProductVariant extends BaseModel
 {
     /**
      * The "booting" method of the model.
@@ -28,7 +28,8 @@ class ProductVariant extends Model
             unset($dirty['updated_at']);
 
             if (!empty($dirty)) {
-                HistoryLog::create([
+                ChangeLog::create([
+                    'change_id' => self::getRequestChangeId(),
                     'product_id' => $variant->product_id,
                     'model_type' => get_class($variant),
                     'model_id' => $variant->variant_id,

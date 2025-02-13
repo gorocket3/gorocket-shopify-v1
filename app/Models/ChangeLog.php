@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static create(array $array)
  */
-class HistoryLog extends Model
+class ChangeLog extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -16,6 +16,7 @@ class HistoryLog extends Model
      * @var array
      */
     protected $fillable = [
+        'change_id',
         'product_id',
         'model_type',
         'model_id',
@@ -34,7 +35,7 @@ class HistoryLog extends Model
     ];
 
     /**
-     * Get the shop that owns the HistoryLog
+     * Get the shop that owns the Log
      *
      */
     public function shop(): BelongsTo

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static where(string $string, mixed $id)
  * @method static updateOrCreate(array $array, array $array1)
  */
-class ProductOption extends Model
+class ProductOption extends BaseModel
 {
     /**
      * The "booting" method of the model.
@@ -27,7 +27,8 @@ class ProductOption extends Model
             unset($dirty['updated_at']);
 
             if (!empty($dirty)) {
-                HistoryLog::create([
+                ChangeLog::create([
+                    'change_id' => self::getRequestChangeId(),
                     'product_id' => $option->product_id,
                     'model_type' => get_class($option),
                     'model_id' => $option->option_id,

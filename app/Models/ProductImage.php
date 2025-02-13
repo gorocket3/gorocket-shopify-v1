@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static updateOrCreate(array $array, array $array1)
  * @method static where(string $string, mixed $id)
  */
-class ProductImage extends Model
+class ProductImage extends BaseModel
 {
     /**
      * The "booting" method of the model.
@@ -28,7 +28,8 @@ class ProductImage extends Model
             unset($dirty['updated_at']);
 
             if (!empty($dirty)) {
-                HistoryLog::create([
+                ChangeLog::create([
+                    'change_id' => self::getRequestChangeId(),
                     'product_id' => $image->product_id,
                     'model_type' => get_class($image),
                     'model_id' => $image->image_id,
