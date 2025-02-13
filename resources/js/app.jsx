@@ -6,11 +6,11 @@ import ReactDOM from 'react-dom/client';
 function App() {
     return (
         <AppProvider i18n={{}}>
-            <Button onClick={() => window.location.href='mailto:support@gorocket.ai'}>
+            <Button onClick={() => window.location.href = 'mailto:support@gorocket.ai'}>
                 Customer Support
             </Button>
         </AppProvider>
     );
 }
 
-ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+ReactDOM.createRoot(document.getElementById('app')).render(<App/>);

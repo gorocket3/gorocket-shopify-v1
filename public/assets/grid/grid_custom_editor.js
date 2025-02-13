@@ -2,7 +2,6 @@
  * GridCustomSettingEditor
  * Grid Header 개인설정 조회 시, 생성하는 인스턴스입니다.
  * 개인설정버튼에 팝오버를 생성하고, 저장/초기화 기능을 수행합니다.
- *
  * @param button_id
  * @param idx
  * @param grid_callback
@@ -26,14 +25,14 @@ class GridCustomSettingEditor {
                     </div>
                 </div>
             `);
-        // $(this.custom_button).data('toggle', 'popover');
-        // $(this.custom_button).popover({
-        //     container: 'body',
-        //     placement: 'left',
-        //     html: true,
-        //     sanitize: false,
-        //     content: $('#setting-grid-layer-' + idx).html(),
-        // });
+        $(this.custom_button).data('toggle', 'popover');
+        $(this.custom_button).popover({
+            container: 'body',
+            placement: 'left',
+            html: true,
+            sanitize: false,
+            content: $('#setting-grid-layer-' + idx).html(),
+        });
 
         const resetCustom = (event) => this.resetCustom(event, this.custom_button);
         const saveCustom = (event) => this.saveCustom(event, this.custom_button);
@@ -68,10 +67,7 @@ class GridCustomSettingEditor {
             if (value['children'] !== undefined) {
                 value_children.forEach((val) => {
                     newchildren.push({
-                        'field': val['field'],
-                        'hide': val['hide'],
-                        'pinned': val['pinned'],
-                        'width': val['width']
+                        'field': val['field'], 'hide': val['hide'], 'pinned': val['pinned'], 'width': val['width']
                     });
                 });
             }
@@ -86,18 +82,15 @@ class GridCustomSettingEditor {
         });
 
         let data = {
-            'pid': this.pid,
-            'indiv_columns': JSON.stringify(new_column_datalist)
+            'pid': this.pid, 'indiv_columns': JSON.stringify(new_column_datalist)
         }
 
         axios({
-            method: 'post',
-            url: '/head/cmm01/save',
-            data: data,
+            method: 'post', url: '/head/cmm01/save', data: data,
         }).then((res) => {
             $(event.target).html('<i class="fas fa-check mr-2"></i>저장');
             setTimeout(() => {
-                // $(button).popover('hide');
+                $(button).popover('hide');
             }, 300);
         }).catch((error) => {
             console.log(error);

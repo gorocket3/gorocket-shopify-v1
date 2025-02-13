@@ -8,7 +8,6 @@
     "devDependencies": {
         "@vitejs/plugin-react": "^4.3.4",
         "autoprefixer": "^10.4.20",
-        "axios": "^1.7.4",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.0",
         "postcss": "^8.4.47",
@@ -21,7 +20,9 @@
         "@shopify/polaris": "^13.9.2",
         "@shopify/polaris-icons": "^9.3.0",
         "ag-grid-community": "^33.0.4",
+        "ag-grid-enterprise": "^24.1.0",
         "ag-grid-react": "^33.0.3",
+        "axios": "^1.7.9",
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
     }

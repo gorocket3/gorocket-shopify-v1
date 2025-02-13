@@ -1,21 +1,3 @@
-function sortnumber(n1, n2) {
-    if (n1 === null && n2 === null) {
-        return 0;
-    }
-    if (n1 === null) {
-        return -1;
-    }
-    if (n2 === null) {
-        return 1;
-    }
-    return n1 - n2;
-}
-
-function filter_pid(str) {
-    const reg = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
-    return str.replace(reg, '');
-}
-
 function numberWithCommas(x) {
     var parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -43,9 +25,40 @@ function formatNumber(params) {
     }
 }
 
+// 셀 입력중, 키보드방향키로 셀 이동 (suppressKeyboardEvent)
+function setArrowKeyboardEvent(e) {
+    let key = e.event.key;
+
+    if (e.editing) {
+        if (key == 'ArrowDown') {
+            if (e.api.getDisplayedRowCount() > e.node.rowIndex + 1) {
+                e.api.setFocusedCell(e.node.rowIndex + 1, e.column);
+            } else {
+                e.api.stopEditing();
+                e.api.setFocusedCell(e.node.rowIndex, e.column);
+            }
+        } else if (key == 'ArrowUp') {
+            if (e.api.getDisplayedRowCount() > e.node.rowIndex + 1) {
+                e.api.setFocusedCell(e.node.rowIndex + 1, e.column);
+            } else {
+                e.api.stopEditing();
+                e.api.setFocusedCell(e.node.rowIndex, e.column);
+            }
+        } else if (key == 'ArrowLeft') {
+            if (e.event.target.selectionStart < 1) {
+                e.api.stopEditing();
+            }
+        } else if (key == 'ArrowRight') {
+            if (e.event.target.value !== undefined) {
+                if (e.event.target.selectionStart >= e.event.target.value.length) {
+                    e.api.stopEditing();
+                }
+            }
+        }
+    }
+};
+
 function HDGrid(gridDiv, columns, optionMixin = {}) {
-
-
     this.id = gridDiv.id.replace("div-", "");
     this.gridDiv = gridDiv;
     this.gridTotal = this.id + '-total';
@@ -54,57 +67,244 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
     //console.log(this.gridTotal);
     //columns = this.setMobile(columns);
 
-    this.gridOptions = {
-        columnDefs: columns,
-        defaultColDef: {
-            //장건희 추가 2022-01-17
-            suppressMenu: true,
-            // set every column width
-            flex: 1,
-            // make every column editable
-            resizable: true,
-            autoHeight: true,
-            //suppressSizeToFit: true,
-            sortable: true,
-            //minWidth:70,
+    /* custom grid css - 이전 bizest 스타일 형식으로 UI/UX 로 변경 및 적용 */
+    const applyBizestColumns = (columns) => {
+        const applied_columns = columns.map((column) => {
+            if (!column.hasOwnProperty("children")) {
+                column.headerClass = column.hasOwnProperty("headerClass") ? `${column.headerClass} bizest` : 'bizest'
+            }
+            return column;
+        })
+        return applied_columns;
+    };
 
-        },
-        multiSortKey: 'ctrl',
-        enableRangeSelection: true,
-        columnTypes: {
+    this.gridOptions = {
+        columnDefs: applyBizestColumns(columns), defaultColDef: {
+            suppressMenu: true, // set every column width
+            flex: 1, // make every column editable
+            resizable: true, autoHeight: true, //suppressSizeToFit: true,
+            sortable: true, //minWidth:70,
+            suppressKeyboardEvent: setArrowKeyboardEvent,
+        }, enableRangeSelection: true, columnTypes: {
             numberType: {
                 //filter: 'agNumberColumnFilter',
-                comparator: sortnumber,
-                valueFormatter: formatNumber,
-                cellClass: 'hd-grid-number',
-            },
-            percentType: {
+                comparator: sortnumber, valueFormatter: formatNumber, cellClass: 'hd-grid-number',
+            }, percentType: {
 
                 //filter: 'agNumberColumnFilter',
                 comparator: sortnumber,
                 valueFormatter: formatNumber,
-                cellClass: 'hd-grid-number',
+                cellClass: [ 'hd-grid-number', 'hd-grid-percent' ],
                 precision: 2,
             },
-            currencyType: {
+
+            percentColorType: {
                 //filter: 'agNumberColumnFilter',
                 comparator: sortnumber,
                 valueFormatter: formatNumber,
                 cellClass: 'hd-grid-number',
+                cellStyle: params => {
+                    if (params.value > 0) {
+                        return { color: 'red' };
+                    } else if (params.value < 0) {
+                        return { color: 'blue' };
+                    } else {
+                    }
+                },
+                precision: 2,
             },
+
+            currencyType: {
+                //filter: 'agNumberColumnFilter',
+                comparator: sortnumber, valueFormatter: formatNumber, cellClass: 'hd-grid-number',
+            },
+
+            currencyColorType: {
+                //filter: 'agNumberColumnFilter',
+                comparator: sortnumber,
+                valueFormatter: formatNumber,
+                cellClass: 'hd-grid-number',
+                cellStyle: params => {
+                    if (params.value > 0) {
+                        return { color: 'red' };
+                    } else if (params.value < 0) {
+                        return { color: 'blue' };
+                    } else {
+                    }
+                },
+            },
+
+            currencyMinusColorType: {
+                //filter: 'agNumberColumnFilter',
+                comparator: sortnumber,
+                valueFormatter: formatNumber,
+                cellClass: 'hd-grid-number',
+                cellStyle: params => {
+                    if (params.value < 0) {
+                        return { color: 'blue' };
+                    } else {
+                    }
+                },
+            },
+
+
             DayType: {
                 //filter: 'agNumberColumnFilter',
-                width: 120,
-                cellClass: 'hd-grid-code',
-            },
-            DateTimeType: {
+                width: 120, cellClass: 'hd-grid-code',
+            }, DateTimeType: {
                 //filter: 'agNumberColumnFilter',
-                width: 130,
-                cellClass: 'hd-grid-code',
+                width: 130, cellClass: 'hd-grid-code',
             },
 
             NumType: {
                 width: 50, maxWidth: 100, valueGetter: 'node.id', cellRenderer: 'loadingRenderer'
+            }, GoodsStateType: {
+                cellStyle: StyleGoodsState
+            }, GoodsStateTypeLH50: {
+                cellStyle: StyleGoodsStateLH50
+            }, StyleGoodsTypeNM: {
+                cellStyle: StyleGoodsTypeNM
+            }, GoodsNameType: {
+                width: 200, cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        return '<a href="#" onclick="return openProduct(\'' + params.data.goods_no + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, HeadGoodsNameType: {
+                width: 200, cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        if (params.data.goods_no == null) return '존재하지 않는 상품입니다.';
+                        return '<a href="#" onclick="return openHeadProduct(\'' + params.data.goods_no + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, StoreGoodsNameType: {
+                width: 200, cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        if (params.data.goods_no == null) return '존재하지 않는 상품입니다.';
+                        return '<a href="#" onclick="return openStoreProduct(\'' + params.data.goods_no + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, HeadCouponType: {
+                width: 200, cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        return `<a href="#" onclick="return openCouponDetail('edit','${params.data.coupon_no}');">${params.value}</a>`;
+                    }
+                }
+            }, GoodsImageType: {
+                cellStyle: { 'text-align': 'center' }, cellRenderer: function (params) {
+                    if (params.value !== undefined && params.value !== "" && params.value !== null) {
+                        let front_url = params.colDef.surl;
+                        let img = params.data ? params.data.img : params.value;
+                        if (front_url == undefined) {
+                            return '<a href="javascript:void(0);" onClick="return openSitePop(\'' + front_url + '\',\'' + params.data.goods_no + '\');"><img src="' + img + '" class="img" alt="" onerror="this.src=\'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\'"/></a>';
+                        } else {
+                            return '<img src="' + img + '" class="img" alt="" onerror="this.src=\'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\'"/></a>';
+                        }
+                    }
+                }
+            }, OrderNoType: {
+                width: 170, cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        return '<a href="#" onclick="return openOrder(\'' + params.value + '\',\'' + params.data.ord_opt_no + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, HeadOrderNoType: {
+                width: 170, cellRenderer: function (params) {
+                    if (params.value) {
+                        return '<a href="#" onclick="return openHeadOrder(\'' + params.data.ord_no + '\',\'' + params.data.ord_opt_no + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, HeadOrdOptNoType: {
+                width: 170, cellRenderer: function (params) {
+                    if (params.value) {
+                        return '<a href="#" onclick="return openHeadOrderOpt(\'' + params.data.ord_opt_no + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, HeadUserType: {
+                cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        if (params.data.user_id != "") return '<a href="#" onclick="return openUserEdit(\'' + params.data.user_id + '\');">' + params.value + '</a>'; else return params.value;
+                    }
+                }
+            },
+
+            ShopUserType: {
+                cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        if (params.data.user_id != "") return '<a href="#" onclick="return openUserEditShop(\'' + params.data.user_id + '\');">' + params.value + '</a>'; else return params.value;
+                    }
+                }
+            },
+
+            SearchType: {
+                cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        return '<a href="#" onclick="return openSchPop(\'' + params.data.kwd + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, SearchDetailType: {
+                cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        return '<a href="#" onclick="return openSchDetail(\'' + params.data.idx + '\');">' + params.value + '</a>';
+                    }
+                }
+            }, PercentBarType: {
+                cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        var value = params.value;
+                        var eDivPercentBar = document.createElement('div');
+                        eDivPercentBar.className = 'div-percent-bar';
+                        eDivPercentBar.style.width = value + '%';
+
+                        if (value < 20) {
+                            eDivPercentBar.style.backgroundColor = 'red';
+                        } else if (value < 60) {
+                            eDivPercentBar.style.backgroundColor = '#ff9900';
+                        } else {
+                            eDivPercentBar.style.backgroundColor = '#00A000';
+                        }
+
+                        var eValue = document.createElement('div');
+                        eValue.className = 'div-percent-value';
+                        eValue.innerHTML = value + '%';
+
+                        var eOuterDiv = document.createElement('div');
+                        eOuterDiv.className = 'div-outer-div';
+                        eOuterDiv.appendChild(eDivPercentBar);
+                        eOuterDiv.appendChild(eValue);
+                        return eOuterDiv;
+                    }
+                }
+            }, StoreNameType: {
+                width: 200, cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        return '<a href="javascript:void(0);" onclick="return openStore(\'' + params.data.store_cd + '\');">' + params.value + '</a>';
+                    }
+                }
+            },
+
+            ShopNameType: {
+                width: 200, cellRenderer: function (params) {
+                    if (params.value !== undefined) {
+                        return '<a href="javascript:void(0);" onclick="return openStoreShop(\'' + params.data.store_cd + '\');">' + params.value + '</a>';
+                    }
+                }
+            },
+
+            StoreOrderNoType: {
+                width: 140, cellClass: 'hd-grid-code', cellRenderer: function (params) {
+                    if (params.value) {
+                        return '<a href="javascript:void(0);" onclick="return openStoreOrder(\'' + params.data.ord_no + '\',\'' + params.data.ord_opt_no + '\');">' + params.value + '</a>';
+                    }
+                }
+            },
+
+            ShopOrderNoType: {
+                width: 170, cellRenderer: function (params) {
+                    if (params.value) {
+                        return '<a href="javascript:void(0);" onclick="return openShopOrder(\'' + params.data.ord_no + '\',\'' + params.data.ord_opt_no + '\');">' + params.value + '</a>';
+                    }
+                }
             },
         },
 
@@ -116,8 +316,6 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
             }
         },
 
-        overlayNoRowsTemplate: '<span></span>',
-
         // overlayNoRowsTemplate:
         //     '<span style="padding: 10px; border: 2px solid #444; background: lightgoldenrodyellow;">Loading the next page...</span>',
 
@@ -126,138 +324,27 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
         // getRows:function(params){
         //     console.log('getRows ', params);
         // },
-        rowData: [],
-        rowSelection: 'multiple',
-        suppressRowClickSelection: true,
-        //rowDeselection: true,
-        rowBuffer: 0,
-        //onBodyScroll:onscroll,
-        suppressColumnVirtualisation: true,
+        rowData: [], rowSelection: 'multiple', suppressRowClickSelection: true, //rowDeselection: true,
+        rowBuffer: 0, //onBodyScroll:onscroll,
+        suppressColumnVirtualisation: true, suppressLastEmptyLineOnPaste: true, // fix: copy and paste error from excel
 
-        suppressLastEmptyLineOnPaste: true, // fix: copy and paste error from excel
-
-        // 셀 입력중, 키보드 아래방향키로 셀 이동
-        suppressKeyboardEvent: function (e) {
-            let key = e.event.key;
-
-            if (e.column.isCellEditable(e.node)) {
-                if (key == 'ArrowDown') {
-                    if (e.api.getDisplayedRowCount() > e.node.rowIndex + 1) {
-                        e.api.setFocusedCell(e.node.rowIndex + 1, e.column);
-                    } else {
-                        e.api.stopEditing();
-                        e.api.setFocusedCell(e.node.rowIndex, e.column);
-                    }
-                } else if (key == 'ArrowUp') {
-                    if (e.api.getDisplayedRowCount() > e.node.rowIndex + 1) {
-                        e.api.setFocusedCell(e.node.rowIndex + 1, e.column);
-                    } else {
-                        e.api.stopEditing();
-                        e.api.setFocusedCell(e.node.rowIndex, e.column);
-                    }
-                } else if (key == 'ArrowLeft') {
-                    if (e.event.target.selectionStart < 1) {
-                        e.api.stopEditing();
-                    }
-
-                } else if (key == 'ArrowRight') {
-                    if (e.event.target.value !== undefined) {
-                        if (e.event.target.selectionStart >= e.event.target.value.length) {
-                            e.api.stopEditing();
-                        }
-                    }
-                }
-            }
-        },
-
-        // 셀 멀티선택 후 팝업 오픈 기능
-        getContextMenuItems: (params) => {
-            const defaultItems = params.defaultItems;
-            const newItems = [];
-
-            function getLinks(ranges, type = 'window') {
-                const links = [];
-                for (let range of ranges) {
-                    const arr = [ range.startRow.rowIndex, range.endRow.rowIndex ];
-                    const from = Math.min(...arr);
-                    const to = Math.max(...arr);
-
-                    for (let column of range.columns) {
-                        const colId = column.colId;
-                        for (let i = from; i <= to; i++) {
-                            const cellRenderer = params.api.getCellRendererInstances({
-                                columns: [ colId ],
-                                rowNodes: [ params.api.getModel().getRow(i) ]
-                            });
-                            const renderedHTML = cellRenderer && cellRenderer[0]?.getGui()?.innerHTML;
-                            if (renderedHTML) {
-                                const container = document.createElement('div');
-                                container.innerHTML = renderedHTML;
-                                const anchor = container.querySelector('a');
-                                if (anchor !== null) {
-                                    if (type !== 'tab' || anchor.dataset.url !== undefined) {
-                                        links.push(anchor);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return links;
-            }
-
-            if (optionMixin.multiTab === true) {
-                const multiTabOpenAction = {
-                    name: 'Multi Tab',
-                    icon: '<i class="bx bx-windows fs-14"></i>',
-                    shortcut: 'Shift+Click',
-                    action: function () {
-                        const ranges = params.api.getCellRanges();
-                        if (ranges.length > 0) {
-                            const links = getLinks(ranges, 'tab');
-
-                            let multi_popup, tab_counter = 0;
-                            if (links.length > 0) {
-                                multi_popup = window.open(window.location.href, '_blank', 'popup=no');
-                                tab_counter++;
-                            }
-                            links.forEach(function (anchor, index) {
-                                setTimeout(function () {
-                                    let target = tab_counter < 2 ? '_self' : '_blank';
-                                    multi_popup.open(anchor.dataset.url, target);
-                                    tab_counter++;
-                                }, 800 * index);
-                            });
-                        }
-                    }
-                };
-                newItems.push(multiTabOpenAction);
-            }
-
-            const multiWindowOpenAction = {
-                name: 'Multi Window',
-                icon: '<i class="bx bx-windows fs-14"></i>',
-                action: function () {
-                    const ranges = params.api.getCellRanges();
-                    if (ranges.length > 0) {
-                        const links = getLinks(ranges, 'window');
-
-                        links.forEach(function (anchor, index) {
-                            setTimeout(function () {
-                                anchor.click();
-                            }, 300 * index);
-                        });
-                    }
-                }
-            };
-            newItems.push(multiWindowOpenAction);
-
-            return newItems.concat(defaultItems);
-        },
+        // 첫글자 영문입력 막기 - 엔터키로 edit하도록 유도 // 임시주석처리 (2022-11-23 최유현)
+        // suppressKeyboardEvent: (params) => {
+        //     const key = params.event.key;
+        //     const allowSome = ['Enter', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'Tab', 'Escape', 'Delete'];
+        //     const allowClipBoard = ['c', 'v'];
+        //     const isCtrlKeyPressed = params.event.ctrlKey;
+        //     if ( allowSome.includes(key) || (isCtrlKeyPressed && allowClipBoard.includes(key)) ) {
+        //         return false;
+        //     } else {
+        //         return true;
+        //     }
+        // },
 
         onColumnVisible: function (params) {
             params.api.resetRowHeights();
         },
+
         debug: false,
 
         // rowBuffer: 0,
@@ -283,32 +370,30 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
 
         // debug: true,
 
-        excelStyles: [
-            {
-                id: 'header',
-                alignment: {
-                    vertical: 'Center',
-                    horizontal: 'Center',
-                },
-                interior: {
-                    color: '#f2f2f2',
-                    pattern: 'Solid',
-                },
-                borders: {
-                    borderBottom: {
-                        color: '#333',
-                        lineStyle: 'Continuous',
-                        weight: 2,
-                    },
+        excelStyles: [ {
+            id: 'cell', // font: { size: 11 },
+        }, {
+            id: 'header', // font: { size: 11 },
+            alignment: {
+                vertical: 'Center', horizontal: 'Center',
+            }, interior: {
+                color: '#f2f2f2', pattern: 'Solid',
+            }, borders: {
+                borderBottom: {
+                    color: '#333', lineStyle: 'Continuous', weight: 2,
+                }, borderRight: {
+                    color: '#aaa', lineStyle: 'Continuous', weight: 1,
                 },
             },
-            {
-                id: 'hd-grid-number',
-                numberFormat: {
-                    format: '#,##0',
-                },
+        }, {
+            id: 'hd-grid-number', numberFormat: {
+                format: '#,##0',
             },
-            // {
+        }, {
+            id: 'hd-grid-percent', numberFormat: {
+                format: '#,##0.00',
+            },
+        }, // {
             //     id: 'hd-grid-string',
             // 	dataType: 'String',
             // 	numberFormat: {
@@ -319,7 +404,11 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
     };
 
     Object.keys(optionMixin).forEach((key) => {
-        this.gridOptions[key] = optionMixin[key];
+        if (key === "defaultColDef") {
+            this.gridOptions[key] = { suppressKeyboardEvent: this.gridOptions[key].suppressKeyboardEvent, ...optionMixin[key] };
+        } else {
+            this.gridOptions[key] = optionMixin[key];
+        }
     });
 
     let grid = new agGrid.Grid(gridDiv, this.gridOptions);
@@ -349,110 +438,7 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
     this.gridOptions.api.setRowData([]);
 
     this.loading = false;
-
-    this.Init();
 }
-
-HDGrid.prototype.Init = function () {
-    const is_mobile = document.body.offsetWidth <= 740;
-    if (this.gridOptions.resize !== false && !is_mobile) this.SetResizer();
-    if (is_mobile) {
-        this.gridOptions.columnApi.applyColumnState({ defaultState: { pinned: null } });
-    }
-};
-
-HDGrid.prototype.SetResizer = function () {
-    const gd = this;
-    const gridDiv = gd.gridDiv;
-    const parentNode = gridDiv.parentNode;
-    const grandParentNode = parentNode.parentNode;
-    const default_height = gridDiv.style.height;
-
-    const grid_resizer = document.createElement('div');
-    grid_resizer.classList.add('grid-resizer');
-
-    const mouseDownHandler = (ev) => {
-        const y = ev.clientY;
-        const prev = grid_resizer.previousElementSibling;
-        const rect = prev.getBoundingClientRect();
-        const div_grid_height = rect.height;
-
-        const mouseMoveHandler = (e) => {
-            const dy = e.clientY - y;
-            prev.style.height = `${div_grid_height + dy}px`;
-        };
-
-        const mouseUpHandler = (e) => {
-            // if (gd.gridOptions.domLayout !== 'normal') {
-            //     gd.gridOptions.api.setDomLayout('normal');
-            //     gd.scrolltop = 0;
-            // }
-
-            document.removeEventListener("mousemove", mouseMoveHandler);
-            document.removeEventListener("mouseup", mouseUpHandler);
-        };
-
-        if (gd.gridOptions.domLayout !== 'autoHeight') {
-            document.addEventListener('mousemove', mouseMoveHandler);
-            document.addEventListener('mouseup', mouseUpHandler);
-        }
-    }
-
-    if (this.gridOptions.resize?.drag !== false) {
-        grid_resizer.style.cursor = 'ns-resize';
-        grid_resizer.innerHTML = '<i class="fas fa-ellipsis-h"></i>';
-        grid_resizer.addEventListener('mousedown', mouseDownHandler);
-    }
-    parentNode.appendChild(grid_resizer);
-
-    const resizerClickHandler = (e) => {
-        const count = $(e.target).closest(".grid-btn").data('count');
-        if (count < 1) {
-            gd.gridOptions.api.setDomLayout('normal');
-            gridDiv.style.height = default_height;
-            default_height_btn.classList.add('btn-primary');
-            auto_height_btn.classList.remove('btn-primary');
-        } else {
-            let totalRowHeight = 0;
-            gd.gridOptions.api.forEachNodeAfterFilter(function (rowNode) {
-                totalRowHeight += rowNode.rowHeight + 1;
-            });
-
-            if (gd.gridDiv.clientHeight <= totalRowHeight) {
-                gd.gridOptions.api.setDomLayout('autoHeight');
-                gridDiv.style.height = '';
-                default_height_btn.classList.remove('btn-primary');
-                auto_height_btn.classList.add('btn-primary');
-            }
-
-        }
-    };
-
-    const auto_height_btn = document.createElement('div');
-    auto_height_btn.classList.add(...[ 'grid-btn' ]);
-    auto_height_btn.dataset.count = 1;
-    auto_height_btn.innerHTML = '<i class="bx bx-chevrons-down"></i>';
-    auto_height_btn.addEventListener('click', resizerClickHandler);
-
-    const default_height_btn = document.createElement('div');
-    default_height_btn.classList.add(...[ 'grid-btn', 'btn-primary' ]);
-    default_height_btn.dataset.count = 0;
-    default_height_btn.innerHTML = '<i class="bx bx-chevrons-up"></i>';
-    default_height_btn.addEventListener('click', resizerClickHandler);
-
-    const btn_container = document.createElement('div');
-    btn_container.classList.add(...[ 'd-flex', 'position-absolute' ]);
-    if (this.gridOptions.resize?.button !== false) {
-        btn_container.appendChild(default_height_btn);
-        btn_container.appendChild(auto_height_btn);
-    }
-    parentNode.appendChild(btn_container);
-
-    const container = document.createElement('div');
-    container.style.position = 'relative';
-    container.appendChild(parentNode);
-    grandParentNode.appendChild(container);
-};
 
 HDGrid.prototype.Request = function (url, data = '', page = -1, callback, http_method = 'get') {
     if (this.loading === false) {
@@ -532,27 +518,19 @@ HDGrid.prototype._Request = function (callback, http_method) {
     }
 
     $.ajax({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        type: http_method,
-        url: this.request_url,
-        data: this.requst_data,
-        success: function (data) {
+        //async: true,
+        type: http_method, url: this.request_url, data: this.requst_data, success: function (data) {
             //console.log(data);
             //const res = jQuery.parseJSON(data);
             res = data;
 
-            //console.log(_gx);
-
             if (_gx.page === -1) {
 
-                _total = res?.head?.total || 0;
+                _total = res.head?.total || 0;
                 _gx.total = _total;
                 _gx.gridOptions.api.setRowData(res.body);
 
                 $("#" + _gx.gridTotal).text(numberWithCommas(_total));
-
 
                 if (_gx.IsAggregation() === true) {
                     _gx.CalAggregation();
@@ -581,15 +559,13 @@ HDGrid.prototype._Request = function (callback, http_method) {
                 }
             }
             if (callback) callback(data);
-        },
-        complete: function () {
+        }, complete: function () {
             _gx.loading = false;
             _gx.HideLoadingLayer();
             _gx.gridOptions.api.hideOverlay();
-        },
-        error: function (xhr, status, error) {
-            console.error('[' + status + ']' + xhr.responseText);
-            if (xhr.status === 500) alert('조회 시 오류가 발생했습니다.\n검색조건을 확인하신 후 다시 시도해 주세요.');
+        }, error: function (xhr, status, error) {
+            console.log(xhr.responseText);
+            if (xhr.status === 500) alert('조회 시 오류가 발생했습니다.\n검색조건을 확인하신 후 다시 시도해주세요');
         }
     });
 };
@@ -606,7 +582,7 @@ HDGrid.prototype.Aggregation = function (params) {
     this.agg_params = params;
 };
 
-HDGrid.prototype.CalAggregation = function () {
+HDGrid.prototype.CalAggregation = function () { // 2022-07-08 동적으로 컬럼 정의해도 변경되도록 수정
 
     var cnt = this.gridOptions.api.getDisplayedRowCount();
 
@@ -621,13 +597,23 @@ HDGrid.prototype.CalAggregation = function () {
                 if (column.hasOwnProperty('children')) {
                     for (let j = 0; j < column.children.length; j++) {
                         let column2 = column.children[j];
-                        if (column2.aggregation === true) {
-                            sumRow[column2.field] = 0;
+                        if (column2.hasOwnProperty('children')) {
+                            for (let k = 0; k < column2.children.length; k++) {
+                                let column3 = column2.children[k];
+                                if (column3.aggregation === true) {
+                                    sumRow[column3.field] = 0;
+                                }
+                            }
+                        } else {
+                            if (column2.aggregation === true) {
+                                sumRow[column2.field] = 0;
+                            }
                         }
                     }
                 }
             }
         }
+
         const fields = Object.keys(sumRow);
 
         for (row = 0; row < cnt; row++) {
@@ -663,6 +649,7 @@ HDGrid.prototype.CalAggregation = function () {
         let bottomRow = [];
 
         Object.keys(this.agg_params).forEach(key => {
+
             switch (key) {
                 case "sum":
                     if (this.agg_params.sum === "top") {
@@ -726,13 +713,28 @@ HDGrid.prototype.Download = function (title = 'export.csv', options = {}) {
     const values = {
         fileName: title,
         sheetName: 'Sheet1',
-        headerRowHeight: options.hasOwnProperty('headerHeight') ? options.headerHeight : 30,
+        headerRowHeight: options.hasOwnProperty('headerHeight') ? options.headerHeight : null,
         skipPinnedTop: options.hasOwnProperty('addPinnedTop') ? !options.addPinnedTop : true,
         skipGroups: options.hasOwnProperty('skipGroups') ? options.skipGroups : false,
+        columnGroups: true,
         shouldRowBeSkipped: (params) => {
             return options.hasOwnProperty('level') && Number.isInteger(options.level) ? options.level !== params.node.level : false;
         },
         processRowGroupCallback: (params) => params.node.key,
+        processHeaderCallback: (params) => {
+            const col = params.column.colDef;
+            if (col.cellClass) {
+                if (Array.isArray(col.cellClass)) {
+                    col.cellClass.push('cell');
+                } else {
+                    col.cellClass = [ col.cellClass, 'cell' ];
+                }
+            } else {
+                col.cellClass = 'cell';
+            }
+
+            return params.column.colDef.headerName;
+        },
         processCellCallback: (params) => {
             let val = params.value;
 
@@ -766,13 +768,14 @@ HDGrid.prototype.Download = function (title = 'export.csv', options = {}) {
                 }
             }
 
-            if ([ 'ord_no' ].includes(params.column.colId)) return val + 'ㅤ';
-            else return val;
-        },
-        // processHeaderCallback: (params) => {
+            if ([ 'ord_no' ].includes(params.column.colId)) return val + 'ㅤ'; else return val;
+        }, // processHeaderCallback: (params) => {
         //     return (params.column.parent.originalColumnGroup.colGroupDef.headerName ? `${params.column.parent.originalColumnGroup.colGroupDef.headerName} > ` : '') + params.columnApi.getDisplayNameForColumn(params.column, null);
         // },
-        columnKeys: options.hasOwnProperty('columns') ? options.columns : undefined
+        columnKeys: options.hasOwnProperty('columns') ? options.columns : undefined,
+        columnWidth: (params) => {
+            return Math.max(params.column.actualWidth - 50, 75);
+        },
     };
 
     if (options.type === 'excel') {
@@ -786,14 +789,6 @@ HDGrid.prototype.getRows = function () {
     var rows = [];
     this.gridOptions.api.forEachNode(function (node) {
         //console.log(node);
-        rows.push(node.data);
-    });
-    return rows;
-};
-
-HDGrid.prototype.getSortRows = function () {
-    var rows = [];
-    this.gridOptions.api.forEachNodeAfterFilterAndSort(function (node) {
         rows.push(node.data);
     });
     return rows;
@@ -890,7 +885,7 @@ async function getMyColumns(gridCallback, gridDiv, default_columns, grid_number 
     let setting_btn_id = gridDiv.id.replace('div-', '') + '-setting';
     new GridCustomSettingEditor(setting_btn_id, grid_number, gridCallback, pid);
 
-    let res = { data: { code: 400 } };
+    let res = await axios({ method: 'get', url: '/head/cmm01/get?pid=' + pid });
     if (res.data.code === 200) {
         let parse_data = null;
         let res_data = [];
