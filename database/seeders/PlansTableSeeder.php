@@ -32,11 +32,11 @@ class PlansTableSeeder extends Seeder
             [
                 'type' => 'RECURRING',
                 'name' => 'Basic',
-                'price' => '1.00',
+                'price' => '7.00',
                 'interval' => 'EVERY_30_DAYS',
                 'capped_amount' => '0.00',
                 'terms' => 'Access to Basic features.',
-                'trial_days' => 7,
+                'trial_days' => 0,
                 'test' => 1,
                 'on_install' => 0,
                 'created_at' => Carbon::now(),
