@@ -13,6 +13,33 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class ProductImage extends Model
 {
     /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::updating(function ($image) {
+            $dirty = $image->getDirty();
+            $original = $image->getOriginal();
+
+            unset($dirty['updated_at']);
+
+            if (!empty($dirty)) {
+                HistoryLog::create([
+                    'product_id' => $image->product_id,
+                    'model_type' => get_class($image),
+                    'model_id' => $image->image_id,
+                    'old_data' => json_encode(array_intersect_key($original, $dirty)),
+                    'new_data' => json_encode($dirty)
+                ]);
+            }
+        });
+    }
+
+    /**
      * The table associated with the model.
      *
      * @var string

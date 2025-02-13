@@ -15,6 +15,33 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
 class Product extends Model
 {
     /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::updating(function ($product) {
+            $dirty = $product->getDirty();
+            $original = $product->getOriginal();
+
+            unset($dirty['updated_at']);
+
+            if (!empty($dirty)) {
+                HistoryLog::create([
+                    'product_id' => $product->product_id,
+                    'model_type' => get_class($product),
+                    'model_id' => $product->id,
+                    'old_data' => json_encode(array_intersect_key($original, $dirty)),
+                    'new_data' => json_encode($dirty)
+                ]);
+            }
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -85,5 +112,13 @@ class Product extends Model
     public function options(): hasMany
     {
         return $this->hasMany(ProductOption::class, 'product_id', 'product_id');
+    }
+
+    /**
+     * Get the logs associated with the product.
+     */
+    public function logs(): hasMany
+    {
+        return $this->hasMany(HistoryLog::class, 'product_id', 'product_id');
     }
 }

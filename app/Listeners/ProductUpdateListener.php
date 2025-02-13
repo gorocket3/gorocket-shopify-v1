@@ -78,7 +78,7 @@ class ProductUpdateListener implements ShouldQueue
                                 'created_at'            => $variant['created_at'],
                                 'updated_at'            => $variant['updated_at'],
                                 'taxable'               => $variant['taxable'],
-                                'barcode'               => $variant['barcode'],
+                                'barcode'               => $variant['barcode'] === '' ? null : $variant['barcode'],
                                 'fulfillment_service'   => $variant['fulfillment_service'],
                                 'grams'                 => $variant['grams'],
                                 'inventory_management'  => $variant['inventory_management'],
