@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['verify.shopify', 'billable'])->group(function () {
     Route::get('', fn() => view('welcome'))->name('home');
+    Route::get('products', fn() => view('product.list'))->name('products');
 });
 
 
