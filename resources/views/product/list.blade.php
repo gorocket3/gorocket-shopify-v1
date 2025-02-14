@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <!-- Shopify -->
-    <meta name="shopify-api-key" content="f3c1562fe21c816e2db8aa49558f9b58"/>
+    <meta name="shopify-api-key" content="{{ env('SHOPIFY_API_KEY') }}"/>
     <script src="//cdn.shopify.com/shopifycloud/app-bridge.js"></script>
     <!-- // Shopify -->
 
@@ -37,9 +37,9 @@
     <link rel="stylesheet" href="/assets/grid/grid.css?v=2025021017">
     <!-- // AG-GRID -->
 
-    <!-- Css -->
+    <!-- Font -->
     <link href="//fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <!-- // Css -->
+    <!-- // Font -->
 
     <title>상품관리 :: 고로켓</title>
 </head>
@@ -69,64 +69,86 @@
     <p>&copy; 2025 GoRocket. By using this app, you agree to the <a href="#">Privacy Policy</a>.</p>
 </div>
 
-<style>
-    .ag-row-level-1 {background-color: #fff7e6 !important;}
-</style>
-
 <script language="JavaScript">
-    const pApp = new App('', { gridId: "#div-gd", height: 100 });
+    const pApp = new App('', { gridId: "#div-gd" });
     let gx;
 
     const PRODUCT_STATUS = {
-        active: { title: '활성', color: '#b4ffa2' },
+        active: { title: '활성', color: '#ccffc1' },
         draft: { title: '초안', color: '#bdd1ff' },
         archived: { title: '보관', color: '#cccccc' }
     };
 
+    const cellMergeStyling = (p) => {
+        if (p.data.position !== p.data.parent.variants_cnt) {
+            return { borderBottomWidth: '0px' };
+        }
+        return {};
+    };
+
     const default_columns = [
-        { field: "group_id", headerName: "상품 ID", rowGroup: true, hide: true },
-        { headerName: '상품 ID', showRowGroup: 'group_id', cellRenderer: 'agGroupCellRenderer', width: 180 },
+        {
+            field: "product_id", headerName: "상품 ID", width: 150,
+            // rowSpan: (p) => {
+            //     if (p.data?.position === 1) {
+            //         return p.data?.parent?.variants_cnt || 1;
+            //     }
+            //     return 1;
+            // },
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            cellStyle: cellMergeStyling
+        },
         {
             field: "product_status",
             headerName: "상태",
-            width: 80,
-            aggFunc: 'first',
+            width: 60,
             cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.node.level > 0 ? '' : PRODUCT_STATUS[p.value]?.title || '',
-            cellStyle: (p) => p.node.level > 0 ? {} : { backgroundColor: PRODUCT_STATUS[p.value]?.color || '#f2f2f2' }
+            cellRenderer: (p) => p.data.position > 1 ? '' : PRODUCT_STATUS[p.value]?.title || '',
+            cellStyle: (p) => ({
+                ...cellMergeStyling(p),
+                backgroundColor: PRODUCT_STATUS[p.value]?.color || '#f2f2f2'
+            })
         },
         {
-            field: "product_img", headerName: "대표이미지", width: 80, aggFunc: 'first',
+            field: "product_img", headerName: "이미지", width: 60,
             cellRenderer: (p) => {
-                if (p.node.level > 0 || !p.value) return '';
-                return `<div style='display:flex;justify-content:center;align-items:center;padding:5px 0;'><img src='${p.value}' style='width:100%;' /></div>`;
-            }
+                if (p.data.position > 1) return '';
+
+                if (!!p.value) {
+                    return `<div style='display:flex;justify-content:center;align-items:center;padding:5px 0;'><img src='${p.value}' alt='${p.data.product_name}' style='width:100%;' /></div>`;
+                }
+
+                return '';
+            },
+            cellStyle: cellMergeStyling
         },
         {
-            field: "product_name",
-            headerName: "상품명",
-            width: 120,
-            editable: true,
-            aggFunc: 'first',
-            cellRenderer: (p) => p.node.level > 0 ? '' : p.value,
+            field: "product_name", headerName: "상품명", width: 200,
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            cellStyle: cellMergeStyling,
+            editable: (p) => p.data.position < 2,
         },
         {
             field: "product_body",
             headerName: "상품 설명",
+            cellStyle: (p) => ({
+                ...cellMergeStyling(p),
+                whiteSpace: 'normal'
+            }),
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             width: 200,
-            editable: true,
-            aggFunc: 'first',
-            cellRenderer: (p) => p.node.level > 0 ? '' : p.value,
-            cellStyle: { 'white-space': 'normal' }
+            editable: (p) => p.data.position < 2,
         },
         {
-            field: "option_img", headerName: "이미지",
+            field: "option_img", headerName: "이미지", width: 60,
             cellRenderer: (p) => {
-                if (!p.value) return '';
-                return `<div style='display:flex;justify-content:center;align-items:center;padding:5px 0;'><img src='${p.value}' alt='${p.data?.product_name}' style='width:100%;' /></div>`;
+                if (!!p.value) {
+                    return `<div style='display:flex;justify-content:center;align-items:center;padding:5px 0;'><img src='${p.value}' alt='${p.data.product_name}' style='width:100%;' /></div>`;
+                }
+                return '';
             }
         },
-        { field: "option_name", headerName: "옵션명", width: 120 },
+        { field: "option_name", headerName: "옵션명", width: 0, editable: true },
     ];
 
     document.addEventListener('DOMContentLoaded', async function () {
@@ -137,15 +159,11 @@
         // const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
         gx = new HDGrid(gridDiv, default_columns, {
-            rollup: true,
-            groupDefaultExpanded: 1, // open: 1, close: 0
-            groupSuppressAutoColumn: true,
-            suppressAggFuncInHeader: true,
-            enableRangeSelection: true,
-            animateRows: true,
+            enableCellSpan: true,
+            suppressRowTransform: true,
         });
 
-        gx.Request('/api/products', null, 1, function (v) {
+        gx.Request('/api/products?title=snow', null, 1, function (v) {
             const data = v.data.reduce((a, c) => {
                 return a.concat(c.variants.map((item, index) => {
                     const { variants, ...parent } = c;
@@ -153,6 +171,7 @@
                         ...item,
                         parent: {
                             ...parent,
+                            variants_cnt: c.variants.length,
                             images: parent.images?.sort((x, y) => x.position - y.position) || []
                         }
                     };

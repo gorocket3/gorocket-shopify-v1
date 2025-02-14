@@ -2,13 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="shopify-api-key" content="f3c1562fe21c816e2db8aa49558f9b58" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Shopify -->
+    <meta name="shopify-api-key" content="{{ env('SHOPIFY_API_KEY') }}"/>
     <script src="//cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+    <!-- // Shopify -->
+
+    <!-- Vite -->
     @viteReactRefresh
     @vite(['resources/js/app.jsx', 'resources/css/app.css'])
-    <title>고로켓</title>
+    <!-- // Vite -->
+
+    <!-- Font -->
     <link href="//fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- // Font -->
+
+    <title>고로켓</title>
 </head>
 <body>
 <div class="container">
@@ -25,7 +37,8 @@
     <div class="hero">
         <h2>나만의 Shopify 앱을 만들어보세요!</h2>
         <p>상품을 관리하고, 판매를 늘릴 수 있는 기능을 제공합니다.</p>
-        <a href="#" class="btn">시작하기</a> <button id="start-button" class="btn">상품 업데이트</button>
+        <a href="#" class="btn">시작하기</a>
+        <button id="start-button" class="btn">상품 업데이트</button>
     </div>
 </div>
 
