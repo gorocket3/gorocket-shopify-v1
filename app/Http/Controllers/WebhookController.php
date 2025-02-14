@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\Hook\ProductDeleteJob;
 use App\Jobs\Hook\ProductUpdateJob;
 use App\Jobs\Hook\ShopUpdateJob;
+use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,9 +25,10 @@ class WebhookController extends Controller
     {
         $payload = $request->all();
         $productId = $payload['id'] ?? null;
+        $updatedAt = $payload['updated_at'] ?? null;
 
-        if ($this->shouldSkipWebhook($productId)) {
-            return response()->json(['message' => 'Ignored API']);
+        if ($this->shouldSkipWebhook($productId, $updatedAt)) {
+            return response()->json(['message' => 'Ignored outdated webhook']);
         }
 
         $shopDomain = $request->header('x-shopify-shop-domain');
@@ -48,12 +50,19 @@ class WebhookController extends Controller
      * Check if webhook should be skipped.
      *
      * @param string|null $productId
+     * @param string|null $updatedAt
      * @return bool
      */
-    private function shouldSkipWebhook(?string $productId): bool
+    private function shouldSkipWebhook(?string $productId, ?string $updatedAt): bool
     {
-        if (!$productId) {
+        if (!$productId || !$updatedAt) {
             return false;
+        }
+
+        $product = Product::where('product_id', $productId)->first();
+        if ($product && strtotime($updatedAt) < strtotime($product->updated_at)) {
+            Log::info("[HOOK][HANDLE] Outdated webhook for product: {$productId}");
+            return true;
         }
 
         if (Redis::exists($productId)) {
