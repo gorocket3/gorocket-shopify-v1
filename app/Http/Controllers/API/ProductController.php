@@ -24,7 +24,7 @@ class ProductController extends Controller
     {
         $shop = Auth::user();
 
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', 50);
         $title = $request->input('title');
         $content = $request->input('content');
         $product_type = $request->input('product_type');
@@ -54,10 +54,18 @@ class ProductController extends Controller
                 $q->where('vendor', 'LIKE', "%{$vendor}%");
             })
             ->when($status, function ($q) use ($status) {
-                $q->where('status', $status);
+                $q->where(function ($subQuery) use ($status) {
+                    foreach ($status as $stat) {
+                        $subQuery->orWhere('status', $stat);
+                    }
+                });
             })
             ->when($tags, function ($q) use ($tags) {
-                $q->where('tags', 'LIKE', "%{$tags}%");
+                $q->where(function ($subQuery) use ($tags) {
+                    foreach ($tags as $tag) {
+                        $subQuery->orWhere('tags', 'LIKE', "%$tag%");
+                    }
+                });
             })
             ->when($startDate && $endDate, function ($q) use ($startDate, $endDate, $searchType) {
                 $q->whereBetween($searchType, [$startDate, $endDate]);
