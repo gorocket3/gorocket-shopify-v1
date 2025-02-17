@@ -62,6 +62,7 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
     this.id = gridDiv.id.replace("div-", "");
     this.gridDiv = gridDiv;
     this.gridTotal = this.id + '-total';
+    this.gridCurrent = this.id + '-current';
     this.is_agg = false;
 
     //console.log(this.gridTotal);
@@ -448,6 +449,7 @@ HDGrid.prototype.Request = function (url, data = '', page = -1, callback, http_m
         //var page_size = gridOptions.paginationPageSize;
         this.request_url = url;
         this.total = 0;
+        this.callback = callback;
 
         if (page === -1) {
             this.page = page;
@@ -458,10 +460,10 @@ HDGrid.prototype.Request = function (url, data = '', page = -1, callback, http_m
             let _gx = this;
 
             this.gridOptions.onBodyScroll = function (params) {
-
                 if (params.direction === "vertical" && params.top > _gx.scrolltop) {
 
-                    if (_gx.loading === false && params.top > _gx.gridDiv.scrollHeight) {
+                    // if (_gx.loading === false && params.top > _gx.gridDiv.scrollHeight) {
+                    if (_gx.loading === false && params.top > 0) {
 
                         var rowtotal = _gx.gridOptions.api.getDisplayedRowCount();
                         // console.log('getLastDisplayedRow : ' + gridOptions.api.getLastDisplayedRow());
@@ -541,9 +543,9 @@ HDGrid.prototype._Request = function (callback, http_method) {
 
             if (_gx.page === -1) {
 
-                _total = res.head?.total || 0;
+                _total = res.total || 0;
                 _gx.total = _total;
-                _gx.gridOptions.api.setRowData(res.body);
+                _gx.gridOptions.api.setRowData(res.data);
 
                 $("#" + _gx.gridTotal).text(numberWithCommas(_total));
 
@@ -554,26 +556,27 @@ HDGrid.prototype._Request = function (callback, http_method) {
             } else {
 
                 if (_gx.page === 1) {
-                    _total = res.head?.total || 0;
+                    _total = res.total || 0;
                     _gx.total = _total;
-                    _gx.gridOptions.api.setRowData(res.body);
-                    _gx.page = parseInt(res.head?.page || 1) + 1;
+                    if (!_gx.callback) _gx.gridOptions.api.setRowData(res.data);
+                    _gx.page = parseInt(res.current_page || 1) + 1;
                     const rows = numberWithCommas(_gx.gridOptions.rollup ? _gx.getRowCountForLevel(_gx.gridOptions.rollupCountLevel || -1) : _gx.gridOptions.api.getDisplayedRowCount());
-                    $("#" + _gx.gridTotal).text(rows + ' / ' + numberWithCommas(_total));
+                    $("#" + _gx.gridTotal).text(numberWithCommas(_total));
+                    $("#" + _gx.gridCurrent).text(numberWithCommas(res.to));
 
                 } else {
-                    if (res.body.length === 0) {
+                    if (res.data.length === 0) {
                         _gx.gridOptions.onBodyScroll = null;
                     } else {
-                        //console.log('total ' + _total);
-                        const ret = _gx.gridOptions.api.applyTransaction({ add: res.body });
-                        _gx.page = parseInt(res.head?.page || 1) + 1;
+                        if (!_gx.callback) _gx.gridOptions.api.applyTransaction({ add: res.data });
+                        _gx.page = parseInt(res.current_page || 1) + 1;
                         const rows = numberWithCommas(_gx.gridOptions.rollup ? _gx.getRowCountForLevel(_gx.gridOptions.rollupCountLevel || -1) : _gx.gridOptions.api.getDisplayedRowCount());
-                        $("#" + _gx.gridTotal).text(rows + ' / ' + numberWithCommas(_gx.total));
+                        $("#" + _gx.gridTotal).text(numberWithCommas(_gx.total));
+                        $("#" + _gx.gridCurrent).text(numberWithCommas(res.to));
                     }
                 }
             }
-            if (callback) callback(data);
+            if (_gx.callback) _gx.callback(data);
         }).catch(error => {
             console.error(error.message);
             alert('조회 시 오류가 발생했습니다.\n다시 시도해 주세요.');

@@ -43,8 +43,8 @@
     background-color: #ffffff;
 }
 
-.ag-theme-balham .ag-row.odd {
-    background-color: #f5faff;
+.ag-theme-balham .ag-row.even {
+    background-color: #fafafa;
 }
 
 .ag-theme-balham .ag-ltr .ag-cell {

@@ -53,11 +53,26 @@
         </ui-nav-menu>
     </div>
 
-    <!-- 상품 그리드 -->
-    <div class="table-responsive">
-        <div id="div-gd" class="ag-theme-balham"></div>
+    <div class="Polaris-ShadowBevel"
+         style="--pc-shadow-bevel-z-index: 32; --pc-shadow-bevel-box-shadow-xs: var(--p-shadow-100); --pc-shadow-bevel-border-radius-xs: var(--p-border-radius-300);">
+        <div class="Polaris-Box"
+             style="--pc-box-background:var(--p-color-bg-surface);--pc-box-min-height:100%;--pc-box-overflow-x:clip;--pc-box-overflow-y:clip;--pc-box-padding-block-start-xs:var(--p-space-400);--pc-box-padding-block-end-xs:var(--p-space-400);--pc-box-padding-inline-start-xs:var(--p-space-400);--pc-box-padding-inline-end-xs:var(--p-space-400)">
+            <div class="Polaris-BlockStack"
+                 style="--pc-block-stack-order:column;--pc-block-stack-gap-xs:var(--p-space-200)">
+                <div class="Polaris-InlineGrid" style="--pc-inline-grid-grid-template-columns-xs:1fr auto;--pc-inline-grid-align-items:center;">
+                    <h2 class="Polaris-Text--root Polaris-Text--headingSm Polaris-Text--subdued"><strong class="Polaris-Text--base"><span id="gd-total">0</span></strong>개 제품 중 <strong class="Polaris-Text--success"><span id="gd-current">0</span></strong>개 표시됨</h2>
+                    <button class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter" type="button">
+                        <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">저장</span>
+                    </button>
+                </div>
+                <!-- 상품 그리드 -->
+                <div class="table-responsive">
+                    <div id="div-gd" class="ag-theme-balham"></div>
+                </div>
+                <!-- //상품 그리드 -->
+            </div>
+        </div>
     </div>
-    <!-- //상품 그리드 -->
 </div>
 
 <div id="app"></div>
@@ -78,7 +93,7 @@
     };
 
     const cellMergeStyling = (p) => {
-        if (p.data.position !== p.data.parent.variants_cnt) {
+        if (p.data.position !== (p.data.parent?.variants_cnt || 1)) {
             return { borderBottomWidth: '0px' };
         }
         return {};
@@ -118,7 +133,7 @@
             cellStyle: cellMergeStyling
         },
         {
-            field: "product_name", headerName: "상품명", width: 200,
+            field: "product_name", headerName: "상품명", width: 240,
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             editable: (p) => p.data.position < 2,
@@ -131,7 +146,7 @@
                 whiteSpace: 'normal'
             }),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            width: 200,
+            width: 300,
             editable: (p) => p.data.position < 2,
         },
         {
@@ -143,11 +158,11 @@
                 return '';
             },
         },
-        { field: "option_name", headerName: "옵션명", minWidth: 120, width: 0, editable: true },
+        { field: "option_name", headerName: "옵션명", width: 263, editable: true },
     ];
 
     document.addEventListener('DOMContentLoaded', async function () {
-        pApp.ResizeGrid(275);
+        pApp.ResizeGrid(375);
         pApp.BindSearchEnter();
 
         const gridDiv = document.querySelector(pApp.options.gridId);
@@ -157,11 +172,11 @@
             enableCellSpan: true,
             suppressRowTransform: true,
             rowClassRules: {
-                "odd": "data.parent_index % 2 === 0",
+                "even": "data.parent_index % 2 !== 0",
             },
         });
 
-        gx.Request('/api/products', '', 1, function (v) {
+        gx.Request('/api/products', 'per_page=20', 1, function (v) {
             const data = v.data.reduce((a, c, i) => {
                 return a.concat(c.variants.map((item, index) => {
                     const { variants, ...parent } = c;
@@ -177,7 +192,7 @@
                 }).sort((x, y) => x.position - y.position));
             }, []);
 
-            gx.gridOptions.api.setRowData(data.map((item, index) => {
+            const result = data.map((item, index) => {
                 return {
                     ...item,
                     group_id: item.position !== 1 ? '' : item.parent.product_id,
@@ -188,7 +203,13 @@
                     option_name: item.title,
                     option_img: item.image?.src || '',
                 };
-            }));
+            });
+
+            if (v.current_page === 1) {
+                gx.gridOptions.api.setRowData(result);
+            } else {
+                gx.gridOptions.api.applyTransaction({ add: result });
+            }
         });
     });
 </script>

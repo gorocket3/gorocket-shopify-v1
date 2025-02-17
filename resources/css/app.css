@@ -104,3 +104,8 @@ body {
 .text-2xs {
     font-size: 0.625rem;
 }
+
+/* Polaris Custom */
+.Polaris-Text--success {
+    color: #008000 !important;
+}
