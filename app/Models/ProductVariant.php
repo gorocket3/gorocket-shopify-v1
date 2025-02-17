@@ -25,6 +25,7 @@ class ProductVariant extends BaseModel
             $dirty = $variant->getDirty();
             $original = $variant->getOriginal();
 
+            unset($dirty['created_at']);
             unset($dirty['updated_at']);
             unset($dirty['admin_graphql_api_id']);
 

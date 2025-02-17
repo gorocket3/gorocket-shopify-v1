@@ -7,6 +7,7 @@ use App\Jobs\Hook\ProductUpdateJob;
 use App\Jobs\Hook\ShopUpdateJob;
 use App\Models\Product;
 use App\Models\Shop;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -27,10 +28,6 @@ class WebhookController extends Controller
         $productId = $payload['id'] ?? null;
         $updatedAt = $payload['updated_at'] ?? null;
 
-        if ($this->shouldSkipWebhook($productId, $updatedAt)) {
-            return response()->json(['message' => 'Ignored outdated webhook']);
-        }
-
         $shopDomain = $request->header('x-shopify-shop-domain');
         $shop = Shop::where('myshopify_domain', $shopDomain)->first();
         if (!$shop) {
@@ -39,6 +36,10 @@ class WebhookController extends Controller
         }
         $payload['user_id'] = $shop->user_id;
         Log::info("[HOOK][RECEIVED] Webhook: {$type}", $payload);
+
+        if ($this->shouldSkipWebhook($productId, $updatedAt, $shop->timezone)) {
+            return response()->json(['message' => 'Ignored webhook']);
+        }
 
         if (!$this->dispatchJob($type, $payload)) {
             return response()->json(['status' => 'error', 'message' => 'Invalid webhook type'], 400);
@@ -51,18 +52,24 @@ class WebhookController extends Controller
      *
      * @param string|null $productId
      * @param string|null $updatedAt
+     * @param string|null $timezone
      * @return bool
      */
-    private function shouldSkipWebhook(?string $productId, ?string $updatedAt): bool
+    private function shouldSkipWebhook(?string $productId, ?string $updatedAt, ?string $timezone): bool
     {
-        if (!$productId || !$updatedAt) {
+        if (!$productId || !$updatedAt || !$timezone) {
             return false;
         }
 
         $product = Product::where('product_id', $productId)->first();
-        if ($product && strtotime($updatedAt) < strtotime($product->updated_at)) {
-            Log::info("[HOOK][HANDLE] Webhook outdated - {$productId}");
-            return true;
+        if ($product) {
+            $timezone = preg_replace('/^\(GMT[^\)]+\)\s/', '', $timezone);
+            $productUpdatedAt = Carbon::parse($product->updated_at->format('Y-m-d H:i:s'), $timezone)->setTimezone('UTC');
+            $webhookUpdatedAt = Carbon::parse($updatedAt, $timezone)->setTimezone('UTC');
+            if ($webhookUpdatedAt < $productUpdatedAt) {
+                Log::info("[HOOK][HANDLE] Webhook outdated - {$productId}");
+                return true;
+            }
         }
 
         if (Redis::exists($productId)) {
