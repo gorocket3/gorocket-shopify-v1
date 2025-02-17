@@ -27,6 +27,8 @@ class Product extends BaseModel
             $dirty = $product->getDirty();
             $original = $product->getOriginal();
 
+            unset($dirty['published_at']);
+            unset($dirty['created_at']);
             unset($dirty['updated_at']);
             unset($dirty['admin_graphql_api_id']);
 
