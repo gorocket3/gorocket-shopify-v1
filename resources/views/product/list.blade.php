@@ -59,9 +59,14 @@
              style="--pc-box-background:var(--p-color-bg-surface);--pc-box-min-height:100%;--pc-box-overflow-x:clip;--pc-box-overflow-y:clip;--pc-box-padding-block-start-xs:var(--p-space-400);--pc-box-padding-block-end-xs:var(--p-space-400);--pc-box-padding-inline-start-xs:var(--p-space-400);--pc-box-padding-inline-end-xs:var(--p-space-400)">
             <div class="Polaris-BlockStack"
                  style="--pc-block-stack-order:column;--pc-block-stack-gap-xs:var(--p-space-200)">
-                <div class="Polaris-InlineGrid" style="--pc-inline-grid-grid-template-columns-xs:1fr auto;--pc-inline-grid-align-items:center;">
-                    <h2 class="Polaris-Text--root Polaris-Text--headingSm Polaris-Text--subdued"><strong class="Polaris-Text--base"><span id="gd-total">0</span></strong>개 제품 중 <strong class="Polaris-Text--success"><span id="gd-current">0</span></strong>개 표시됨</h2>
-                    <button class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter" type="button">
+                <div class="Polaris-InlineGrid"
+                     style="--pc-inline-grid-grid-template-columns-xs:1fr auto;--pc-inline-grid-align-items:center;">
+                    <h2 class="Polaris-Text--root Polaris-Text--headingSm Polaris-Text--subdued"><strong
+                            class="Polaris-Text--base"><span id="gd-total">0</span></strong>개 제품 중 <strong
+                            class="Polaris-Text--success"><span id="gd-current">0</span></strong>개 표시됨</h2>
+                    <button id="save_product"
+                            class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter"
+                            type="button">
                         <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">저장</span>
                     </button>
                 </div>
@@ -99,7 +104,28 @@
         return {};
     };
 
+    const changeCellState = (field, e) => {
+        e.node.setDataValue('is_changed', true);
+        e.node.setDataValue(field + '_changed', true);
+
+        gx.gridOptions.api.forEachNode((node) => {
+            if (node.data.product_id === e.data.product_id) {
+                node.setDataValue('is_changed', true);
+            }
+        });
+    }
+
+    const changedCellClassRules = (field) => {
+        return {
+            'changed': (p) => p.data[field + '_changed']
+        };
+    };
+
     const default_columns = [
+        { field: "is_changed", hide: true },
+        { field: "product_name_changed", hide: true },
+        { field: "product_body_changed", hide: true },
+        { field: "option_name_changed", hide: true },
         {
             field: "group_id", headerName: "상품 ID", width: 120,
             // rowSpan: (p) => {
@@ -137,6 +163,8 @@
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             editable: (p) => p.data.position < 2,
+            cellClassRules: changedCellClassRules('product_name'),
+            onCellValueChanged: (e) => changeCellState('product_name', e)
         },
         {
             field: "product_body",
@@ -148,6 +176,8 @@
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             width: 300,
             editable: (p) => p.data.position < 2,
+            cellClassRules: changedCellClassRules('product_body'),
+            onCellValueChanged: (e) => changeCellState('product_body', e)
         },
         {
             field: "option_img", headerName: "이미지", width: 60,
@@ -158,7 +188,11 @@
                 return '';
             },
         },
-        { field: "option_name", headerName: "옵션명", width: 263, editable: true },
+        {
+            field: "option_name", headerName: "옵션명", width: 263, editable: true,
+            cellClassRules: changedCellClassRules('option_name'),
+            onCellValueChanged: (e) => changeCellState('option_name', e)
+        },
     ];
 
     document.addEventListener('DOMContentLoaded', async function () {
@@ -173,6 +207,7 @@
             suppressRowTransform: true,
             rowClassRules: {
                 "even": "data.parent_index % 2 !== 0",
+                "changed": "data.is_changed",
             },
         });
 
@@ -210,6 +245,41 @@
             } else {
                 gx.gridOptions.api.applyTransaction({ add: result });
             }
+        });
+
+        document.getElementById("save_product").addEventListener('click', function (e) {
+            const rows = [];
+
+            gx.gridOptions.api.forEachNode((node) => {
+                if (node.data.is_changed) {
+                    if (node.data.product_name_changed) {
+                        const row = { id: node.data.product_id };
+                        row.title = node.data.product_name;
+                        rows.push(row);
+                    }
+                }
+            });
+
+            fetch('/api/products/edit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "products": rows })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('상품 변경 내용이 저장되었습니다.');
+                })
+                .catch(error => {
+                    console.error(error.message);
+                    alert('상품 변경 중 오류가 발생했습니다.');
+                });
         });
     });
 </script>

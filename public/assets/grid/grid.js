@@ -562,7 +562,7 @@ HDGrid.prototype._Request = function (callback, http_method) {
                     _gx.page = parseInt(res.current_page || 1) + 1;
                     const rows = numberWithCommas(_gx.gridOptions.rollup ? _gx.getRowCountForLevel(_gx.gridOptions.rollupCountLevel || -1) : _gx.gridOptions.api.getDisplayedRowCount());
                     $("#" + _gx.gridTotal).text(numberWithCommas(_total));
-                    $("#" + _gx.gridCurrent).text(numberWithCommas(res.to));
+                    $("#" + _gx.gridCurrent).text(numberWithCommas(res.to || 0));
 
                 } else {
                     if (res.data.length === 0) {
@@ -572,7 +572,7 @@ HDGrid.prototype._Request = function (callback, http_method) {
                         _gx.page = parseInt(res.current_page || 1) + 1;
                         const rows = numberWithCommas(_gx.gridOptions.rollup ? _gx.getRowCountForLevel(_gx.gridOptions.rollupCountLevel || -1) : _gx.gridOptions.api.getDisplayedRowCount());
                         $("#" + _gx.gridTotal).text(numberWithCommas(_gx.total));
-                        $("#" + _gx.gridCurrent).text(numberWithCommas(res.to));
+                        $("#" + _gx.gridCurrent).text(numberWithCommas(res.to || 0));
                     }
                 }
             }

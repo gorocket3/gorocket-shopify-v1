@@ -47,9 +47,17 @@
     background-color: #fafafa;
 }
 
+.ag-theme-balham .ag-row.changed {
+    background-color: #ffffea;
+}
+
 .ag-theme-balham .ag-ltr .ag-cell {
     line-height: 33px;
     border-bottom: 1px solid #e5e7eb;
+}
+
+.ag-theme-balham .ag-ltr .ag-cell.changed {
+    background-color: #fdfda5;
 }
 
 .ag-theme-balham .ag-ltr .ag-cell:not(:last-child):not(:focus) {
