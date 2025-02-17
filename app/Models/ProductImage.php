@@ -26,6 +26,8 @@ class ProductImage extends BaseModel
             $original = $image->getOriginal();
 
             unset($dirty['updated_at']);
+            unset($dirty['admin_graphql_api_id']);
+
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
                     'change_id' => self::getRequestChangeId(),

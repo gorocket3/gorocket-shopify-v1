@@ -7,6 +7,7 @@ use App\Jobs\Hook\ProductUpdateJob;
 use App\Jobs\Hook\ShopUpdateJob;
 use App\Models\Product;
 use App\Models\Shop;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -60,9 +61,13 @@ class WebhookController extends Controller
         }
 
         $product = Product::where('product_id', $productId)->first();
-        if ($product && strtotime($updatedAt) < strtotime($product->updated_at)) {
-            Log::info("[HOOK][HANDLE] Outdated webhook for product: {$productId}");
-            return true;
+        if ($product) {
+            $productUpdatedAt = Carbon::parse($product->updated_at, 'UTC');
+            $webhookUpdatedAt = Carbon::parse($updatedAt, 'UTC');
+            if ($webhookUpdatedAt < $productUpdatedAt) {
+                Log::info("[HOOK][HANDLE] Outdated webhook for product: {$productId}");
+                return true;
+            }
         }
 
         if (Redis::exists($productId)) {

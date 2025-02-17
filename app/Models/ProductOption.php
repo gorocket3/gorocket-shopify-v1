@@ -25,6 +25,8 @@ class ProductOption extends BaseModel
             $original = $option->getOriginal();
 
             unset($dirty['updated_at']);
+            unset($dirty['admin_graphql_api_id']);
+
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
                     'change_id' => self::getRequestChangeId(),
