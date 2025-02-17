@@ -36,6 +36,7 @@ class ProductUpdateJob implements ShouldQueue
      * Create a new job instance.
      *
      * @param array $data
+     * @param int|null $shopId
      */
     public function __construct(array $data, ?int $shopId = null)
     {
