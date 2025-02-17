@@ -74,9 +74,9 @@
     let gx;
 
     const PRODUCT_STATUS = {
-        active: { title: '활성', color: '#ccffc1' },
-        draft: { title: '초안', color: '#bdd1ff' },
-        archived: { title: '보관', color: '#cccccc' }
+        active: { title: '활성', color: 'Polaris-Badge--toneSuccess' },
+        draft: { title: '초안', color: 'Polaris-Badge--toneInfo' },
+        archived: { title: '보관', color: '' }
     };
 
     const cellMergeStyling = (p) => {
@@ -88,7 +88,7 @@
 
     const default_columns = [
         {
-            field: "product_id", headerName: "상품 ID", width: 150,
+            field: "group_id", headerName: "상품 ID", width: 120,
             // rowSpan: (p) => {
             //     if (p.data?.position === 1) {
             //         return p.data?.parent?.variants_cnt || 1;
@@ -103,11 +103,8 @@
             headerName: "상태",
             width: 60,
             cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : PRODUCT_STATUS[p.value]?.title || '',
-            cellStyle: (p) => ({
-                ...cellMergeStyling(p),
-                backgroundColor: PRODUCT_STATUS[p.value]?.color || '#f2f2f2'
-            })
+            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.color || ''} ">${PRODUCT_STATUS[p.value]?.title || ''}</span>`,
+            cellStyle: cellMergeStyling,
         },
         {
             field: "product_img", headerName: "이미지", width: 60,
@@ -115,7 +112,7 @@
                 if (p.data.position > 1) return '';
 
                 if (!!p.value) {
-                    return `<div style='display:flex;justify-content:center;align-items:center;padding:5px 0;'><img src='${p.value}' alt='${p.data.product_name}' style='width:100%;' /></div>`;
+                    return `<div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'><img src='${p.value}' alt='${p.data.product_name}' style='width:30px;height:30px;' /></div>`;
                 }
 
                 return '';
@@ -125,7 +122,7 @@
         {
             field: "product_name", headerName: "상품명", width: 200,
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            cellStyle: cellMergeStyling,
+            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             editable: (p) => p.data.position < 2,
         },
         {
@@ -143,10 +140,10 @@
             field: "option_img", headerName: "이미지", width: 60,
             cellRenderer: (p) => {
                 if (!!p.value) {
-                    return `<div style='display:flex;justify-content:center;align-items:center;padding:5px 0;'><img src='${p.value}' alt='${p.data.product_name}' style='width:100%;' /></div>`;
+                    return `<div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'><img src='${p.value}' alt='${p.data.product_name}' style=width:30px;height:30px;' /></div>`;
                 }
                 return '';
-            }
+            },
         },
         { field: "option_name", headerName: "옵션명", width: 0, editable: true },
     ];
@@ -181,11 +178,11 @@
             gx.gridOptions.api.setRowData(data.map((item, index) => {
                 return {
                     ...item,
-                    group_id: item.parent.product_id,
-                    product_name: item.parent.title,
-                    product_body: item.parent.body_html,
-                    product_img: item.parent.images[0]?.src || '',
-                    product_status: item.parent.status,
+                    group_id: item.position !== 1 ? '' : item.parent.product_id,
+                    product_name: item.position !== 1 ? '' : item.parent.title,
+                    product_body: item.position !== 1 ? '' : item.parent.body_html,
+                    product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
+                    product_status: item.position !== 1 ? '' : item.parent.status,
                     option_name: item.title,
                     option_img: item.image?.src || '',
                 };

@@ -39,19 +39,18 @@
 
 .ag-theme-balham .ag-row {
     border-top: 0;
-    border-left: 0;
     border-bottom: 0;
 }
 
-.ag-theme-balham .ag-cell {
+.ag-theme-balham .ag-ltr .ag-cell {
     border-bottom: 1px solid #e5e7eb;
 }
 
-.ag-theme-balham .ag-cell:not(:last-child):not(:focus) {
+.ag-theme-balham .ag-ltr .ag-cell:not(:last-child):not(:focus) {
     border-right: 1px solid #D9DDDF;
 }
 
-.ag-theme-balham .ag-cell:focus {
+.ag-theme-balham .ag-ltr .ag-cell:focus {
     border-right: 1px solid #0091ea !important;
     border-bottom: 1px solid #0091ea !important;
 }
@@ -121,3 +120,11 @@
 /*.ag-pinned-left-header {*/
 /*    overflow: visible;*/
 /*}*/
+
+.grid-badge {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    background-color: var(--p-color-bg-fill-transparent-secondary);
+}

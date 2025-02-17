@@ -99,3 +99,8 @@ body {
 .footer a:hover {
     text-decoration: underline;
 }
+
+/* Tailwind Custom */
+.text-2xs {
+    font-size: 0.625rem;
+}
