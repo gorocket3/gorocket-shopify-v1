@@ -29,7 +29,7 @@ class WebhookController extends Controller
         $updatedAt = $payload['updated_at'] ?? null;
 
         if ($this->shouldSkipWebhook($productId, $updatedAt)) {
-            return response()->json(['message' => 'Ignored outdated webhook']);
+            return response()->json(['message' => 'Ignored webhook']);
         }
 
         $shopDomain = $request->header('x-shopify-shop-domain');
@@ -65,7 +65,7 @@ class WebhookController extends Controller
             $productUpdatedAt = Carbon::parse($product->updated_at, 'UTC');
             $webhookUpdatedAt = Carbon::parse($updatedAt, 'UTC');
             if ($webhookUpdatedAt < $productUpdatedAt) {
-                Log::info("[HOOK][HANDLE] Outdated webhook for product: {$productId}");
+                Log::info("[HOOK][HANDLE] Webhook outdated - {$productId}");
                 return true;
             }
         }
