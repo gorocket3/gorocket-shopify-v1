@@ -89,29 +89,31 @@ class ProductUpdateJob implements ShouldQueue
      */
     protected function updateVariants(): void
     {
-        $variants = collect($this->data['variants'] ?? [])->map(fn($variant) => [
-            'variant_id'                => $variant['id'],
-            'product_id'                => $this->data['id'],
-            'title'                     => $variant['title'],
-            'price'                     => $variant['price'],
-            'position'                  => $variant['position'],
-            'inventory_policy'          => $variant['inventory_policy'],
-            'compare_at_price'          => $variant['compare_at_price'],
-            'option1'                   => $variant['option1'],
-            'option2'                   => $variant['option2'],
-            'option3'                   => $variant['option3'],
-            'taxable'                   => $variant['taxable'],
-            'barcode'                   => $variant['barcode'],
-            'inventory_item_id'         => $variant['inventory_item_id'],
-            'inventory_quantity'        => $variant['inventory_quantity'],
-            'old_inventory_quantity'    => $variant['old_inventory_quantity'],
-            'admin_graphql_api_id'      => $variant['admin_graphql_api_id'],
-            'image_id'                  => $variant['image_id'],
-            'created_at'                => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
-            'updated_at'                => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
-        ]);
-
-        ProductVariant::upsert($variants->toArray(), ['variant_id']);
+        foreach ($this->data['variants'] ?? [] as $variant) {
+            ProductVariant::updateOrCreate(
+                ['variant_id' => $variant['id']],
+                [
+                    'product_id'             => $this->data['id'],
+                    'title'                  => $variant['title'],
+                    'price'                  => $variant['price'],
+                    'position'               => $variant['position'],
+                    'inventory_policy'       => $variant['inventory_policy'],
+                    'compare_at_price'       => $variant['compare_at_price'],
+                    'option1'                => $variant['option1'],
+                    'option2'                => $variant['option2'],
+                    'option3'                => $variant['option3'],
+                    'taxable'                => $variant['taxable'],
+                    'barcode'                => $variant['barcode'],
+                    'inventory_item_id'      => $variant['inventory_item_id'],
+                    'inventory_quantity'     => $variant['inventory_quantity'],
+                    'old_inventory_quantity' => $variant['old_inventory_quantity'],
+                    'admin_graphql_api_id'   => $variant['admin_graphql_api_id'],
+                    'image_id'               => $variant['image_id'],
+                    'created_at'             => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
+                    'updated_at'             => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
+                ]
+            );
+        }
     }
 
     /**
@@ -119,21 +121,22 @@ class ProductUpdateJob implements ShouldQueue
      */
     protected function updateImages(): void
     {
-        $images = collect($this->data['images'] ?? [])->map(fn($image) => [
-            'product_id'           => $this->data['id'],
-            'image_id'             => $image['id'],
-            'alt'                  => $image['alt'],
-            'position'             => $image['position'],
-            'src'                  => $image['src'],
-            'width'                => $image['width'],
-            'height'               => $image['height'],
-            'admin_graphql_api_id' => $image['admin_graphql_api_id'],
-            'variant_ids'          => json_encode($image['variant_ids'] ?? []),
-            'created_at'           => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
-            'updated_at'           => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
-        ]);
-
-        ProductImage::upsert($images->toArray(), ['image_id']);
+        foreach ($this->data['images'] ?? [] as $image) {
+            ProductImage::updateOrCreate(
+                ['product_id' => $this->data['id'], 'image_id' => $image['id']],
+                [
+                    'alt'                  => $image['alt'],
+                    'position'             => $image['position'],
+                    'src'                  => $image['src'],
+                    'width'                => $image['width'],
+                    'height'               => $image['height'],
+                    'admin_graphql_api_id' => $image['admin_graphql_api_id'],
+                    'variant_ids'          => $image['variant_ids'] ?? [],
+                    'created_at'           => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
+                    'updated_at'           => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
+                ]
+            );
+        }
     }
 
     /**
@@ -141,17 +144,19 @@ class ProductUpdateJob implements ShouldQueue
      */
     protected function updateOptions(): void
     {
-        $options = collect($this->data['options'] ?? [])->map(fn($option) => [
-            'option_id'  => $option['id'],
-            'product_id' => $this->data['id'],
-            'name'       => $option['name'],
-            'position'   => $option['position'],
-            'values'     => json_encode($option['values'] ?? []),
-            'created_at' => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
-            'updated_at' => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
-        ]);
-
-        ProductOption::upsert($options->toArray(), ['option_id']);
+        foreach ($this->data['options'] ?? [] as $option) {
+            ProductOption::updateOrCreate(
+                ['option_id' => $option['id']],
+                [
+                    'product_id' => $this->data['id'],
+                    'name'       => $option['name'],
+                    'position'   => $option['position'],
+                    'values'     => $option['values'] ?? [],
+                    'created_at' => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
+                    'updated_at' => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
+                ]
+            );
+        }
     }
 
     /**
