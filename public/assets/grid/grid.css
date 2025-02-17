@@ -40,9 +40,15 @@
 .ag-theme-balham .ag-row {
     border-top: 0;
     border-bottom: 0;
+    background-color: #ffffff;
+}
+
+.ag-theme-balham .ag-row.odd {
+    background-color: #f5faff;
 }
 
 .ag-theme-balham .ag-ltr .ag-cell {
+    line-height: 33px;
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -126,5 +132,8 @@
     font-size: 0.65rem;
     font-weight: 500;
     border-radius: 0.5rem;
+}
+
+.grid-badge.Polaris-Badge--toneDefault {
     background-color: var(--p-color-bg-fill-transparent-secondary);
 }

@@ -444,7 +444,7 @@ HDGrid.prototype.Request = function (url, data = '', page = -1, callback, http_m
     if (this.loading === false) {
         this.loading = true;
 
-        this.requst_data = data;
+        this.requst_data = data || '';
         //var page_size = gridOptions.paginationPageSize;
         this.request_url = url;
         this.total = 0;
@@ -517,11 +517,26 @@ HDGrid.prototype._Request = function (callback, http_method) {
         });
     }
 
-    $.ajax({
-        //async: true,
-        type: http_method, url: this.request_url, data: this.requst_data, success: function (data) {
-            //console.log(data);
-            //const res = jQuery.parseJSON(data);
+    const init = {
+        method: http_method,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+    if (http_method === 'post') {
+        init.body = JSON.stringify(this.requst_data);
+    } else {
+        this.request_url += '?' + this.requst_data;
+    }
+
+    fetch(this.request_url, init)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
             res = data;
 
             if (_gx.page === -1) {
@@ -559,15 +574,14 @@ HDGrid.prototype._Request = function (callback, http_method) {
                 }
             }
             if (callback) callback(data);
-        }, complete: function () {
+        }).catch(error => {
+            console.error(error.message);
+            alert('조회 시 오류가 발생했습니다.\n다시 시도해 주세요.');
+        }).finally(() => {
             _gx.loading = false;
             _gx.HideLoadingLayer();
             _gx.gridOptions.api.hideOverlay();
-        }, error: function (xhr, status, error) {
-            console.log(xhr.responseText);
-            if (xhr.status === 500) alert('조회 시 오류가 발생했습니다.\n검색조건을 확인하신 후 다시 시도해주세요');
-        }
-    });
+        });
 };
 
 /**

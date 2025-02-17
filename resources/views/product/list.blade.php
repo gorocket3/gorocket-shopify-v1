@@ -76,7 +76,7 @@
     const PRODUCT_STATUS = {
         active: { title: '활성', color: 'Polaris-Badge--toneSuccess' },
         draft: { title: '초안', color: 'Polaris-Badge--toneInfo' },
-        archived: { title: '보관', color: '' }
+        archived: { title: '보관', color: 'Polaris-Badge--toneDefault' }
     };
 
     const cellMergeStyling = (p) => {
@@ -145,7 +145,7 @@
                 return '';
             },
         },
-        { field: "option_name", headerName: "옵션명", width: 0, editable: true },
+        { field: "option_name", headerName: "옵션명", minWidth: 120, width: 0, editable: true },
     ];
 
     document.addEventListener('DOMContentLoaded', async function () {
@@ -158,14 +158,18 @@
         gx = new HDGrid(gridDiv, default_columns, {
             enableCellSpan: true,
             suppressRowTransform: true,
+            rowClassRules: {
+                "odd": "data.parent_index % 2 === 0",
+            },
         });
 
-        gx.Request('/api/products?title=snow', null, 1, function (v) {
-            const data = v.data.reduce((a, c) => {
+        gx.Request('/api/products', '', 1, function (v) {
+            const data = v.data.reduce((a, c, i) => {
                 return a.concat(c.variants.map((item, index) => {
                     const { variants, ...parent } = c;
                     return {
                         ...item,
+                        parent_index: i,
                         parent: {
                             ...parent,
                             variants_cnt: c.variants.length,
