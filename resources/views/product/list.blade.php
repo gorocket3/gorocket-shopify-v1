@@ -26,9 +26,7 @@
 
     <!-- AG-GRID -->
     <script src="/assets/grid/ag-grid/dist/ag-grid-enterprise.min.js"></script>
-    <script>
-        agGrid.LicenseManager.setLicenseKey("{{env('GRID_LICENSE')}}");
-    </script>
+    <script src="/assets/grid/license.js"></script>
     <script src="/assets/grid/function.js?v=2025021017"></script>
     <script src="/assets/grid/init.js?v=2025021017"></script>
     <script src="/assets/grid/grid_auto_complete.js?v=2025021017"></script>
