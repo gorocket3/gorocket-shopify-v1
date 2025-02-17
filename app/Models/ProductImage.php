@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @method static updateOrCreate(array $array, array $array1)
  * @method static where(string $string, mixed $id)
+ * @method static upsert(mixed[] $toArray, string[] $array)
+ * @method static whereNotIn(string $string, \Illuminate\Support\Collection $imageIds)
  */
 class ProductImage extends BaseModel
 {

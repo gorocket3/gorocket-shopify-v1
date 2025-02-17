@@ -3,6 +3,7 @@
 namespace App\Jobs\Setup;
 
 use App\Models\Shop;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,8 +62,8 @@ class ShopUpdateJob implements ShouldQueue
                     'checkout_api_supported'         => $this->data['checkout_api_supported'],
                     'enabled_presentment_currencies' => $this->data['enabled_presentment_currencies'],
                     'multi_location_enabled'         => $this->data['multi_location_enabled'],
-                    'shop_created_at'                => $this->data['created_at'],
-                    'shop_updated_at'                => $this->data['updated_at']
+                    'shop_created_at'                => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
+                    'shop_updated_at'                => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
                 ]
             );
 

@@ -63,10 +63,8 @@ class WebhookController extends Controller
 
         $product = Product::where('product_id', $productId)->first();
         if ($product) {
-            $timezone = preg_replace('/^\(GMT[^\)]+\)\s/', '', $timezone);
-            $productUpdatedAt = Carbon::parse($product->updated_at->format('Y-m-d H:i:s'), $timezone)->setTimezone('UTC');
-            $webhookUpdatedAt = Carbon::parse($updatedAt, $timezone)->setTimezone('UTC');
-            if ($webhookUpdatedAt < $productUpdatedAt) {
+            $webhookUpdatedAt = Carbon::parse($updatedAt)->setTimezone('UTC');
+            if ($webhookUpdatedAt < $product->updated_at) {
                 Log::info("[HOOK][HANDLE] Webhook outdated - {$productId}");
                 return true;
             }

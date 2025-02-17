@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @method static where(string $string, mixed $id)
  * @method static updateOrCreate(array $array, array $array1)
+ * @method static upsert(mixed[] $toArray, string[] $array)
+ * @method static whereNotIn(string $string, \Illuminate\Support\Collection $variantIds)
  */
 class ProductVariant extends BaseModel
 {

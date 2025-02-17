@@ -42,27 +42,27 @@ class ShopUpdateListener implements ShouldQueue
 
             $shopData = $response['body']['shop'];
             $data = [
-                'id'                          => $shopData['id'],
-                'myshopify_domain'            => $shopData['myshopify_domain'],
-                'name'                        => $shopData['name'],
-                'shop_owner'                  => $shopData['shop_owner'],
-                'email'                       => $shopData['email'],
-                'customer_email'              => $shopData['customer_email'],
-                'domain'                      => $shopData['domain'],
-                'country'                     => $shopData['country'],
-                'country_code'                => $shopData['country_code'],
-                'currency'                    => $shopData['currency'],
-                'timezone'                    => $shopData['timezone'],
-                'plan_name'                   => $shopData['plan_name'],
-                'plan_display_name'           => $shopData['plan_display_name'],
-                'has_storefront'              => $shopData['has_storefront'],
-                'password_enabled'            => $shopData['password_enabled'],
-                'checkout_api_supported'      => $shopData['checkout_api_supported'],
-                'enabled_presentment_currencies' => $shopData['enabled_presentment_currencies'],
-                'multi_location_enabled'      => $shopData['multi_location_enabled'],
-                'created_at'                  => $shopData['created_at'],
-                'updated_at'                  => $shopData['updated_at'],
-                'user_id'                     => $shopId
+                'id'                                => $shopData['id'],
+                'myshopify_domain'                  => $shopData['myshopify_domain'],
+                'name'                              => $shopData['name'],
+                'shop_owner'                        => $shopData['shop_owner'],
+                'email'                             => $shopData['email'],
+                'customer_email'                    => $shopData['customer_email'],
+                'domain'                            => $shopData['domain'],
+                'country'                           => $shopData['country'],
+                'country_code'                      => $shopData['country_code'],
+                'currency'                          => $shopData['currency'],
+                'timezone'                          => $shopData['timezone'],
+                'plan_name'                         => $shopData['plan_name'],
+                'plan_display_name'                 => $shopData['plan_display_name'],
+                'has_storefront'                    => $shopData['has_storefront'],
+                'password_enabled'                  => $shopData['password_enabled'],
+                'checkout_api_supported'            => $shopData['checkout_api_supported'],
+                'enabled_presentment_currencies'    => $shopData['enabled_presentment_currencies'],
+                'multi_location_enabled'            => $shopData['multi_location_enabled'],
+                'created_at'                        => $shopData['created_at'],
+                'updated_at'                        => $shopData['updated_at'],
+                'user_id'                           => $shopId
             ];
 
             ShopUpdateJob::dispatch($data);

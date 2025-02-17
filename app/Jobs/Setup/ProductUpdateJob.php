@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductOption;
 use App\Models\ProductVariant;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,18 +19,17 @@ use Illuminate\Support\Facades\Redis;
 
 class ProductUpdateJob implements ShouldQueue
 {
+    /**
+     * InteractsWithQueue, Queueable, SerializesModels
+     */
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * Product data
+     * Product data from webhook
      *
      * @var array
      */
     protected array $data;
-
-    /**
-     * @var int|null
-     */
     protected ?int $shopId;
 
     /**
@@ -40,146 +40,149 @@ class ProductUpdateJob implements ShouldQueue
      */
     public function __construct(array $data, ?int $shopId = null)
     {
-        $this->data = $data;
+        $this->data   = $data;
         $this->shopId = $shopId;
     }
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
-        $products = $this->isMultiple($this->data) ? $this->data : [$this->data];
-
         try {
-            foreach ($products as $product) {
-                if (empty($product['id'])) {
-                    Log::error("Product ID is missing - {$product['id']}");
-                    continue;
-                }
+            DB::transaction(function () {
+                $this->bulkUpdateProducts();
+                $this->bulkUpdateVariants();
+                $this->bulkUpdateImages();
+                $this->bulkUpdateOptions();
+                $this->deleteMissingRecords();
+            });
 
-                DB::transaction(function () use ($product) {
-                    Product::updateOrCreate(
-                        ['product_id' => $product['id']],
-                        [
-                            'admin_graphql_api_id' => $product['admin_graphql_api_id'],
-                            'title'                => $product['title'],
-                            'handle'               => $product['handle'],
-                            'body_html'            => $product['body_html'],
-                            'product_type'         => $product['product_type'],
-                            'vendor'               => $product['vendor'],
-                            'status'               => $product['status'],
-                            'published_scope'      => $product['published_scope'],
-                            'tags'                 => $product['tags'],
-                            'published_at'         => $product['published_at'],
-                            'created_at'           => $product['created_at'],
-                            'updated_at'           => $product['updated_at'],
-                            'user_id'              => $product['user_id']
-                        ]
-                    );
-
-                    ProductVariant::where('product_id', $product['id'])->delete();
-                    if (!empty($product['variants'])) {
-                        foreach ($product['variants'] as $variant) {
-                            ProductVariant::updateOrCreate(
-                                ['variant_id' => $variant['variant_id']],
-                                [
-                                    'product_id'            => $product['id'],
-                                    'title'                 => $variant['title'],
-                                    'price'                 => $variant['price'],
-                                    'position'              => $variant['position'],
-                                    'inventory_policy'      => $variant['inventory_policy'],
-                                    'compare_at_price'      => $variant['compare_at_price'],
-                                    'option1'               => $variant['option1'],
-                                    'option2'               => $variant['option2'],
-                                    'option3'               => $variant['option3'],
-                                    'created_at'            => $variant['created_at'],
-                                    'updated_at'            => $variant['updated_at'],
-                                    'taxable'               => $variant['taxable'],
-                                    'barcode'               => $variant['barcode'],
-                                    'fulfillment_service'   => $variant['fulfillment_service'],
-                                    'grams'                 => $variant['grams'],
-                                    'inventory_management'  => $variant['inventory_management'],
-                                    'requires_shipping'     => $variant['requires_shipping'],
-                                    'sku'                   => $variant['sku'],
-                                    'weight'                => $variant['weight'],
-                                    'weight_unit'           => $variant['weight_unit'],
-                                    'inventory_item_id'     => $variant['inventory_item_id'],
-                                    'inventory_quantity'    => $variant['inventory_quantity'],
-                                    'old_inventory_quantity'=> $variant['old_inventory_quantity'],
-                                    'admin_graphql_api_id'  => $variant['admin_graphql_api_id'],
-                                    'image_id'              => $variant['image_id']
-                                ]
-                            );
-                        }
-                        Log::info("[SETUP][PRODUCT] Variants updated - {$product['id']}");
-                    } else {
-                        Log::info("[SETUP][PRODUCT] No variants found - {$product['id']}, all previous variants deleted.");
-                    }
-
-                    ProductImage::where('product_id', $product['id'])->delete();
-                    if (!empty($product['images'])) {
-                        foreach ($product['images'] as $image) {
-                            ProductImage::updateOrCreate(
-                                [
-                                    'product_id' => $product['id'],
-                                    'image_id'   => $image['image_id']
-                                ],
-                                [
-                                    'product_id'           => $product['id'],
-                                    'alt'                  => $image['alt'],
-                                    'position'             => $image['position'],
-                                    'src'                  => $image['src'],
-                                    'width'                => $image['width'],
-                                    'height'               => $image['height'],
-                                    'admin_graphql_api_id' => $image['admin_graphql_api_id'],
-                                    'variant_ids'          => $image['variant_ids'] ?? []
-                                ]
-                            );
-                        }
-                        Log::info("[SETUP][PRODUCT] Images updated - {$product['id']}");
-                    } else {
-                        Log::info("[SETUP][PRODUCT] No images found - {$product['id']}, all previous images deleted.");
-                    }
-
-                    ProductOption::where('product_id', $product['id'])->delete();
-                    if (!empty($product['options'])) {
-                        foreach ($product['options'] as $option) {
-                            ProductOption::updateOrCreate(
-                                ['option_id' => $option['option_id']],
-                                [
-                                    'product_id'            => $product['id'],
-                                    'name'                  => $option['name'],
-                                    'position'              => $option['position'],
-                                    'values'                => $option['values'] ?? []
-                                ]
-                            );
-                        }
-                        Log::info("[SETUP][PRODUCT] Options updated - {$product['id']}");
-                    } else {
-                        Log::info("[SETUP][PRODUCT] No options found - {$product['id']}, all previous options deleted.");
-                    }
-                    Log::info("[SETUP][PRODUCT] Update success - {$product['id']}");
-                });
-            }
+            Log::info("[SETUP][PRODUCT] Sync completed - {$this->shopId}");
         } catch (Exception $e) {
             Log::error("[SETUP][PRODUCT] Sync failed - {$this->shopId}, Error: {$e->getMessage()}");
         } finally {
             Redis::del("product_sync_{$this->shopId}");
-            Log::info("[SETUP][PRODUCT] Sync completed - {$this->shopId}");
         }
     }
 
     /**
-     * Check if the data is multiple.
-     *
-     * @param array $data
-     * @return bool
+     * Bulk update products
      */
-    protected function isMultiple(array $data): bool
+    protected function bulkUpdateProducts(): void
     {
-        return isset($data[0]) && is_array($data[0]);
+        $products = collect($this->data)->map(fn($product) => [
+            'product_id'           => $product['id'],
+            'admin_graphql_api_id' => $product['admin_graphql_api_id'],
+            'title'                => $product['title'],
+            'handle'               => $product['handle'],
+            'body_html'            => $product['body_html'],
+            'product_type'         => $product['product_type'],
+            'vendor'               => $product['vendor'],
+            'status'               => $product['status'],
+            'published_scope'      => $product['published_scope'],
+            'tags'                 => $product['tags'],
+            'user_id'              => $product['user_id'],
+            'published_at'         => Carbon::parse($product['published_at'])->setTimezone('UTC'),
+            'created_at'           => Carbon::parse($product['created_at'])->setTimezone('UTC'),
+            'updated_at'           => Carbon::parse($product['updated_at'])->setTimezone('UTC')
+        ]);
+
+        Product::upsert($products->toArray(), ['product_id']);
+    }
+
+    /**
+     * Bulk update variants
+     */
+    protected function bulkUpdateVariants(): void
+    {
+        $variants = collect($this->data)->flatMap(fn($product) => collect($product['variants'] ?? [])->map(fn($variant) => [
+            'variant_id'           => $variant['variant_id'],
+            'product_id'           => $product['id'],
+            'title'                => $variant['title'],
+            'price'                => $variant['price'],
+            'position'             => $variant['position'],
+            'inventory_policy'     => $variant['inventory_policy'],
+            'compare_at_price'     => $variant['compare_at_price'],
+            'option1'              => $variant['option1'],
+            'option2'              => $variant['option2'],
+            'option3'              => $variant['option3'],
+            'taxable'              => $variant['taxable'],
+            'barcode'              => $variant['barcode'],
+            'fulfillment_service'  => $variant['fulfillment_service'],
+            'grams'                => $variant['grams'],
+            'inventory_management' => $variant['inventory_management'],
+            'requires_shipping'    => $variant['requires_shipping'],
+            'sku'                  => $variant['sku'],
+            'weight'               => $variant['weight'],
+            'weight_unit'          => $variant['weight_unit'],
+            'inventory_item_id'    => $variant['inventory_item_id'],
+            'inventory_quantity'   => $variant['inventory_quantity'],
+            'old_inventory_quantity' => $variant['old_inventory_quantity'],
+            'admin_graphql_api_id' => $variant['admin_graphql_api_id'],
+            'image_id'             => $variant['image_id'],
+            'created_at'           => Carbon::parse($product['created_at'])->setTimezone('UTC'),
+            'updated_at'           => Carbon::parse($product['updated_at'])->setTimezone('UTC'),
+        ]));
+
+        ProductVariant::upsert($variants->toArray(), ['variant_id']);
+    }
+
+    /**
+     * Bulk update images
+     */
+    protected function bulkUpdateImages(): void
+    {
+        $images = collect($this->data)->flatMap(fn($product) => collect($product['images'] ?? [])->map(fn($image) => [
+            'product_id'           => $product['id'],
+            'image_id'             => $image['image_id'],
+            'alt'                  => $image['alt'],
+            'position'             => $image['position'],
+            'src'                  => $image['src'],
+            'width'                => $image['width'],
+            'height'               => $image['height'],
+            'admin_graphql_api_id' => $image['admin_graphql_api_id'],
+            'variant_ids'          => json_encode($image['variant_ids'] ?? []),
+            'created_at'           => Carbon::parse($product['created_at'])->setTimezone('UTC'),
+            'updated_at'           => Carbon::parse($product['updated_at'])->setTimezone('UTC')
+        ]));
+
+        ProductImage::upsert($images->toArray(), ['image_id']);
+    }
+
+    /**
+     * Bulk update options
+     */
+    protected function bulkUpdateOptions(): void
+    {
+        $options = collect($this->data)->flatMap(fn($product) => collect($product['options'] ?? [])->map(fn($option) => [
+            'option_id'  => $option['option_id'],
+            'product_id' => $product['id'],
+            'name'       => $option['name'],
+            'position'   => $option['position'],
+            'values'     => json_encode($option['values'] ?? []),
+            'created_at' => Carbon::parse($product['created_at'])->setTimezone('UTC'),
+            'updated_at' => Carbon::parse($product['updated_at'])->setTimezone('UTC')
+        ]));
+
+        ProductOption::upsert($options->toArray(), ['option_id']);
+    }
+
+    /**
+     * Delete missing records
+     */
+    protected function deleteMissingRecords(): void
+    {
+        $currentProductIds = collect($this->data)->pluck('id');
+        Product::whereNotIn('product_id', $currentProductIds)->delete();
+
+        $variantIds = collect($this->data)->flatMap(fn($p) => collect($p['variants'] ?? [])->pluck('variant_id'));
+        ProductVariant::whereNotIn('variant_id', $variantIds)->delete();
+
+        $imageIds = collect($this->data)->flatMap(fn($p) => collect($p['images'] ?? [])->pluck('image_id'));
+        ProductImage::whereNotIn('image_id', $imageIds)->delete();
+
+        $optionIds = collect($this->data)->flatMap(fn($p) => collect($p['options'] ?? [])->pluck('option_id'));
+        ProductOption::whereNotIn('option_id', $optionIds)->delete();
     }
 }
