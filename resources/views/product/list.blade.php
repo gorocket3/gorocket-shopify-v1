@@ -153,8 +153,11 @@
     const default_columns = [
         { field: "product_status_changed", hide: true },
         { field: "product_name_changed", hide: true },
+        { field: "product_tags_changed", hide: true },
         { field: "product_body_changed", hide: true },
         { field: "option_name_changed", hide: true },
+        { field: "price_changed", hide: true },
+        { field: "inventory_quantity_changed", hide: true },
         {
             field: "chk",
             headerName: '',
@@ -181,7 +184,7 @@
             headerName: "Status",
             width: 75,
             cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.className || ''} ">${PRODUCT_STATUS[p.value]?.label || ''}</span>`,
+            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.className || ''} Polaris-Text--bold">${PRODUCT_STATUS[p.value]?.label || ''}</span>`,
             cellStyle: cellMergeStyling,
             editable: (p) => p.data.position < 2,
             cellEditor: GridFieldEditor,
@@ -208,12 +211,31 @@
             cellStyle: cellMergeStyling
         },
         {
-            field: "product_name", headerName: "Product Name", width: 240,
+            field: "product_name", headerName: "Product Name", width: 120,
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             editable: (p) => p.data.position < 2,
             cellClassRules: changedCellClassRules('product_name'),
             onCellValueChanged: (e) => changeCellState('product_name', e)
+        },
+        {
+            field: "product_tags", headerName: "Tags", width: 200,
+            cellRenderer: (p) => p.data.position > 1 ? '' : `
+                <div class="flex flex-wrap align-items-center gap-1 py-1">
+                    ${p.value === '' ? '' : p.value.split(', ').map((tag) => `<span class="grid-badge Polaris-Badge--toneInfo" style="display:inline-block;line-height:normal;">${tag || ''}</span>`).join('')}
+                </div>
+            `,
+            cellStyle: cellMergeStyling,
+            editable: (p) => p.data.position < 2,
+            cellEditor: GridFieldMultipleEditor,
+            cellEditorParams: {
+                cellEditor: GridFieldMultipleEditor,
+                values: product_tags_array.map((tag) => ({ id: tag, label: tag })),
+                width: "120px",
+            },
+            cellEditorPopup: true,
+            cellClassRules: changedCellClassRules('product_tags'),
+            onCellValueChanged: (e) => changeCellState('product_tags', e)
         },
         {
             field: "product_body",
@@ -242,6 +264,19 @@
             cellClassRules: changedCellClassRules('option_name'),
             onCellValueChanged: (e) => changeCellState('option_name', e)
         },
+        {
+            field: "price", headerName: "Price($)", width: 70, cellClass: 'hd-grid-number', editable: true,
+            cellRenderer: (p) => '$ ' + numberWithCommas(p.value),
+            cellClassRules: changedCellClassRules('price'),
+            onCellValueChanged: (e) => changeCellState('price', e)
+        },
+        {
+            field: "inventory_quantity", headerName: "Quantity", width: 70, cellClass: 'hd-grid-number', editable: true,
+            cellRenderer: (p) => numberWithCommas(p.value),
+            cellClassRules: changedCellClassRules('inventory_quantity'),
+            onCellValueChanged: (e) => changeCellState('inventory_quantity', e)
+        },
+        { width: 0 }
     ];
 
     document.addEventListener('DOMContentLoaded', async function () {
@@ -291,6 +326,7 @@
                         ...item,
                         group_id: item.position !== 1 ? '' : item.parent.product_id,
                         product_name: item.position !== 1 ? '' : item.parent.title,
+                        product_tags: item.position !== 1 ? '' : item.parent.tags,
                         product_body: item.position !== 1 ? '' : item.parent.body_html,
                         product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
                         product_status: item.position !== 1 ? '' : item.parent.status,

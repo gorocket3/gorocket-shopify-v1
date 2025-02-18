@@ -146,8 +146,12 @@
 .grid-badge {
     padding: 0.125rem 0.5rem;
     font-size: 0.65rem;
-    font-weight: 600;
+    font-weight: 500;
     border-radius: 0.375rem;
+}
+
+.grid-badge.border-primary {
+    border: 1px solid var(--p-color-border-focus);
 }
 
 .grid-badge.Polaris-Badge--toneDefault {
