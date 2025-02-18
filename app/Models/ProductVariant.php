@@ -25,7 +25,6 @@ class ProductVariant extends BaseModel
 
         static::updating(function ($variant) {
             $dirty = $variant->getDirty();
-            $original = $variant->getOriginal();
 
             unset($dirty['created_at']);
             unset($dirty['updated_at']);
@@ -33,12 +32,12 @@ class ProductVariant extends BaseModel
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
-                    'change_id' => self::getRequestChangeId(),
-                    'product_id' => $variant->product_id,
-                    'model_type' => get_class($variant),
-                    'model_id' => $variant->variant_id,
-                    'old_data' => json_encode(array_intersect_key($original, $dirty)),
-                    'new_data' => json_encode($dirty)
+                    'change_id'     => self::getRequestChangeId(),
+                    'product_id'    => $variant->product_id,
+                    'model_type'    => get_class($variant),
+                    'model_id'      => $variant->variant_id,
+                    'old_data'      => json_encode(array_intersect_key($variant->getOriginal(), $dirty)),
+                    'new_data'      => json_encode($dirty)
                 ]);
             }
         });

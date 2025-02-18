@@ -24,18 +24,19 @@ class ProductOption extends BaseModel
 
         static::updating(function ($option) {
             $dirty = $option->getDirty();
-            $original = $option->getOriginal();
-
+            if (isset($dirty['values'])) {
+                $dirty['values'] = json_decode($dirty['values'], true);
+            }
             unset($dirty['updated_at']);
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
-                    'change_id' => self::getRequestChangeId(),
-                    'product_id' => $option->product_id,
-                    'model_type' => get_class($option),
-                    'model_id' => $option->option_id,
-                    'old_data' => json_encode(array_intersect_key($original, $dirty)),
-                    'new_data' => json_encode($dirty)
+                    'change_id'     => self::getRequestChangeId(),
+                    'product_id'    => $option->product_id,
+                    'model_type'    => get_class($option),
+                    'model_id'      => $option->option_id,
+                    'old_data'      => json_encode(array_intersect_key($option->getOriginal(), $dirty)),
+                    'new_data'      => json_encode($dirty)
                 ]);
             }
         });

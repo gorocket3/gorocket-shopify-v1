@@ -25,16 +25,6 @@ class ChangeLog extends Model
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'old_data' => 'array',
-        'new_data' => 'array'
-    ];
-
-    /**
      * Get the shop that owns the Log
      *
      */

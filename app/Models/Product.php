@@ -27,7 +27,6 @@ class Product extends BaseModel
 
         static::updating(function ($product) {
             $dirty = $product->getDirty();
-            $original = $product->getOriginal();
 
             unset($dirty['published_at']);
             unset($dirty['created_at']);
@@ -36,12 +35,12 @@ class Product extends BaseModel
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
-                    'change_id' => self::getRequestChangeId(),
-                    'product_id' => $product->product_id,
-                    'model_type' => get_class($product),
-                    'model_id' => $product->id,
-                    'old_data' => json_encode(array_intersect_key($original, $dirty)),
-                    'new_data' => json_encode($dirty)
+                    'change_id'     => self::getRequestChangeId(),
+                    'product_id'    => $product->product_id,
+                    'model_type'    => get_class($product),
+                    'model_id'      => $product->id,
+                    'old_data'      => json_encode(array_intersect_key($product->getOriginal(), $dirty)),
+                    'new_data'      => json_encode($dirty)
                 ]);
             }
         });

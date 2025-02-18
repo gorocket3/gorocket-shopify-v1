@@ -25,19 +25,18 @@ class ProductImage extends BaseModel
 
         static::updating(function ($image) {
             $dirty = $image->getDirty();
-            $original = $image->getOriginal();
 
             unset($dirty['updated_at']);
             unset($dirty['admin_graphql_api_id']);
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
-                    'change_id' => self::getRequestChangeId(),
-                    'product_id' => $image->product_id,
-                    'model_type' => get_class($image),
-                    'model_id' => $image->image_id,
-                    'old_data' => json_encode(array_intersect_key($original, $dirty)),
-                    'new_data' => json_encode($dirty)
+                    'change_id'     => self::getRequestChangeId(),
+                    'product_id'    => $image->product_id,
+                    'model_type'    => get_class($image),
+                    'model_id'      => $image->image_id,
+                    'old_data'      => json_encode(array_intersect_key($image->getOriginal(), $dirty)),
+                    'new_data'      => json_encode($dirty)
                 ]);
             }
         });
