@@ -135,12 +135,11 @@
     };
 
     const changeCellState = (field, e) => {
-        e.node.setDataValue('is_changed', true);
         e.node.setDataValue(field + '_changed', true);
 
         gx.gridOptions.api.forEachNode((node) => {
             if (node.data.product_id === e.data.product_id) {
-                node.setDataValue('is_changed', true);
+                node.setSelected(true);
             }
         });
     }
@@ -152,11 +151,20 @@
     };
 
     const default_columns = [
-        { field: "is_changed", hide: true },
         { field: "product_status_changed", hide: true },
         { field: "product_name_changed", hide: true },
         { field: "product_body_changed", hide: true },
         { field: "option_name_changed", hide: true },
+        {
+            field: "chk",
+            headerName: '',
+            cellClass: 'hd-grid-code',
+            checkboxSelection: (p) => p.data.position < 2,
+            headerCheckboxSelection: true,
+            width: 24,
+            sort: null,
+            cellStyle: cellMergeStyling
+        },
         {
             field: "group_id", headerName: "Product ID", width: 110, cellClass: 'hd-grid-code',
             // rowSpan: (p) => {
@@ -248,7 +256,15 @@
             suppressRowTransform: true,
             rowClassRules: {
                 "even": "data.parent_index % 2 !== 0",
-                "changed": "data.is_changed",
+            },
+            onRowSelected: (event) => {
+                if (event.node.data.parent.variants_cnt > 1) {
+                    gx.gridOptions.api.forEachNode((node) => {
+                        if (node.data.product_id === event.node.data.product_id) {
+                            node.setSelected(event.node.selected);
+                        }
+                    });
+                }
             },
         });
 
@@ -296,14 +312,11 @@
         // Save Edited Products
         document.getElementById("save_product").addEventListener('click', function (e) {
             const rows = [];
-
-            gx.gridOptions.api.forEachNode((node) => {
-                if (node.data.is_changed) {
-                    if (node.data.product_name_changed) {
-                        const row = { id: node.data.product_id };
-                        row.title = node.data.product_name;
-                        rows.push(row);
-                    }
+            gx.gridOptions.api.getSelectedRows().forEach((data) => {
+                if (data.product_name_changed) {
+                    const row = { id: data.product_id };
+                    row.title = data.product_name;
+                    rows.push(row);
                 }
             });
 
