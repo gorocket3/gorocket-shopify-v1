@@ -26,7 +26,7 @@ class GridFieldEditor {
 
             const item = document.createElement('div');
             item.innerText = val[this.label] || '';
-            item.className = `grid-badge ${val?.color || ''}`;
+            item.className = `grid-badge ${val?.className || ''}`;
             item.addEventListener('click', () => {
                 this.selectValue(val.id);
                 params.stopEditing();

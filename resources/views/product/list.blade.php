@@ -61,14 +61,32 @@
                  style="--pc-block-stack-order:column;--pc-block-stack-gap-xs:var(--p-space-200)">
                 <div class="Polaris-InlineGrid"
                      style="--pc-inline-grid-grid-template-columns-xs:1fr auto;--pc-inline-grid-align-items:center;">
-                    <h2 class="Polaris-Text--root Polaris-Text--headingSm Polaris-Text--subdued"><strong
-                            class="Polaris-Text--base"><span id="gd-total">0</span></strong>개 제품 중 <strong
-                            class="Polaris-Text--success"><span id="gd-current">0</span></strong>개 표시됨</h2>
-                    <button type="button"
-                            id="save_product"
-                            class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter">
-                        <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">저장</span>
-                    </button>
+                    <h2 class="Polaris-Text--root Polaris-Text--subdued">
+                        Showing <strong id="gd-current" class="Polaris-Text--success">0</strong> of
+                        <strong id="gd-total" class="Polaris-Text--base">0</strong> <strong class="Polaris-Text--base">Products</strong>
+                    </h2>
+                    <div style="display: flex;align-items: center;gap: 7px;">
+                        <button type="button"
+                                id="refresh_product"
+                                style="padding: 0 7px;"
+                                class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantSecondary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--iconOnly">
+                            <span class="Polaris-Button__Icon">
+                                <span class="Polaris-Icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path
+                                            d="M3.5 9.25a.75.75 0 0 0 1.5 0 3 3 0 0 1 3-3h6.566l-1.123 1.248a.75.75 0 1 0 1.114 1.004l2.25-2.5a.75.75 0 0 0-.027-1.032l-2.25-2.25a.75.75 0 1 0-1.06 1.06l.97.97h-6.44a4.5 4.5 0 0 0-4.5 4.5Z"/>
+                                        <path
+                                            d="M16.5 10.75a.75.75 0 0 0-1.5 0 3 3 0 0 1-3 3h-6.566l1.123-1.248a.75.75 0 1 0-1.114-1.004l-2.25 2.5a.75.75 0 0 0 .027 1.032l2.25 2.25a.75.75 0 0 0 1.06-1.06l-.97-.97h6.44a4.5 4.5 0 0 0 4.5-4.5Z"/>
+                                    </svg>
+                                </span>
+                            </span>
+                        </button>
+                        <button type="button"
+                                id="save_product"
+                                class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter">
+                            <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Save</span>
+                        </button>
+                    </div>
                 </div>
                 <!-- 상품 그리드 -->
                 <div class="table-responsive">
@@ -91,11 +109,23 @@
     const pApp = new App('', { gridId: "#div-gd" });
     let gx;
 
-    const PRODUCT_STATUS = {
-        active: { title: '활성', color: 'Polaris-Badge--toneSuccess' },
-        draft: { title: '초안', color: 'Polaris-Badge--toneInfo' },
-        archived: { title: '보관', color: 'Polaris-Badge--toneDefault' }
+    const product_status_array = <?= json_encode(@$status) ?>;
+    const product_tags_array = <?= json_encode(@$tags) ?>;
+
+    const product_status_values = {
+        active: [ 'Active', 'Polaris-Badge--toneSuccess', '활성' ],
+        draft: [ 'Draft', 'Polaris-Badge--toneInfo', '초안' ],
+        archived: [ 'Archived', 'Polaris-Badge--toneDefault', '보관' ]
     };
+
+    const PRODUCT_STATUS = product_status_array.reduce((acc, key) => {
+        acc[key] = {
+            label: product_status_values[key]?.[0] || '-',
+            className: product_status_values[key]?.[1] || '',
+            koLabel: product_status_values[key]?.[2] || '-',
+        }
+        return acc;
+    }, {});
 
     const cellMergeStyling = (p) => {
         if (p.data.position !== (p.data.parent?.variants_cnt || 1)) {
@@ -128,7 +158,7 @@
         { field: "product_body_changed", hide: true },
         { field: "option_name_changed", hide: true },
         {
-            field: "group_id", headerName: "상품 ID", width: 120,
+            field: "group_id", headerName: "Product ID", width: 110, cellClass: 'hd-grid-code',
             // rowSpan: (p) => {
             //     if (p.data?.position === 1) {
             //         return p.data?.parent?.variants_cnt || 1;
@@ -140,25 +170,24 @@
         },
         {
             field: "product_status",
-            headerName: "상태",
-            width: 60,
+            headerName: "Status",
+            width: 75,
             cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.color || ''} ">${PRODUCT_STATUS[p.value]?.title || ''}</span>`,
+            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.className || ''} ">${PRODUCT_STATUS[p.value]?.label || ''}</span>`,
             cellStyle: cellMergeStyling,
             editable: (p) => p.data.position < 2,
             cellEditor: GridFieldEditor,
             cellEditorParams: {
                 cellEditor: GridFieldEditor,
                 values: Object.entries(PRODUCT_STATUS).map(([ key, value ]) => ({ id: key, ...value })),
-                label: 'title',
-                width: "58px",
+                width: "80px",
             },
             cellEditorPopup: true,
             cellClassRules: changedCellClassRules('product_status'),
             onCellValueChanged: (e) => changeCellState('product_status', e)
         },
         {
-            field: "product_img", headerName: "이미지", width: 60,
+            field: "product_img", headerName: "Image", width: 60,
             cellRenderer: (p) => {
                 if (p.data.position > 1) return '';
 
@@ -171,7 +200,7 @@
             cellStyle: cellMergeStyling
         },
         {
-            field: "product_name", headerName: "상품명", width: 240,
+            field: "product_name", headerName: "Product Name", width: 240,
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             editable: (p) => p.data.position < 2,
@@ -180,7 +209,7 @@
         },
         {
             field: "product_body",
-            headerName: "상품 설명",
+            headerName: "Product Body HTML",
             cellStyle: (p) => ({
                 ...cellMergeStyling(p),
                 whiteSpace: 'normal'
@@ -192,7 +221,7 @@
             onCellValueChanged: (e) => changeCellState('product_body', e)
         },
         {
-            field: "option_img", headerName: "이미지", width: 60,
+            field: "option_img", headerName: "Image", width: 60,
             cellRenderer: (p) => {
                 if (!!p.value) {
                     return `<div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'><img src='${p.value}' alt='${p.data.product_name}' style=width:30px;height:30px;' /></div>`;
@@ -201,7 +230,7 @@
             },
         },
         {
-            field: "option_name", headerName: "옵션명", width: 263, editable: true,
+            field: "option_name", headerName: "Option Name", width: 120, editable: true,
             cellClassRules: changedCellClassRules('option_name'),
             onCellValueChanged: (e) => changeCellState('option_name', e)
         },
@@ -223,42 +252,48 @@
             },
         });
 
-        gx.Request('/api/products', 'per_page=20', 1, function (v) {
-            const data = v.data.reduce((a, c, i) => {
-                return a.concat(c.variants.map((item, index) => {
-                    const { variants, ...parent } = c;
+        // Search Products
+        function searchProducts() {
+            gx.Request('/api/products', 'per_page=20', 1, function (v) {
+                const data = v.data.reduce((a, c, i) => {
+                    return a.concat(c.variants.map((item, index) => {
+                        const { variants, ...parent } = c;
+                        return {
+                            ...item,
+                            parent_index: i,
+                            parent: {
+                                ...parent,
+                                variants_cnt: c.variants.length,
+                                images: parent.images?.sort((x, y) => x.position - y.position) || []
+                            }
+                        };
+                    }).sort((x, y) => x.position - y.position));
+                }, []);
+
+                const result = data.map((item, index) => {
                     return {
                         ...item,
-                        parent_index: i,
-                        parent: {
-                            ...parent,
-                            variants_cnt: c.variants.length,
-                            images: parent.images?.sort((x, y) => x.position - y.position) || []
-                        }
+                        group_id: item.position !== 1 ? '' : item.parent.product_id,
+                        product_name: item.position !== 1 ? '' : item.parent.title,
+                        product_body: item.position !== 1 ? '' : item.parent.body_html,
+                        product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
+                        product_status: item.position !== 1 ? '' : item.parent.status,
+                        option_name: item.title,
+                        option_img: item.image?.src || '',
                     };
-                }).sort((x, y) => x.position - y.position));
-            }, []);
+                });
 
-            const result = data.map((item, index) => {
-                return {
-                    ...item,
-                    group_id: item.position !== 1 ? '' : item.parent.product_id,
-                    product_name: item.position !== 1 ? '' : item.parent.title,
-                    product_body: item.position !== 1 ? '' : item.parent.body_html,
-                    product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
-                    product_status: item.position !== 1 ? '' : item.parent.status,
-                    option_name: item.title,
-                    option_img: item.image?.src || '',
-                };
+                if (v.current_page === 1) {
+                    gx.gridOptions.api.setRowData(result);
+                } else {
+                    gx.gridOptions.api.applyTransaction({ add: result });
+                }
             });
+        }
 
-            if (v.current_page === 1) {
-                gx.gridOptions.api.setRowData(result);
-            } else {
-                gx.gridOptions.api.applyTransaction({ add: result });
-            }
-        });
+        searchProducts();
 
+        // Save Edited Products
         document.getElementById("save_product").addEventListener('click', function (e) {
             const rows = [];
 
@@ -292,6 +327,11 @@
                     console.error(error.message);
                     alert('상품 변경 중 오류가 발생했습니다.');
                 });
+        });
+
+        // Refresh Products
+        document.getElementById("refresh_product").addEventListener('click', function (e) {
+            searchProducts();
         });
     });
 </script>
