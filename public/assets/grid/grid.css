@@ -48,7 +48,7 @@
 }
 
 .ag-theme-balham .ag-row.changed {
-    background-color: #ffffea;
+    background-color: #ededed;
 }
 
 .ag-theme-balham .ag-ltr .ag-cell {
@@ -57,7 +57,7 @@
 }
 
 .ag-theme-balham .ag-ltr .ag-cell.changed {
-    background-color: #fdfda5;
+    background-color: #dfdfdf;
 }
 
 .ag-theme-balham .ag-ltr .ag-cell:not(:last-child):not(:focus) {
@@ -139,7 +139,7 @@
     padding: 0.125rem 0.5rem;
     font-size: 0.65rem;
     font-weight: 500;
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
 }
 
 .grid-badge.Polaris-Badge--toneDefault {

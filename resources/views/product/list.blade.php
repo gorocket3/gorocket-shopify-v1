@@ -29,8 +29,8 @@
     <script src="/assets/grid/license.js"></script>
     <script src="/assets/grid/function.js?v=2025021017"></script>
     <script src="/assets/grid/init.js?v=2025021017"></script>
-    <script src="/assets/grid/grid_auto_complete.js?v=2025021017"></script>
-    <script src="/assets/grid/grid_custom_editor.js?v=2025021017"></script>
+    <script src="/assets/grid/grid_field_editor.js?v=2025021017"></script>
+    {{--    <script src="/assets/grid/grid_custom_editor.js?v=2025021017"></script>--}}
     <script src="/assets/grid/grid.js?v=2025021017"></script>
     <link rel="stylesheet" href="/assets/grid/grid.css?v=2025021017">
     <!-- // AG-GRID -->
@@ -64,9 +64,9 @@
                     <h2 class="Polaris-Text--root Polaris-Text--headingSm Polaris-Text--subdued"><strong
                             class="Polaris-Text--base"><span id="gd-total">0</span></strong>개 제품 중 <strong
                             class="Polaris-Text--success"><span id="gd-current">0</span></strong>개 표시됨</h2>
-                    <button id="save_product"
-                            class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter"
-                            type="button">
+                    <button type="button"
+                            id="save_product"
+                            class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter">
                         <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">저장</span>
                     </button>
                 </div>
@@ -123,6 +123,7 @@
 
     const default_columns = [
         { field: "is_changed", hide: true },
+        { field: "product_status_changed", hide: true },
         { field: "product_name_changed", hide: true },
         { field: "product_body_changed", hide: true },
         { field: "option_name_changed", hide: true },
@@ -144,6 +145,17 @@
             cellClass: 'hd-grid-code',
             cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.color || ''} ">${PRODUCT_STATUS[p.value]?.title || ''}</span>`,
             cellStyle: cellMergeStyling,
+            editable: (p) => p.data.position < 2,
+            cellEditor: GridFieldEditor,
+            cellEditorParams: {
+                cellEditor: GridFieldEditor,
+                values: Object.entries(PRODUCT_STATUS).map(([ key, value ]) => ({ id: key, ...value })),
+                label: 'title',
+                width: "58px",
+            },
+            cellEditorPopup: true,
+            cellClassRules: changedCellClassRules('product_status'),
+            onCellValueChanged: (e) => changeCellState('product_status', e)
         },
         {
             field: "product_img", headerName: "이미지", width: 60,
