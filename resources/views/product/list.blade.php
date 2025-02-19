@@ -12,7 +12,7 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/app.jsx', 'resources/css/app.css?v=2025021918'])
+    @vite(['resources/js/app.jsx', 'resources/css/app.css'])
     <!-- // Vite -->
 
     <!-- CDN -->
