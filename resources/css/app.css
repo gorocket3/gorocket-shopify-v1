@@ -19,8 +19,8 @@ body {
 
 .container {
     margin: 0 auto;
-    padding: 40px 0;
     flex: 1;
+    max-width: none;
 }
 
 .navbar {
@@ -105,6 +105,10 @@ body {
 }
 
 /* Polaris Custom */
+.Polaris-Page {
+    max-width: none !important;
+}
+
 .Polaris-Text--success {
     color: #008000 !important;
 }

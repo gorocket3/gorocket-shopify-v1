@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <!-- Shopify -->
@@ -43,68 +42,143 @@
 </head>
 <body>
 <div class="container">
-    <div class="navbar">
-        <h1>그리드 에디터</h1>
-        <ui-nav-menu>
-            <a href="/products">상품</a>
-            <a href="/billing/2">결제</a>
-            <a href="/settings">설정</a>
-            <a href="/help">도움</a>
-        </ui-nav-menu>
-    </div>
-
-    <div class="Polaris-ShadowBevel"
-         style="--pc-shadow-bevel-z-index: 32; --pc-shadow-bevel-box-shadow-xs: var(--p-shadow-100); --pc-shadow-bevel-border-radius-xs: var(--p-border-radius-300);">
+    <div class="Polaris-Page">
         <div class="Polaris-Box"
-             style="--pc-box-background:var(--p-color-bg-surface);--pc-box-min-height:100%;--pc-box-overflow-x:clip;--pc-box-overflow-y:clip;--pc-box-padding-block-start-xs:var(--p-space-400);--pc-box-padding-block-end-xs:var(--p-space-400);--pc-box-padding-inline-start-xs:var(--p-space-400);--pc-box-padding-inline-end-xs:var(--p-space-400)">
-            <div class="Polaris-BlockStack"
-                 style="--pc-block-stack-order:column;--pc-block-stack-gap-xs:var(--p-space-200)">
-                <div class="Polaris-InlineGrid"
-                     style="--pc-inline-grid-grid-template-columns-xs:1fr auto;--pc-inline-grid-align-items:center;">
-                    <h2 class="Polaris-Text--root Polaris-Text--subdued">
-                        Showing <strong id="gd-current" class="Polaris-Text--success">0</strong> of
-                        <strong id="gd-total" class="Polaris-Text--base">0</strong> <strong class="Polaris-Text--base">Products</strong>
-                    </h2>
-                    <div style="display: flex;align-items: center;gap: 5px;">
-                        <button type="button"
-                                id="refresh_product"
-                                style="padding: 0 7px;"
-                                class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantSecondary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--iconOnly">
-                            <span class="Polaris-Button__Icon">
-                                <span class="Polaris-Icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path
-                                            d="M3.5 9.25a.75.75 0 0 0 1.5 0 3 3 0 0 1 3-3h6.566l-1.123 1.248a.75.75 0 1 0 1.114 1.004l2.25-2.5a.75.75 0 0 0-.027-1.032l-2.25-2.25a.75.75 0 1 0-1.06 1.06l.97.97h-6.44a4.5 4.5 0 0 0-4.5 4.5Z"/>
-                                        <path
-                                            d="M16.5 10.75a.75.75 0 0 0-1.5 0 3 3 0 0 1-3 3h-6.566l1.123-1.248a.75.75 0 1 0-1.114-1.004l-2.25 2.5a.75.75 0 0 0 .027 1.032l2.25 2.25a.75.75 0 0 0 1.06-1.06l-.97-.97h6.44a4.5 4.5 0 0 0 4.5-4.5Z"/>
-                                    </svg>
-                                </span>
-                            </span>
-                        </button>
-                        <button type="button"
-                                id="save_product"
-                                class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter">
-                            <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Save</span>
-                        </button>
-                        <button
-                            type="button"
-                            id="remove_product"
-                            class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--toneCritical">
-                            <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Delete</span>
-                        </button>
+             style="--pc-box-padding-block-start-xs:var(--p-space-300);--pc-box-padding-block-start-md:var(--p-space-300);--pc-box-padding-block-end-xs:var(--p-space-300);--pc-box-padding-block-end-md:var(--p-space-300);--pc-box-padding-inline-start-xs:var(--p-space-400);--pc-box-padding-inline-start-sm:var(--p-space-0);--pc-box-padding-inline-end-xs:var(--p-space-400);--pc-box-padding-inline-end-sm:var(--p-space-0);position:relative">
+            <div class="Polaris-Page-Header--mediumTitle">
+                <div class="Polaris-Page-Header__Row">
+                    <div class="Polaris-Page-Header__TitleWrapper Polaris-Page-Header__TitleWrapperExpand">
+                        <div class="Polaris-Header-Title__TitleWrapper">
+                            <h1 class="Polaris-Header-Title">
+                            <span
+                                class="Polaris-Text--root Polaris-Text--headingLg Polaris-Text--bold">Producs</span>
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="Polaris-Page-Header__RightAlign">
+                        <div class="Polaris-Page-Header__PrimaryActionWrapper">
+                            <div style="display: flex;align-items: center;gap: 12px;">
+                                <ui-nav-menu>
+                                    <a href="/products">상품</a>
+                                    <a href="/billing/2">결제</a>
+                                    <a href="/settings">설정</a>
+                                    <a href="/help">도움</a>
+                                </ui-nav-menu>
+                                <button
+                                    id="search_product"
+                                    class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--iconWithText"
+                                    type="button">
+                                    <span class="Polaris-Button__Icon">
+                                        <span class="Polaris-Icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21">
+                                                <path fill-rule="evenodd"
+                                                      d="M12.323 13.383a5.5 5.5 0 1 1 1.06-1.06l2.897 2.897a.75.75 0 1 1-1.06 1.06l-2.897-2.897Zm.677-4.383a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/>
+                                            </svg>
+                                        </span>
+                                    </span>
+                                    <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Search</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <!-- 상품 그리드 -->
-                <div class="table-responsive">
-                    <div id="div-gd" class="ag-theme-balham"></div>
-                </div>
-                <!-- //상품 그리드 -->
             </div>
         </div>
+        <div class="mb-2">
+            <div class="Polaris-LegacyCard">
+                <div class="Polaris-LegacyCard__Header Polaris-LegacyCard__FirstSectionPadding"></div>
+                <div class="Polaris-LegacyCard__Section Polaris-LegacyCard__LastSectionPadding">
+                    <div style="width:100%;height:auto">
+                        <div class="Polaris-InlineGrid"
+                             style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
+                            <div class="">
+                                <div class="Polaris-Labelled__LabelWrapper">
+                                    <div class="Polaris-Label">
+                                        <label id=":Rq6:Label" for=":Rq6:" class="Polaris-Label__Text">
+                                            <span class="Polaris-Text--root Polaris-Text--bodyMd">Type</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="Polaris-Select">
+                                    <select id="product_type" class="Polaris-Select__Input" aria-invalid="false">
+                                        <option value="value" selected="">Value</option>
+                                    </select>
+                                    <div class="Polaris-Select__Content" aria-hidden="true">
+                                        <span class="Polaris-Select__SelectedOption">Value</span>
+                                        <span class="Polaris-Select__Icon">
+                                            <span class="Polaris-Icon">
+                                                <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false"
+                                                     aria-hidden="true">
+                                                    <path
+                                                        d="M10.884 4.323a1.25 1.25 0 0 0-1.768 0l-2.646 2.647a.75.75 0 0 0 1.06 1.06l2.47-2.47 2.47 2.47a.75.75 0 1 0 1.06-1.06l-2.646-2.647Z">
+                                                    </path>
+                                                    <path
+                                                        d="m13.53 13.03-2.646 2.647a1.25 1.25 0 0 1-1.768 0l-2.646-2.647a.75.75 0 0 1 1.06-1.06l2.47 2.47 2.47-2.47a.75.75 0 0 1 1.06 1.06Z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="Polaris-Select__Backdrop"></div>
+                                </div>
+                            </div>
+                            <div style="display:inherit;width:auto"></div>
+                            <div style="display:inherit;width:auto"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="Polaris-LegacyCard">
+                <div class="Polaris-LegacyCard__Header Polaris-LegacyCard__FirstSectionPadding">
+                    <div class="Polaris-InlineGrid"
+                         style="--pc-inline-grid-grid-template-columns-xs:1fr auto;--pc-inline-grid-align-items:center;">
+                        <h2 class="Polaris-Text--root Polaris-Text--subdued">
+                            Showing <strong id="gd-current" class="Polaris-Text--success">0</strong> of <strong id="gd-total" class="Polaris-Text--base">0</strong> <strong class="Polaris-Text--base">Products</strong>
+                        </h2>
+                        <div style="display: flex;align-items: center;gap: 5px;">
+{{--                            <button type="button"--}}
+{{--                                    id="refresh_product"--}}
+{{--                                    style="padding: 0 7px;"--}}
+{{--                                    class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantSecondary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--iconOnly">--}}
+{{--                                <span class="Polaris-Button__Icon">--}}
+{{--                                    <span class="Polaris-Icon">--}}
+{{--                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">--}}
+{{--                                            <path--}}
+{{--                                                d="M3.5 9.25a.75.75 0 0 0 1.5 0 3 3 0 0 1 3-3h6.566l-1.123 1.248a.75.75 0 1 0 1.114 1.004l2.25-2.5a.75.75 0 0 0-.027-1.032l-2.25-2.25a.75.75 0 1 0-1.06 1.06l.97.97h-6.44a4.5 4.5 0 0 0-4.5 4.5Z"/>--}}
+{{--                                            <path--}}
+{{--                                                d="M16.5 10.75a.75.75 0 0 0-1.5 0 3 3 0 0 1-3 3h-6.566l1.123-1.248a.75.75 0 1 0-1.114-1.004l-2.25 2.5a.75.75 0 0 0 .027 1.032l2.25 2.25a.75.75 0 0 0 1.06-1.06l-.97-.97h6.44a4.5 4.5 0 0 0 4.5-4.5Z"/>--}}
+{{--                                        </svg>--}}
+{{--                                    </span>--}}
+{{--                                </span>--}}
+{{--                            </button>--}}
+                            <button type="button"
+                                    id="save_product"
+                                    class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter">
+                                <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Save</span>
+                            </button>
+                            <button type="button"
+                                    id="remove_product"
+                                    class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--toneCritical">
+                                <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="Polaris-LegacyCard__Section Polaris-LegacyCard__LastSectionPadding">
+                    <!-- 상품 그리드 -->
+                    <div class="table-responsive">
+                        <div id="div-gd" class="ag-theme-balham"></div>
+                    </div>
+                    <!-- //상품 그리드 -->
+                </div>
+            </div>
+        </div>
+
+        <div id="app"></div>
     </div>
 </div>
-
-<div id="app"></div>
 
 <div class="footer">
     <p>Email <a href="mailto:support@gorocket3.ai">support@gorocket3.ai</a> for help.</p>
@@ -376,19 +450,24 @@
                     return response.json();
                 })
                 .then(data => {
-                    alert('상품 변경 내용이 저장되었습니다.');
+                    alert('The product changes have been saved.');
                 })
                 .catch(error => {
                     console.error(error.message);
-                    alert('상품 변경 중 오류가 발생했습니다.');
+                    alert('An error occurred while updating the product.');
                 });
         });
 
         // Remove Products
         document.getElementById("remove_product").addEventListener('click', function (e) {
             let rows = gx.gridOptions.api.getSelectedRows();
+            if (rows.length < 1) {
+                alert('Please select the product(s) to delete.');
+                return;
+            }
+
             rows = rows.map(row => row.parent.product_id);
-            rows = [...new Set(rows)];
+            rows = [ ...new Set(rows) ];
 
             const params = rows.map(row => 'product_ids[]=' + row).join('&');
             fetch(`/api/products/delete?${params}`, {
@@ -404,16 +483,16 @@
                     return response.json();
                 })
                 .then(data => {
-                    alert('선택한 상품이 삭제되었습니다.');
+                    alert('The selected product(s) have been deleted.');
                 })
                 .catch(error => {
                     console.error(error.message);
-                    alert('상품 삭제 중 오류가 발생했습니다.');
+                    alert('An error occurred while deleting the product.');
                 });
         });
 
-        // Refresh Products
-        document.getElementById("refresh_product").addEventListener('click', function (e) {
+        // Search Products
+        document.getElementById("search_product").addEventListener('click', function (e) {
             searchProducts();
         });
     });
