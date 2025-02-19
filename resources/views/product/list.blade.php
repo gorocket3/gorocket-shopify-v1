@@ -12,7 +12,7 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/app.jsx', 'resources/css/app.css'])
+    @vite(['resources/js/app.jsx', 'resources/css/app.css?v=2025021918'])
     <!-- // Vite -->
 
     <!-- CDN -->
@@ -91,6 +91,7 @@
                     <div style="width:100%;height:auto">
                         <div class="Polaris-InlineGrid"
                              style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
+                            <!-- Search: Product Type -->
                             <div class="">
                                 <div class="Polaris-Labelled__LabelWrapper">
                                     <div class="Polaris-Label">
