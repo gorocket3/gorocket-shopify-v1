@@ -24,8 +24,8 @@ class CompositionController extends Controller
         $shop = Auth::user();
 
         $productTypes = Product::where('user_id', $shop->id)
-        ->groupBy('product_type')
-        ->pluck('product_type');
+            ->groupBy('product_type')
+            ->pluck('product_type');
 
         return response()->json([
             'product_types' => $productTypes
@@ -75,7 +75,7 @@ class CompositionController extends Controller
         $shop = Auth::user();
 
         $tags = Product::where('user_id', $shop->id)
-        ->where('tags', '!=', '')->get()
+            ->where('tags', '!=', '')->get()
             ->flatMap(function ($product) {
                 return explode(',', $product->tags);
             })->map(function ($tag) {

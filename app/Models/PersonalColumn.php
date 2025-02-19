@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static create(array $array)
+ * @method static where(string $string, $id)
+ * @method static updateOrCreate(int[] $array, array $validated)
  */
 class PersonalColumn extends Model
 {
@@ -27,6 +29,15 @@ class PersonalColumn extends Model
         'user_yn',
         'columns',
         'user_id'
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'columns' => 'array'
     ];
 
     /**

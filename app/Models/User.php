@@ -60,4 +60,12 @@ class User extends Authenticatable implements IShopModel
     {
         return $this->hasMany(Product::class, 'user_id', 'id');
     }
+
+    /**
+     * Get the personal columns for the user.
+     */
+    public function personalColumns(): HasMany
+    {
+        return $this->hasMany(PersonalColumn::class, 'user_id', 'id');
+    }
 }
