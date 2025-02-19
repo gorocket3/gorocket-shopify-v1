@@ -18,14 +18,20 @@ class ProductController extends Controller
      */
     public function index(Request $request): View
     {
+        /* Product Type List */
+        $sql = "
+            SELECT DISTINCT user_id, TRIM(product_type) AS product_type
+            FROM products
+            WHERE product_type != ''
+        ";
+        $types = DB::select($sql);
+        $types = array_map(fn($row) => $row->product_type, $types);
+
         /* Product Status List */
         $sql = "
             SELECT DISTINCT user_id, TRIM(status) AS status
-            FROM products,
-            JSON_TABLE(
-                CONCAT('[\"', REPLACE(tags, ',', '\",\"'), '\"]'),
-                '$[*]' COLUMNS (tag VARCHAR(255) PATH '$')
-            ) AS tag_table WHERE tag != ''
+            FROM products
+            WHERE status != ''
         ";
         $status = DB::select($sql);
         $status = array_map(fn($row) => $row->status, $status);
@@ -43,6 +49,7 @@ class ProductController extends Controller
         $tags = array_map(fn($row) => $row->tag, $tags);
 
         $values = [
+            'types'     => $types,
             'status'    => $status,
             'tags'      => $tags,
         ];
