@@ -65,7 +65,7 @@
                         Showing <strong id="gd-current" class="Polaris-Text--success">0</strong> of
                         <strong id="gd-total" class="Polaris-Text--base">0</strong> <strong class="Polaris-Text--base">Products</strong>
                     </h2>
-                    <div style="display: flex;align-items: center;gap: 7px;">
+                    <div style="display: flex;align-items: center;gap: 5px;">
                         <button type="button"
                                 id="refresh_product"
                                 style="padding: 0 7px;"
@@ -85,6 +85,12 @@
                                 id="save_product"
                                 class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter">
                             <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Save</span>
+                        </button>
+                        <button
+                            type="button"
+                            id="remove_product"
+                            class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--toneCritical">
+                            <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Delete</span>
                         </button>
                     </div>
                 </div>
@@ -265,7 +271,7 @@
             onCellValueChanged: (e) => changeCellState('option_name', e)
         },
         {
-            field: "price", headerName: "Price($)", width: 70, cellClass: 'hd-grid-number', editable: true,
+            field: "price", headerName: "Price($)", width: 90, cellClass: 'hd-grid-number', editable: true,
             cellRenderer: (p) => '$ ' + numberWithCommas(p.value),
             cellClassRules: changedCellClassRules('price'),
             onCellValueChanged: (e) => changeCellState('price', e)
@@ -375,6 +381,34 @@
                 .catch(error => {
                     console.error(error.message);
                     alert('상품 변경 중 오류가 발생했습니다.');
+                });
+        });
+
+        // Remove Products
+        document.getElementById("remove_product").addEventListener('click', function (e) {
+            let rows = gx.gridOptions.api.getSelectedRows();
+            rows = rows.map(row => row.parent.product_id);
+            rows = [...new Set(rows)];
+
+            const params = rows.map(row => 'product_ids[]=' + row).join('&');
+            fetch(`/api/products/delete?${params}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('선택한 상품이 삭제되었습니다.');
+                })
+                .catch(error => {
+                    console.error(error.message);
+                    alert('상품 삭제 중 오류가 발생했습니다.');
                 });
         });
 
