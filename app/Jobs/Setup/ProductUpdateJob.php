@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Setup;
 
+use App\Events\MessageCompleted;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductOption;
@@ -30,15 +31,15 @@ class ProductUpdateJob implements ShouldQueue
      * @var array
      */
     protected array $data;
-    protected ?int $shopId;
+    protected int $shopId;
 
     /**
      * Create a new job instance.
      *
      * @param array $data
-     * @param int|null $shopId
+     * @param int $shopId
      */
-    public function __construct(array $data, ?int $shopId = null)
+    public function __construct(array $data, int $shopId)
     {
         $this->data   = $data;
         $this->shopId = $shopId;
@@ -62,7 +63,7 @@ class ProductUpdateJob implements ShouldQueue
         } catch (Exception $e) {
             Log::error("[SETUP][PRODUCT] Sync failed - {$this->shopId}, Error: {$e->getMessage()}");
         } finally {
-            Redis::del("product_sync_{$this->shopId}");
+            event(new MessageCompleted($this->shopId, 'product-sync', []));
         }
     }
 

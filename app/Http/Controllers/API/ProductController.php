@@ -48,10 +48,10 @@ class ProductController extends Controller
                 $q->where('body_html', 'LIKE', "%{$content}%");
             })
             ->when($product_type, function ($q) use ($product_type) {
-                $q->where('product_type', 'LIKE', "%{$product_type}%");
+                $q->where('product_type', $product_type);
             })
             ->when($vendor, function ($q) use ($vendor) {
-                $q->where('vendor', 'LIKE', "%{$vendor}%");
+                $q->where('vendor', $vendor);
             })
             ->when($status, function ($q) use ($status) {
                 $q->where(function ($subQuery) use ($status) {
@@ -63,7 +63,7 @@ class ProductController extends Controller
             ->when($tags, function ($q) use ($tags) {
                 $q->where(function ($subQuery) use ($tags) {
                     foreach ($tags as $tag) {
-                        $subQuery->orWhere('tags', 'LIKE', "%$tag%");
+                        $subQuery->orWhere('tags', $tag);
                     }
                 });
             })
@@ -86,12 +86,6 @@ class ProductController extends Controller
     {
         $shop = Auth::user();
         $shopId = new ShopId($shop->id);
-        $redisKey = "product_sync_{$shop->id}";
-
-        if (Redis::exists($redisKey)) {
-            return response()->json(['message' => 'Already in progress', 'shop_id' => $shop->id], 429);
-        }
-        Redis::setex($redisKey, 86400, true);
 
         $listener = new ProductUpdateListener();
         $listener->handle(new AppInstalledEvent($shopId));
@@ -116,8 +110,7 @@ class ProductController extends Controller
 
         $failedDeletes = [];
         foreach ($productIds as $productId) {
-            $response = $shop->api()->rest('DELETE', "/admin/api/2025-01/products/{$productId}.json");
-
+            $response = $shop->api()->rest('DELETE', "/admin/api/" . env('SHOPIFY_API_VERSION') ."/products/{$productId}.json");
             if (isset($response['errors']) && $response['errors']) {
                 $failedDeletes[] = $productId;
             }
