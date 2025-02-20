@@ -21,6 +21,7 @@
             integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
     <script src="//js.pusher.com/8.2.0/pusher.min.js"></script>
     <!-- //CDN -->
 
@@ -157,8 +158,7 @@
                                     <div class="Polaris-Labelled__LabelWrapper">
                                         <div class="Polaris-Label">
                                             <label id="product_body_label" for="product_body" class="Polaris-Label__Text">
-                                                <span
-                                                    class="Polaris-Text--root Polaris-Text--bodyMd">Product Body HTML</span>
+                                                <span class="Polaris-Text--root Polaris-Text--bodyMd">Product Body HTML</span>
                                             </label>
                                         </div>
                                     </div>
@@ -173,11 +173,140 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="Polaris-InlineGrid"
-                                 style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
                                 <!-- Search: Product Status -->
+                                <div x-data="{
+                                        status: [],
+                                        updateStatus(e) {
+                                            if (e.target.checked) {
+                                                this.status.push(e.target.value);
+                                                this.status = this.status.sort();
+                                            } else {
+                                                this.status = this.status.filter(st => st !== e.target.value);
+                                            }
+                                            document.getElementById('productStatusPopover').style.display = 'block';
+                                        },
+                                        deleteStatus(stat) {
+                                            this.status = this.status.filter(st => st !== stat);
+                                            document.getElementById('product-status-item-' + stat).checked = false;
+                                            document.getElementById('productStatusPopover').style.display = 'block';
+                                        }
+                                    }"
+                                     style="position:relative;">
+                                    <div class="">
+                                        <div class="Polaris-Labelled__LabelWrapper">
+                                            <div class="Polaris-Label">
+                                                <label id="productStatusLabel" for="productStatus" class="Polaris-Label__Text">
+                                                    <span class="Polaris-Text--root Polaris-Text--bodyMd">Status</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="Polaris-Connected">
+                                            <div class="Polaris-Connected__Item Polaris-Connected__Item--primary">
+                                                <div class="Polaris-TextField">
+                                                    <div class="Polaris-TextField__VerticalContent"
+                                                         style="padding:var(--p-space-150) var(--p-space-300);"
+                                                         id="productStatusArea">
+                                                        <div class="Polaris-LegacyStack Polaris-LegacyStack--spacingExtraTight Polaris-LegacyStack--alignmentCenter">
+                                                            <div x-show="status.length === 0">
+                                                                <div style="min-height: 25px;"></div>
+                                                            </div>
+                                                            <template x-for="stat in status" :key="stat">
+                                                                <div class="Polaris-LegacyStack__Item">
+                                                                    <span class="Polaris-Tag Polaris-Tag--removable"
+                                                                          aria-disabled="false">
+                                                                        <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--block Polaris-Text--truncate">
+                                                                            <span x-text="stat.charAt(0).toUpperCase() + stat.slice(1)" class="Polaris-Tag__Text"></span>
+                                                                        </span>
+                                                                        <button type="button" aria-label="Remove Rustic"
+                                                                                class="Polaris-Tag__Button" tabindex="0"
+                                                                                x-on:click="$event.stopPropagation();deleteStatus(stat);"
+                                                                                aria-controls=":Rq6:" aria-owns=":Rq6:"
+                                                                                aria-expanded="false"
+                                                                                data-state="closed">
+                                                                            <span class="Polaris-Icon">
+                                                                                <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true">
+                                                                                    <path d="M12.72 13.78a.75.75 0 1 0 1.06-1.06l-2.72-2.72 2.72-2.72a.75.75 0 0 0-1.06-1.06l-2.72 2.72-2.72-2.72a.75.75 0 0 0-1.06 1.06l2.72 2.72-2.72 2.72a.75.75 0 1 0 1.06 1.06l2.72-2.72 2.72 2.72Z"/>
+                                                                                </svg>
+                                                                            </span>
+                                                                        </button>
+                                                                    </span>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                    <div class="Polaris-TextField__Backdrop"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div data-portal-id="popover-product-status"
+                                         id="productStatusPopover"
+                                         class="p-theme-light Polaris-ThemeProvider--themeContainer"
+                                         style="display:none;position:relative;">
+                                        <div class="Polaris-PositionedOverlay Polaris-Popover__PopoverOverlay Polaris-Popover__PopoverOverlay--open"
+                                             style="width:100%;">
+                                            <div class="Polaris-Popover" data-polaris-overlay="true" style="margin:0;">
+                                                <div class="Polaris-Popover__FocusTracker" tabindex="0"></div>
+                                                <div class="Polaris-Popover__ContentContainer">
+                                                    <div id=":Rq6:" tabindex="-1" class="Polaris-Popover__Content" style="max-height: 200px;">
+                                                        <div class="Polaris-Popover__Pane Polaris-Scrollable Polaris-Scrollable--vertical Polaris-Scrollable--horizontal Polaris-Scrollable--scrollbarWidthThin"
+                                                             data-polaris-scrollable="true">
+                                                            <div class="Polaris-LegacyCard">
+                                                                <ul class="Polaris-Box Polaris-Box--listReset"
+                                                                    style="--pc-box-padding-block-start-xs:var(--p-space-150);--pc-box-padding-block-end-xs:var(--p-space-150);--pc-box-padding-inline-start-xs:var(--p-space-150);--pc-box-padding-inline-end-xs:var(--p-space-150)">
+                                                                    <li class="Polaris-Box"
+                                                                        style="--pc-box-padding-block-start-xs:var(--p-space-0)">
+                                                                        <div class="Polaris-BlockStack"
+                                                                             style="--pc-block-stack-order:column;--pc-block-stack-gap-xs:var(--p-space-0)">
+                                                                            <ul class="Polaris-Box Polaris-Box--listReset"
+                                                                                id="product-status-item">
+                                                                                @foreach(@$status as $stat)
+                                                                                    <li class="Polaris-OptionList-Option"
+                                                                                        tabindex="-1">
+                                                                                        <label for="product-status-item-{{ $stat }}"
+                                                                                               class="Polaris-OptionList-Option__Label Polaris-OptionList-Option__CheckboxLabel Polaris-OptionList-Option__MultiSelectOption">
+                                                                                            <div class="Polaris-OptionList-Option__Checkbox">
+                                                                                                <label
+                                                                                                    class="Polaris-Choice Polaris-Checkbox__ChoiceLabel"
+                                                                                                    for="product-status-item-{{ $stat }}">
+                                                                                                    <span class="Polaris-Choice__Control">
+                                                                                                        <span class="Polaris-Checkbox">
+                                                                                                            <input id="product-status-item-{{ $stat }}" name="status[]" type="checkbox" class="Polaris-Checkbox__Input" aria-invalid="false" aria-describedby="product-status-item-{{ $stat }}-label" role="checkbox" aria-checked="false" value="{{ $stat }}" @change="updateStatus">
+                                                                                                            <span class="Polaris-Checkbox__Backdrop"></span>
+                                                                                                            <span class="Polaris-Checkbox__Icon Polaris-Checkbox--animated">
+                                                                                                                <svg viewBox="0 0 16 16" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+                                                                                                                    <path class="" d="M1.5,5.5L3.44655,8.22517C3.72862,8.62007,4.30578,8.64717,4.62362,8.28044L10.5,1.5" transform="translate(2 2.980376)" opacity="0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" pathLength="1">
+                                                                                                                    </path>
+                                                                                                                </svg>
+                                                                                                            </span>
+                                                                                                        </span>
+                                                                                                    </span>
+                                                                                                    <span class="Polaris-Choice__Label">
+                                                                                                        <span class="Polaris-Text--root Polaris-Text--bodyMd"></span>
+                                                                                                    </span>
+                                                                                                </label>
+                                                                                            </div>
+                                                                                            <span id="product-status-item-{{ $stat }}-label">{{ ucfirst($stat) }}</span>
+                                                                                        </label>
+                                                                                    </li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+{{--                            <div class="Polaris-InlineGrid"--}}
+{{--                                 style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">--}}
+{{--                            </div>--}}
                         </div>
                     </form>
                 </div>
@@ -563,10 +692,23 @@
             searchProducts();
         });
 
-        // Search: Prodoct Type
-        document.getElementById("product_type").addEventListener('change', function (e) {
-            document.getElementById("selected_product_type").innerText = e.target.value;
-            document.querySelector(`input[name="product_type"]`).value = e.target.value;
+        // Search: Prodoct Type (타입검색 보류)
+        // document.getElementById("product_type").addEventListener('change', function (e) {
+        //     document.getElementById("selected_product_type").innerText = e.target.value;
+        //     document.querySelector(`input[name="product_type"]`).value = e.target.value;
+        // });
+
+        // UI: Proudct Status Popover
+        const productStatusArea = document.getElementById("productStatusArea");
+        const productStatusPopover = document.getElementById("productStatusPopover");
+
+        productStatusArea.addEventListener('click', function (e) {
+            productStatusPopover.style.display = 'block';
+        });
+        document.addEventListener("click", function (e) {
+            if (!productStatusArea.contains(e.target) && !productStatusPopover.contains(e.target)) {
+                productStatusPopover.style.display = "none";
+            }
         });
     });
 </script>
