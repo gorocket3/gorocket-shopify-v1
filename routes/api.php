@@ -18,7 +18,7 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('products', [ProductController::class, 'list'])->name('products.list');
     Route::post('products/sync', [ProductController::class, 'sync'])->name('products.sync');
     Route::post('products/edit', [ProductController::class, 'edit'])->name('products.edit');
-    Route::delete('products/delete', [ProductController::class, 'delete'])->name('products.delete');
+    Route::post('products/delete', [ProductController::class, 'delete'])->name('products.delete');
 
     // Personal-column
     Route::get('personal-column', [PersonalController::class, 'index'])->name('personal.column.index');
