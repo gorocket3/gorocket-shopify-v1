@@ -52,6 +52,7 @@ class ProductController extends Controller
             'types'     => $types,
             'status'    => $status,
             'tags'      => $tags,
+            'shop_id'   => Auth::user()->id ?? ''
         ];
 
         return view('product.list', $values);

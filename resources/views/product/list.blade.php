@@ -27,6 +27,7 @@
 
     <!-- AG-GRID -->
     <script src="/assets/grid/ag-grid/dist/ag-grid-enterprise.min.js"></script>
+    {{--    <script src="/assets/grid/license.js"></script>--}}
     <script>
         agGrid.LicenseManager.setLicenseKey("{{env('GRID_LICENSE')}}");
     </script>
@@ -89,14 +90,14 @@
             </div>
         </div>
         <div class="mb-2">
-            <div class="Polaris-LegacyCard">
+            <div class="Polaris-LegacyCard" style="overflow:unset;">
                 <div class="Polaris-LegacyCard__Header Polaris-LegacyCard__FirstSectionPadding">
                     <h2 class="Polaris-Text--root Polaris-Text--headingSm">Search for the product you want.</h2>
                 </div>
                 <div class="Polaris-LegacyCard__Section Polaris-LegacyCard__LastSectionPadding">
                     <form method="get" name="search">
                         <div style="width:100%;height:auto">
-                            <div class="Polaris-InlineGrid mb-2"
+                            <div class="Polaris-InlineGrid mb-1"
                                  style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
                                 <!-- Search: Product Type (타입검색 보류) -->
 {{--                                <div class="">--}}
@@ -146,6 +147,7 @@
                                         <div class="Polaris-Connected__Item Polaris-Connected__Item--primary">
                                             <div class="Polaris-TextField Polaris-TextField--hasValue">
                                                 <input id="product_name" name="title" autocomplete="off" class="Polaris-TextField__Input search-enter"
+                                                       style="min-height: 35px;"
                                                        type="text" aria-labelledby="product_name_label" aria-invalid="false"
                                                        data-1p-ignore="true" data-lpignore="true" data-form-type="other">
                                                 <div class="Polaris-TextField__Backdrop"></div>
@@ -166,6 +168,7 @@
                                         <div class="Polaris-Connected__Item Polaris-Connected__Item--primary">
                                             <div class="Polaris-TextField Polaris-TextField--hasValue">
                                                 <input id="product_body" name="content" autocomplete="off" class="Polaris-TextField__Input search-enter"
+                                                       style="min-height: 35px;"
                                                        type="text" aria-labelledby="product_body_label" aria-invalid="false"
                                                        data-1p-ignore="true" data-lpignore="true" data-form-type="other">
                                                 <div class="Polaris-TextField__Backdrop"></div>
@@ -195,21 +198,18 @@
                                     <div class="">
                                         <div class="Polaris-Labelled__LabelWrapper">
                                             <div class="Polaris-Label">
-                                                <label id="productStatusLabel" for="productStatus" class="Polaris-Label__Text">
+                                                <label id="productStatusLabel" for="" class="Polaris-Label__Text">
                                                     <span class="Polaris-Text--root Polaris-Text--bodyMd">Status</span>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="Polaris-Connected">
                                             <div class="Polaris-Connected__Item Polaris-Connected__Item--primary">
-                                                <div class="Polaris-TextField">
+                                                <div class="Polaris-TextField" style="min-height: 35px;">
                                                     <div class="Polaris-TextField__VerticalContent"
                                                          style="padding:var(--p-space-150) var(--p-space-300);"
                                                          id="productStatusArea">
                                                         <div class="Polaris-LegacyStack Polaris-LegacyStack--spacingExtraTight Polaris-LegacyStack--alignmentCenter">
-                                                            <div x-show="status.length === 0">
-                                                                <div style="min-height: 25px;"></div>
-                                                            </div>
                                                             <template x-for="stat in status" :key="stat">
                                                                 <div class="Polaris-LegacyStack__Item">
                                                                     <span class="Polaris-Tag Polaris-Tag--removable"
@@ -220,7 +220,7 @@
                                                                         <button type="button" aria-label="Remove Rustic"
                                                                                 class="Polaris-Tag__Button" tabindex="0"
                                                                                 x-on:click="$event.stopPropagation();deleteStatus(stat);"
-                                                                                aria-controls=":Rq6:" aria-owns=":Rq6:"
+                                                                                aria-controls="productStatusPopoverInner" aria-owns="productStatusPopoverInner"
                                                                                 aria-expanded="false"
                                                                                 data-state="closed">
                                                                             <span class="Polaris-Icon">
@@ -249,7 +249,7 @@
                                             <div class="Polaris-Popover" data-polaris-overlay="true" style="margin:0;">
                                                 <div class="Polaris-Popover__FocusTracker" tabindex="0"></div>
                                                 <div class="Polaris-Popover__ContentContainer">
-                                                    <div id=":Rq6:" tabindex="-1" class="Polaris-Popover__Content" style="max-height: 200px;">
+                                                    <div id="productStatusPopoverInner" tabindex="-1" class="Polaris-Popover__Content" style="max-height: 200px;">
                                                         <div class="Polaris-Popover__Pane Polaris-Scrollable Polaris-Scrollable--vertical Polaris-Scrollable--horizontal Polaris-Scrollable--scrollbarWidthThin"
                                                              data-polaris-scrollable="true">
                                                             <div class="Polaris-LegacyCard">
@@ -304,9 +304,136 @@
                                     </div>
                                 </div>
                             </div>
-{{--                            <div class="Polaris-InlineGrid"--}}
-{{--                                 style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">--}}
-{{--                            </div>--}}
+                            <div class="Polaris-InlineGrid"
+                                 style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
+                                <!-- Search: Product Tags -->
+                                <div x-data="{
+                                        tags: [],
+                                        updateTags(e) {
+                                            if (e.target.checked) {
+                                                this.tags.push(e.target.value);
+                                                this.tags = this.tags.sort();
+                                            } else {
+                                                this.tags = this.tags.filter(tg => tg !== e.target.value);
+                                            }
+                                            document.getElementById('productTagPopover').style.display = 'block';
+                                        },
+                                        deleteTag(tag) {
+                                            this.tags = this.tags.filter(tg => tg !== tag);
+                                            document.getElementById('product-tags-item-' + tag).checked = false;
+                                            document.getElementById('productTagPopover').style.display = 'block';
+                                        }
+                                    }"
+                                     style="position:relative;">
+                                    <div class="">
+                                        <div class="Polaris-Labelled__LabelWrapper">
+                                            <div class="Polaris-Label">
+                                                <label id="productTagLabel" for="" class="Polaris-Label__Text">
+                                                    <span class="Polaris-Text--root Polaris-Text--bodyMd">Tags</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="Polaris-Connected">
+                                            <div class="Polaris-Connected__Item Polaris-Connected__Item--primary">
+                                                <div class="Polaris-TextField" style="min-height: 35px;">
+                                                    <div class="Polaris-TextField__VerticalContent"
+                                                         style="padding:var(--p-space-150) var(--p-space-300);"
+                                                         id="productTagArea">
+                                                        <div class="Polaris-LegacyStack Polaris-LegacyStack--spacingExtraTight Polaris-LegacyStack--alignmentCenter">
+                                                            <template x-for="tag in tags" :key="tag">
+                                                                <div class="Polaris-LegacyStack__Item">
+                                                                    <span class="Polaris-Tag Polaris-Tag--removable"
+                                                                          aria-disabled="false">
+                                                                        <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--block Polaris-Text--truncate">
+                                                                            <span x-text="tag" class="Polaris-Tag__Text"></span>
+                                                                        </span>
+                                                                        <button type="button" aria-label="Remove Rustic"
+                                                                                class="Polaris-Tag__Button" tabindex="0"
+                                                                                x-on:click="$event.stopPropagation();deleteTag(tag);"
+                                                                                aria-controls="productTagPopoverInner" aria-owns="productTagPopoverInner"
+                                                                                aria-expanded="false"
+                                                                                data-state="closed">
+                                                                            <span class="Polaris-Icon">
+                                                                                <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true">
+                                                                                    <path d="M12.72 13.78a.75.75 0 1 0 1.06-1.06l-2.72-2.72 2.72-2.72a.75.75 0 0 0-1.06-1.06l-2.72 2.72-2.72-2.72a.75.75 0 0 0-1.06 1.06l2.72 2.72-2.72 2.72a.75.75 0 1 0 1.06 1.06l2.72-2.72 2.72 2.72Z"/>
+                                                                                </svg>
+                                                                            </span>
+                                                                        </button>
+                                                                    </span>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                    <div class="Polaris-TextField__Backdrop"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div data-portal-id="popover-product-tags"
+                                         id="productTagPopover"
+                                         class="p-theme-light Polaris-ThemeProvider--themeContainer"
+                                         style="display:none;position:relative;">
+                                        <div class="Polaris-PositionedOverlay Polaris-Popover__PopoverOverlay Polaris-Popover__PopoverOverlay--open"
+                                             style="width:100%;">
+                                            <div class="Polaris-Popover" data-polaris-overlay="true" style="margin:0;">
+                                                <div class="Polaris-Popover__FocusTracker" tabindex="0"></div>
+                                                <div class="Polaris-Popover__ContentContainer">
+                                                    <div id="productTagPopoverInner" tabindex="-1" class="Polaris-Popover__Content" style="max-height: 200px;">
+                                                        <div class="Polaris-Popover__Pane Polaris-Scrollable Polaris-Scrollable--vertical Polaris-Scrollable--horizontal Polaris-Scrollable--scrollbarWidthThin"
+                                                             data-polaris-scrollable="true">
+                                                            <div class="Polaris-LegacyCard">
+                                                                <ul class="Polaris-Box Polaris-Box--listReset"
+                                                                    style="--pc-box-padding-block-start-xs:var(--p-space-150);--pc-box-padding-block-end-xs:var(--p-space-150);--pc-box-padding-inline-start-xs:var(--p-space-150);--pc-box-padding-inline-end-xs:var(--p-space-150)">
+                                                                    <li class="Polaris-Box"
+                                                                        style="--pc-box-padding-block-start-xs:var(--p-space-0)">
+                                                                        <div class="Polaris-BlockStack"
+                                                                             style="--pc-block-stack-order:column;--pc-block-stack-gap-xs:var(--p-space-0)">
+                                                                            <ul class="Polaris-Box Polaris-Box--listReset"
+                                                                                id="product-tags-item">
+                                                                                @foreach(@$tags as $tag)
+                                                                                    <li class="Polaris-OptionList-Option"
+                                                                                        tabindex="-1">
+                                                                                        <label for="product-tags-item-{{ $tag }}"
+                                                                                               class="Polaris-OptionList-Option__Label Polaris-OptionList-Option__CheckboxLabel Polaris-OptionList-Option__MultiSelectOption">
+                                                                                            <div class="Polaris-OptionList-Option__Checkbox">
+                                                                                                <label
+                                                                                                    class="Polaris-Choice Polaris-Checkbox__ChoiceLabel"
+                                                                                                    for="product-tags-item-{{ $tag }}">
+                                                                                                    <span class="Polaris-Choice__Control">
+                                                                                                        <span class="Polaris-Checkbox">
+                                                                                                            <input id="product-tags-item-{{ $tag }}" name="tags[]" type="checkbox" class="Polaris-Checkbox__Input" aria-invalid="false" aria-describedby="product-tags-item-{{ $tag }}-label" role="checkbox" aria-checked="false" value="{{ $tag }}" @change="updateTags">
+                                                                                                            <span class="Polaris-Checkbox__Backdrop"></span>
+                                                                                                            <span class="Polaris-Checkbox__Icon Polaris-Checkbox--animated">
+                                                                                                                <svg viewBox="0 0 16 16" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+                                                                                                                    <path class="" d="M1.5,5.5L3.44655,8.22517C3.72862,8.62007,4.30578,8.64717,4.62362,8.28044L10.5,1.5" transform="translate(2 2.980376)" opacity="0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" pathLength="1">
+                                                                                                                    </path>
+                                                                                                                </svg>
+                                                                                                            </span>
+                                                                                                        </span>
+                                                                                                    </span>
+                                                                                                    <span class="Polaris-Choice__Label">
+                                                                                                        <span class="Polaris-Text--root Polaris-Text--bodyMd"></span>
+                                                                                                    </span>
+                                                                                                </label>
+                                                                                            </div>
+                                                                                            <span id="product-tags-item-{{ $tag }}-label">{{ $tag }}</span>
+                                                                                        </label>
+                                                                                    </li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -374,7 +501,8 @@
         cluster: "ap3"
     });
 
-    let channel = pusher.subscribe('gorocket-shop-1');
+    // let channel = pusher.subscribe('gorocket-shop-1');
+    let channel = pusher.subscribe('gorocket-shop-{{ $shop_id }}');
     channel.bind('product-delete', function(data) {
         console.log(data);
     });
@@ -708,6 +836,19 @@
         document.addEventListener("click", function (e) {
             if (!productStatusArea.contains(e.target) && !productStatusPopover.contains(e.target)) {
                 productStatusPopover.style.display = "none";
+            }
+        });
+
+        // UI: Proudct Tags Popover
+        const productTagArea = document.getElementById("productTagArea");
+        const productTagPopover = document.getElementById("productTagPopover");
+
+        productTagArea.addEventListener('click', function (e) {
+            productTagPopover.style.display = 'block';
+        });
+        document.addEventListener("click", function (e) {
+            if (!productTagArea.contains(e.target) && !productTagPopover.contains(e.target)) {
+                productTagPopover.style.display = "none";
             }
         });
     });

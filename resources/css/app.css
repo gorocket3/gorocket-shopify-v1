@@ -112,3 +112,7 @@ body {
 .Polaris-Text--success {
     color: #008000 !important;
 }
+
+.Polaris-Popover__Content {
+    max-width: unset !important;
+}
