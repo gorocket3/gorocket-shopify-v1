@@ -86,47 +86,97 @@
         </div>
         <div class="mb-2">
             <div class="Polaris-LegacyCard">
-                <div class="Polaris-LegacyCard__Header Polaris-LegacyCard__FirstSectionPadding"></div>
+                <div class="Polaris-LegacyCard__Header Polaris-LegacyCard__FirstSectionPadding">
+                    <h2 class="Polaris-Text--root Polaris-Text--headingSm">Search for the product you want.</h2>
+                </div>
                 <div class="Polaris-LegacyCard__Section Polaris-LegacyCard__LastSectionPadding">
-                    <div style="width:100%;height:auto">
-                        <div class="Polaris-InlineGrid"
-                             style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
-                            <!-- Search: Product Type -->
-                            <div class="">
-                                <div class="Polaris-Labelled__LabelWrapper">
-                                    <div class="Polaris-Label">
-                                        <label id=":Rq6:Label" for=":Rq6:" class="Polaris-Label__Text">
-                                            <span class="Polaris-Text--root Polaris-Text--bodyMd">Type</span>
-                                        </label>
+                    <form method="get" name="search">
+                        <div style="width:100%;height:auto">
+                            <div class="Polaris-InlineGrid mb-2"
+                                 style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
+                                <!-- Search: Product Type (타입검색 보류) -->
+{{--                                <div class="">--}}
+{{--                                    <input type="hidden" id="product_type" name="product_type" value="{{ @$types[0] }}"/>--}}
+{{--                                    <div class="Polaris-Labelled__LabelWrapper">--}}
+{{--                                        <div class="Polaris-Label">--}}
+{{--                                            <label id="product_type_label" for="product_type" class="Polaris-Label__Text">--}}
+{{--                                                <span class="Polaris-Text--root Polaris-Text--bodyMd">Type</span>--}}
+{{--                                            </label>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="Polaris-Select">--}}
+{{--                                        <select id="product_type" class="Polaris-Select__Input" aria-invalid="false">--}}
+{{--                                            @foreach(@$types as $type)--}}
+{{--                                                <option value="{{ $type }}">{{ $type }}</option>--}}
+{{--                                            @endforeach--}}
+{{--                                        </select>--}}
+{{--                                        <div class="Polaris-Select__Content" aria-hidden="true">--}}
+{{--                                            <span id="selected_product_type" class="Polaris-Select__SelectedOption">{{ @$types[0] ?? '' }}</span>--}}
+{{--                                            <span class="Polaris-Select__Icon">--}}
+{{--                                                <span class="Polaris-Icon">--}}
+{{--                                                    <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false"--}}
+{{--                                                         aria-hidden="true">--}}
+{{--                                                        <path--}}
+{{--                                                            d="M10.884 4.323a1.25 1.25 0 0 0-1.768 0l-2.646 2.647a.75.75 0 0 0 1.06 1.06l2.47-2.47 2.47 2.47a.75.75 0 1 0 1.06-1.06l-2.646-2.647Z">--}}
+{{--                                                        </path>--}}
+{{--                                                        <path--}}
+{{--                                                            d="m13.53 13.03-2.646 2.647a1.25 1.25 0 0 1-1.768 0l-2.646-2.647a.75.75 0 0 1 1.06-1.06l2.47 2.47 2.47-2.47a.75.75 0 0 1 1.06 1.06Z">--}}
+{{--                                                        </path>--}}
+{{--                                                    </svg>--}}
+{{--                                                </span>--}}
+{{--                                            </span>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="Polaris-Select__Backdrop"></div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+                                <!-- Search: Product Name -->
+                                <div class="">
+                                    <div class="Polaris-Labelled__LabelWrapper">
+                                        <div class="Polaris-Label">
+                                            <label id="product_name_label" for="product_name" class="Polaris-Label__Text">
+                                                <span class="Polaris-Text--root Polaris-Text--bodyMd">Product Name</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="Polaris-Connected">
+                                        <div class="Polaris-Connected__Item Polaris-Connected__Item--primary">
+                                            <div class="Polaris-TextField Polaris-TextField--hasValue">
+                                                <input id="product_name" name="title" autocomplete="off" class="Polaris-TextField__Input search-enter"
+                                                       type="text" aria-labelledby="product_name_label" aria-invalid="false"
+                                                       data-1p-ignore="true" data-lpignore="true" data-form-type="other">
+                                                <div class="Polaris-TextField__Backdrop"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="Polaris-Select">
-                                    <select id="product_type" class="Polaris-Select__Input" aria-invalid="false">
-                                        <option value="value" selected="">Value</option>
-                                    </select>
-                                    <div class="Polaris-Select__Content" aria-hidden="true">
-                                        <span class="Polaris-Select__SelectedOption">Value</span>
-                                        <span class="Polaris-Select__Icon">
-                                            <span class="Polaris-Icon">
-                                                <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false"
-                                                     aria-hidden="true">
-                                                    <path
-                                                        d="M10.884 4.323a1.25 1.25 0 0 0-1.768 0l-2.646 2.647a.75.75 0 0 0 1.06 1.06l2.47-2.47 2.47 2.47a.75.75 0 1 0 1.06-1.06l-2.646-2.647Z">
-                                                    </path>
-                                                    <path
-                                                        d="m13.53 13.03-2.646 2.647a1.25 1.25 0 0 1-1.768 0l-2.646-2.647a.75.75 0 0 1 1.06-1.06l2.47 2.47 2.47-2.47a.75.75 0 0 1 1.06 1.06Z">
-                                                    </path>
-                                                </svg>
-                                            </span>
-                                        </span>
+                                <!-- Search: Product Body HTML -->
+                                <div class="">
+                                    <div class="Polaris-Labelled__LabelWrapper">
+                                        <div class="Polaris-Label">
+                                            <label id="product_body_label" for="product_body" class="Polaris-Label__Text">
+                                                <span
+                                                    class="Polaris-Text--root Polaris-Text--bodyMd">Product Body HTML</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div class="Polaris-Select__Backdrop"></div>
+                                    <div class="Polaris-Connected">
+                                        <div class="Polaris-Connected__Item Polaris-Connected__Item--primary">
+                                            <div class="Polaris-TextField Polaris-TextField--hasValue">
+                                                <input id="product_body" name="content" autocomplete="off" class="Polaris-TextField__Input search-enter"
+                                                       type="text" aria-labelledby="product_body_label" aria-invalid="false"
+                                                       data-1p-ignore="true" data-lpignore="true" data-form-type="other">
+                                                <div class="Polaris-TextField__Backdrop"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div style="display:inherit;width:auto"></div>
-                            <div style="display:inherit;width:auto"></div>
+                            <div class="Polaris-InlineGrid"
+                                 style="--pc-inline-grid-grid-template-columns-xs:repeat(3, minmax(0, 1fr));--pc-inline-grid-gap-xs:var(--p-space-400)">
+                                <!-- Search: Product Status -->
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -362,7 +412,7 @@
 
     document.addEventListener('DOMContentLoaded', async function () {
         pApp.ResizeGrid(375);
-        pApp.BindSearchEnter();
+        pApp.BindSearchEnter('#search_product');
 
         const gridDiv = document.querySelector(pApp.options.gridId);
         // const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
@@ -386,7 +436,10 @@
 
         // Search Products
         function searchProducts() {
-            gx.Request('/api/products', 'per_page=20', 1, function (v) {
+            let params = $('form[name="search"]').serialize();
+            params += '&per_page=20';
+
+            gx.Request('/api/products', params, 1, function (v) {
                 const data = v.data.reduce((a, c, i) => {
                     return a.concat(c.variants.map((item, index) => {
                         const { variants, ...parent } = c;
@@ -495,6 +548,12 @@
         // Search Products
         document.getElementById("search_product").addEventListener('click', function (e) {
             searchProducts();
+        });
+
+        // Search: Prodoct Type
+        document.getElementById("product_type").addEventListener('change', function (e) {
+            document.getElementById("selected_product_type").innerText = e.target.value;
+            document.querySelector(`input[name="product_type"]`).value = e.target.value;
         });
     });
 </script>
