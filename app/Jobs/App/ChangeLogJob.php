@@ -40,7 +40,7 @@ class ChangeLogJob implements ShouldQueue
             $productId = $this->container['product_id'];
             ChangeLog::create($this->container);
         } catch (Exception $e) {
-            Log::error("[HOOK][LOG] Create failed - {$productId}, Error: {$e->getMessage()}");
+            Log::error("[APP][LOG] Create failed - {$productId}, Error: {$e->getMessage()}");
         }
     }
 }

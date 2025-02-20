@@ -793,12 +793,12 @@
             rows = rows.map(row => row.parent.product_id);
             rows = [ ...new Set(rows) ];
 
-            const params = rows.map(row => 'product_ids[]=' + row).join('&');
-            fetch(`/api/products/delete?${params}`, {
-                method: 'DELETE',
+            fetch(`/api/products/delete`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                body: JSON.stringify({ product_ids: rows })
             })
                 .then(response => {
                     if (!response.ok) {

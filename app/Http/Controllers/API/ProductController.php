@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\App\ProductDeleteJob;
 use App\Listeners\ProductUpdateListener;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
@@ -108,24 +109,10 @@ class ProductController extends Controller
             return response()->json(['message' => 'No products to delete', 'shop_id' => $shop->id], 400);
         }
 
-        $totalProducts = count($productIds);
-        Redis::set("product-delete-total:{$shop->id}", $totalProducts);
-        Redis::set("product-delete-progress:{$shop->id}", 0);
-
-        $failedDeletes = [];
-        foreach ($productIds as $productId) {
-            $response = $shop->api()->rest('DELETE', "/admin/api/" . env('SHOPIFY_API_VERSION') ."/products/{$productId}.json");
-            if (isset($response['errors']) && $response['errors']) {
-                $failedDeletes[] = $productId;
-            }
-        }
-
-        if (!empty($failedDeletes)) {
-            return response()->json([
-                'message' => 'Some products failed to delete',
-                'failed_products' => $failedDeletes
-            ], 207);
-        }
+        ProductDeleteJob::dispatch([
+            'shop' => $shop,
+            'product_ids' => $productIds
+        ]);
 
         return response()->json(['message' => 'Products deleted successfully', 'shop_id' => $shop->id]);
     }
