@@ -63,7 +63,7 @@ class ProductController extends Controller
             ->when($tags, function ($q) use ($tags) {
                 $q->where(function ($subQuery) use ($tags) {
                     foreach ($tags as $tag) {
-                        $subQuery->orWhere('tags', $tag);
+                        $subQuery->orWhere('tags', 'LIKE', "%$tag%");
                     }
                 });
             })
