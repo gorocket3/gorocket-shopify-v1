@@ -108,6 +108,10 @@ class ProductController extends Controller
             return response()->json(['message' => 'No products to delete', 'shop_id' => $shop->id], 400);
         }
 
+        $totalProducts = count($productIds);
+        Redis::set("product-delete-total:{$shop->id}", $totalProducts);
+        Redis::set("product-delete-progress:{$shop->id}", 0);
+
         $failedDeletes = [];
         foreach ($productIds as $productId) {
             $response = $shop->api()->rest('DELETE', "/admin/api/" . env('SHOPIFY_API_VERSION') ."/products/{$productId}.json");

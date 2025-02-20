@@ -21,11 +21,14 @@
             integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="//js.pusher.com/8.2.0/pusher.min.js"></script>
     <!-- //CDN -->
 
     <!-- AG-GRID -->
     <script src="/assets/grid/ag-grid/dist/ag-grid-enterprise.min.js"></script>
-    <script src="/assets/grid/license.js"></script>
+    <script>
+        agGrid.LicenseManager.setLicenseKey("{{env('GRID_LICENSE')}}");
+    </script>
     <script src="/assets/grid/function.js?v=2025021017"></script>
     <script src="/assets/grid/init.js?v=2025021017"></script>
     <script src="/assets/grid/grid_field_editor.js?v=2025021017"></script>
@@ -237,6 +240,16 @@
 </div>
 
 <script language="JavaScript">
+
+    let pusher = new Pusher("9d0419d5d7a8c8eaa4d3", {
+        cluster: "ap3"
+    });
+
+    let channel = pusher.subscribe('gorocket-shop-1');
+    channel.bind('product-delete', function(data) {
+        console.log(data);
+    });
+
     const pApp = new App('', { gridId: "#div-gd" });
     let gx;
 
