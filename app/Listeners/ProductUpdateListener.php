@@ -30,6 +30,10 @@ class ProductUpdateListener implements ShouldQueue
             $shopId = $event->shopId->toNative();
             $shop = User::find($shopId);
 
+            $totalProducts = 0;
+            $processedProducts = 0;
+            $progress = 0;
+
             if (!$shop) {
                 Log::error("[LISTENER][PRODUCT] Shop not found - {$shopId}");
                 return;
@@ -39,6 +43,7 @@ class ProductUpdateListener implements ShouldQueue
                 } while ($deleted > 0);
             }
 
+            $batch = [];
             $nextPage = null;
             do {
                 $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
@@ -52,6 +57,7 @@ class ProductUpdateListener implements ShouldQueue
                 }
 
                 $products = $response['body']['products'];
+                $totalProducts += count($products);
                 foreach ($products as $product) {
                     $data = [
                         'id'                     => $product['id'],
@@ -121,8 +127,9 @@ class ProductUpdateListener implements ShouldQueue
                     ];
 
                     $batch[] = $data;
-                    if (count($batch) >= 500) {
-                        ProductUpdateJob::dispatch($batch, $shopId);
+                    $progress = intval((++$processedProducts / $totalProducts) * 100);
+                    if (count($batch) >= 100) {
+                        ProductUpdateJob::dispatch($batch, $shopId, $progress);
                         $batch = [];
                     }
                 }
@@ -130,7 +137,7 @@ class ProductUpdateListener implements ShouldQueue
             } while ($nextPage);
 
             if (!empty($batch)) {
-                ProductUpdateJob::dispatch($batch, $shopId);
+                ProductUpdateJob::dispatch($batch, $shopId, $progress);
             }
 
             Log::info("[LISTENER][PRODUCT] Queue success - {$shopId}");

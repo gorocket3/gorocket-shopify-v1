@@ -32,17 +32,20 @@ class ProductUpdateJob implements ShouldQueue
      */
     protected array $data;
     protected int $shopId;
+    protected int $progress;
 
     /**
      * Create a new job instance.
      *
      * @param array $data
      * @param int $shopId
+     * @param int $progress
      */
-    public function __construct(array $data, int $shopId)
+    public function __construct(array $data, int $shopId, int $progress)
     {
-        $this->data   = $data;
-        $this->shopId = $shopId;
+        $this->data     = $data;
+        $this->shopId   = $shopId;
+        $this->progress = $progress;
     }
 
     /**
@@ -62,7 +65,11 @@ class ProductUpdateJob implements ShouldQueue
         } catch (Exception $e) {
             Log::error("[SETUP][PRODUCT] Sync failed - {$this->shopId}, Error: {$e->getMessage()}");
         } finally {
-            event(new MessageCompleted($this->shopId, 'product-sync', []));
+            event(new MessageCompleted(
+                $this->shopId,
+                'product-sync',
+                ['progress' => $this->progress]
+            ));
         }
     }
 
