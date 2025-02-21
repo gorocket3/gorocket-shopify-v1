@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Jobs\Setup\ProductUpdateJob;
+use App\Models\Product;
 use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,6 +33,10 @@ class ProductUpdateListener implements ShouldQueue
             if (!$shop) {
                 Log::error("[LISTENER][PRODUCT] Shop not found - {$shopId}");
                 return;
+            } else {
+                do {
+                    $deleted = Product::where('user_id', $shopId)->limit(1000)->delete();
+                } while ($deleted > 0);
             }
 
             $nextPage = null;
@@ -116,7 +121,6 @@ class ProductUpdateListener implements ShouldQueue
                     ];
 
                     $batch[] = $data;
-
                     if (count($batch) >= 500) {
                         ProductUpdateJob::dispatch($batch, $shopId);
                         $batch = [];

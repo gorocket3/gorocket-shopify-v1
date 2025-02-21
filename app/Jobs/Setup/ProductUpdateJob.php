@@ -56,7 +56,6 @@ class ProductUpdateJob implements ShouldQueue
                 $this->bulkUpdateVariants();
                 $this->bulkUpdateImages();
                 $this->bulkUpdateOptions();
-                $this->deleteMissingRecords();
             });
 
             Log::info("[SETUP][PRODUCT] Sync completed - {$this->shopId}");
@@ -167,23 +166,5 @@ class ProductUpdateJob implements ShouldQueue
         ]));
 
         ProductOption::upsert($options->toArray(), ['option_id']);
-    }
-
-    /**
-     * Delete missing records
-     */
-    protected function deleteMissingRecords(): void
-    {
-        $currentProductIds = collect($this->data)->pluck('id');
-        Product::whereNotIn('product_id', $currentProductIds)->delete();
-
-        $variantIds = collect($this->data)->flatMap(fn($p) => collect($p['variants'] ?? [])->pluck('variant_id'));
-        ProductVariant::whereNotIn('variant_id', $variantIds)->delete();
-
-        $imageIds = collect($this->data)->flatMap(fn($p) => collect($p['images'] ?? [])->pluck('image_id'));
-        ProductImage::whereNotIn('image_id', $imageIds)->delete();
-
-        $optionIds = collect($this->data)->flatMap(fn($p) => collect($p['options'] ?? [])->pluck('option_id'));
-        ProductOption::whereNotIn('option_id', $optionIds)->delete();
     }
 }
