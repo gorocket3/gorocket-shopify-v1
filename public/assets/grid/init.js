@@ -138,43 +138,6 @@ $(document).ready(function () {
         }
     });
 
-
-    /*$( "#search-btn-plus" ).on("click", function(e) {
-        e.preventDefault();
-        $( "#search-area .card-body" ).removeClass( "d-none");
-        $( ".search-area-ext" ).removeClass( "d-none");
-        $( "#search-btn-label" ).removeClass( "fa-square");
-        $( "#search-btn-label" ).removeClass( "fa-minus-square");
-        $( "#search-btn-label" ).addClass( "fa-plus-square");
-        if(pApp.options.grid_resize == true){
-            pApp.ResizeGrid();
-        }
-    });
-
-    $( "#search-btn-minus" ).on("click", function(e) {
-        e.preventDefault();
-        $( "#search-area .card-body" ).addClass( "d-none");
-        $( ".search-area-ext" ).addClass( "d-none");
-        $( "#search-btn-label" ).removeClass( "fa-square");
-        $( "#search-btn-label" ).removeClass( "fa-plus-square");
-        $( "#search-btn-label" ).addClass( "fa-minus-square");
-        if(pApp.options.grid_resize == true){
-            pApp.ResizeGrid();
-        }
-    });
-
-    $( "#search-btn" ).on("click", function(e) {
-        e.preventDefault();
-        $( "#search-area .card-body" ).removeClass( "d-none");
-        $( ".search-area-ext" ).addClass( "d-none");
-        $( "#search-btn-label" ).removeClass( "fa-minus-square");
-        $( "#search-btn-label" ).removeClass( "fa-plus-square");
-        $( "#search-btn-label" ).addClass( "fa-square");
-        if(pApp.options.grid_resize == true){
-            pApp.ResizeGrid();
-        }
-    });*/
-
     // ESC키로 팝업창 닫기
     window.onkeyup = function (e) {
         if (e.key === 'Escape') {
@@ -190,3 +153,12 @@ $(document).ready(function () {
     }
 });
 
+
+// UI: Grid Resize
+function resizeGrid(timeout = 0) {
+    if (pApp.options.grid_resize == true) {
+        setTimeout(function () {
+            pApp.ResizeGrid(pApp.options?.height || 255);
+        }, timeout);
+    }
+}
