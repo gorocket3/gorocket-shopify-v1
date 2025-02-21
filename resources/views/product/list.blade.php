@@ -433,6 +433,40 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Search: Per Page -->
+                                <div class="">
+                                    <div class="Polaris-Labelled__LabelWrapper">
+                                        <div class="Polaris-Label">
+                                            <label id="product_per_page_label" for="product_per_page" class="Polaris-Label__Text">
+                                                <span class="Polaris-Text--root Polaris-Text--bodyMd">Products Per Page</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="Polaris-Select" x-data="{ pages: [10, 20, 50, 100, 200, 500], selectedPage: 100 }">
+                                        <select id="product_per_page" name="per_page" x-model="selectedPage" class="Polaris-Select__Input" aria-invalid="false">
+                                            <template x-for="page in pages" :key="page">
+                                                <option :value="page" x-text="page" :selected="selectedPage === page"></option>
+                                            </template>
+                                        </select>
+                                        <div class="Polaris-Select__Content" aria-hidden="true">
+                                            <span class="Polaris-Select__SelectedOption" x-text="selectedPage"></span>
+                                            <span class="Polaris-Select__Icon">
+                                                <span class="Polaris-Icon">
+                                                    <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false"
+                                                         aria-hidden="true">
+                                                        <path
+                                                            d="M10.884 4.323a1.25 1.25 0 0 0-1.768 0l-2.646 2.647a.75.75 0 0 0 1.06 1.06l2.47-2.47 2.47 2.47a.75.75 0 1 0 1.06-1.06l-2.646-2.647Z">
+                                                        </path>
+                                                        <path
+                                                            d="m13.53 13.03-2.646 2.647a1.25 1.25 0 0 1-1.768 0l-2.646-2.647a.75.75 0 0 1 1.06-1.06l2.47 2.47 2.47-2.47a.75.75 0 0 1 1.06 1.06Z">
+                                                        </path>
+                                                    </svg>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="Polaris-Select__Backdrop"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -707,7 +741,6 @@
         // Search Products
         function searchProducts() {
             let params = $('form[name="search"]').serialize();
-            params += '&per_page=20';
 
             gx.Request('/api/products', params, 1, function (v) {
                 const data = v.data.reduce((a, c, i) => {
