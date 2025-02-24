@@ -102,7 +102,7 @@
             </div>
         </div>
 
-        <div id="search-area" class="Polaris-LegacyCard mb-2">
+        <div id="search-area" class="Polaris-LegacyCard mb-2" style="overflow: unset;">
             <div class="Polaris-LegacyCard__Section Polaris-LegacyCard__FirstSectionPadding Polaris-LegacyCard__LastSectionPadding">
                 <div class="Polaris-LegacyStack Polaris-LegacyStack--vertical" x-data="{ searchTabExpanded: true, toggleExpanded() { this.searchTabExpanded = !this.searchTabExpanded; } }">
                     <div class="Polaris-LegacyStack__Item" style="display:flex;justify-content:space-between;align-items:center;">
@@ -496,6 +496,83 @@
                                     class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--toneCritical">
                                 <span class="Polaris-Text--root Polaris-Text--bodySm Polaris-Text--medium">Delete</span>
                             </button>
+                            <div>
+                                <div style="position:relative;">
+                                    <button
+                                        type="button" tabindex="0" aria-controls="gridSettingPopoverInner" aria-owns="gridSettingPopoverInner"
+                                        id="gd-setting"
+                                        x-on:click="$store.gridSetting.toggle();"
+                                        class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantSecondary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--disclosure"
+                                        aria-expanded="true" :data-state="$store.gridSetting.open">
+                                        <span class="Polaris-Button__Icon">
+                                            <span class="Polaris-Icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.013 4.389c0-.767.621-1.389 1.389-1.389h1.196c.767 0 1.39.622 1.39 1.389v.66c0 .153.101.33.307.436.141.074.278.155.411.241.196.128.402.13.536.052l.576-.332a1.389 1.389 0 0 1 1.897.508l.599 1.037a1.39 1.39 0 0 1-.509 1.897l-.621.359c-.131.075-.232.249-.225.477a5.135 5.135 0 0 1-.004.427c-.012.233.09.412.223.489l.627.362c.665.384.892 1.233.509 1.897l-.599 1.037a1.39 1.39 0 0 1-1.897.508l-.672-.388c-.132-.076-.332-.076-.526.045a4.928 4.928 0 0 1-.325.185c-.206.108-.308.284-.308.437v.778a1.39 1.39 0 0 1-1.389 1.39h-1.196a1.389 1.389 0 0 1-1.39-1.39v-.778c0-.153-.102-.33-.307-.437a4.96 4.96 0 0 1-.325-.185c-.194-.121-.395-.12-.526-.045l-.672.388a1.39 1.39 0 0 1-1.898-.508l-.598-1.037a1.389 1.389 0 0 1 .509-1.897l.627-.362c.133-.077.235-.256.223-.49a5.03 5.03 0 0 1-.004-.426c.007-.228-.094-.401-.225-.477l-.621-.359a1.389 1.389 0 0 1-.509-1.897l.598-1.037a1.389 1.389 0 0 1 1.898-.508l.576.332c.133.078.34.076.535-.052a4.81 4.81 0 0 1 .412-.24c.205-.108.308-.284.308-.437v-.66Zm1.987 7.611a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>
+                                            </span>
+                                        </span>
+                                        <span class="Polaris-Button__Icon">
+                                            <span class="Polaris-Icon">
+                                                <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true"><path fill-rule="evenodd" d="M5.72 8.47a.75.75 0 0 1 1.06 0l3.47 3.47 3.47-3.47a.75.75 0 1 1 1.06 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 0 1 0-1.06Z"/></svg>
+                                            </span>
+                                        </span>
+                                    </button>
+                                    <div data-portal-id="popover-grid-setting"
+                                         id="gridSettingPopover"
+                                         class="p-theme-light Polaris-ThemeProvider--themeContainer"
+                                         style="position:relative;">
+                                        <div :class="`Polaris-PositionedOverlay Polaris-Popover__PopoverOverlay ${$store.gridSetting.open ? 'Polaris-Popover__PopoverOverlay--open' : 'Polaris-Popover__PopoverOverlay--close'}`"
+                                            style="width:130px;top:2px;right:0;">
+                                            <div class="Polaris-Popover" data-polaris-overlay="true" style="margin:0;">
+                                                <div class="Polaris-Popover__FocusTracker" tabindex="0"></div>
+                                                <div class="Polaris-Popover__ContentContainer">
+                                                    <div id="gridSettingPopoverInner" tabindex="-1" class="Polaris-Popover__Content" style="max-height: 78px;">
+                                                        <div class="Polaris-Popover__Pane Polaris-Scrollable Polaris-Scrollable--vertical Polaris-Scrollable--horizontal Polaris-Scrollable--scrollbarWidthThin"
+                                                            data-polaris-scrollable="true">
+                                                            <div class="Polaris-Box">
+                                                                <div class="Polaris-Box" tabindex="-1"
+                                                                     style="--pc-box-padding-block-start-xs: var(--p-space-150); --pc-box-padding-block-end-xs: var(--p-space-150); --pc-box-padding-inline-start-xs: var(--p-space-150); --pc-box-padding-inline-end-xs: var(--p-space-150);">
+                                                                    <ul class="Polaris-BlockStack Polaris-BlockStack--listReset"
+                                                                        role="menu"
+                                                                        style="--pc-block-stack-order: column; --pc-block-stack-gap-xs: var(--p-space-050);">
+                                                                        <li class="Polaris-Box" role="presentation">
+                                                                            <div class="Polaris-InlineStack"
+                                                                                 style="--pc-inline-stack-wrap: nowrap; --pc-inline-stack-flex-direction-xs: row;">
+                                                                                <button type="button" id="save_columns" class="Polaris-ActionList__Item Polaris-ActionList--default" role="menuitem">
+                                                                                    <div class="Polaris-Box" style="--pc-box-width: 100%;">
+                                                                                        <div class="Polaris-InlineStack" style="--pc-inline-stack-block-align: center; --pc-inline-stack-wrap: nowrap; --pc-inline-stack-gap-xs: var(--p-space-150); --pc-inline-stack-flex-direction-xs: row;">
+                                                                                            <span class="Polaris-ActionList__Text">
+                                                                                                <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--regular">Save Columns</span>
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </button>
+                                                                            </div>
+                                                                        </li>
+                                                                        <li class="Polaris-Box" role="presentation">
+                                                                            <div class="Polaris-InlineStack"
+                                                                                 style="--pc-inline-stack-wrap: nowrap; --pc-inline-stack-flex-direction-xs: row;">
+                                                                                <button type="button" id="reset_columns" class="Polaris-ActionList__Item Polaris-ActionList--default" role="menuitem">
+                                                                                    <div class="Polaris-Box" style="--pc-box-width: 100%;">
+                                                                                        <div class="Polaris-InlineStack" style="--pc-inline-stack-block-align: center; --pc-inline-stack-wrap: nowrap; --pc-inline-stack-gap-xs: var(--p-space-150); --pc-inline-stack-flex-direction-xs: row;">
+                                                                                            <span class="Polaris-ActionList__Text">
+                                                                                                <span class="Polaris-Text--root Polaris-Text--bodyMd Polaris-Text--regular">Reset Columns</span>
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </button>
+                                                                            </div>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="Polaris-Popover__FocusTracker" tabindex="0"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -709,9 +786,9 @@
         pApp.BindSearchEnter('#search_product');
 
         const gridDiv = document.querySelector(pApp.options.gridId);
-        // const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
+        const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
-        gx = new HDGrid(gridDiv, default_columns, {
+        gx = new HDGrid(gridDiv, my_columns, {
             enableCellSpan: true,
             suppressRowTransform: true,
             rowClassRules: {
@@ -847,17 +924,85 @@
             searchProducts();
         });
 
+        // Save Columns
+        document.getElementById("save_columns").addEventListener('click', async function (e) {
+            if (!confirm("Would you like to save the column information?")) return;
+
+            let column_datalist = gx.gridOptions.columnDefs;
+            let new_column_datalist = [];
+
+            column_datalist.forEach((value) => {
+                let value_children = value['children'];
+                let newchildren = [];
+
+                if (value['children'] !== undefined) {
+                    value_children.forEach((val) => {
+                        newchildren.push({
+                            'field': val['field'], 'hide': val['hide'], 'pinned': val['pinned'], 'width': val['width']
+                        });
+                    });
+                }
+
+                new_column_datalist.push({
+                    'field': value['field'],
+                    'hide': value['hide'],
+                    'pinned': value['pinned'],
+                    'width': value['width'],
+                    'children': newchildren
+                });
+            });
+
+            try {
+                const response = await fetch('/api/personal-column', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "columns": JSON.stringify(new_column_datalist) })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const res = await response.json();
+                alert('Column information has been save.');
+                Alpine.store('gridSetting').toggle(false);
+            } catch (error) {
+                console.error('Error fetching personal column:', error);
+            }
+        });
+
+        // Reset Columns
+        document.getElementById("reset_columns").addEventListener('click', async function (e) {
+            if (!confirm("Would you like to reset the column information?")) return;
+
+            try {
+                const response = await fetch('/api/personal-column', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // if (!response.ok) {
+                //     throw new Error(`HTTP error! Status: ${response.status}`);
+                // }
+
+                alert('Column information has been reset.');
+                // window.location.reload();
+                Alpine.store('gridSetting').toggle(false);
+            } catch (error) {
+                console.error('Error fetching personal column:', error);
+            }
+        });
+
         // UI: Proudct Status Popover
         const productStatusArea = document.getElementById("productStatusArea");
         const productStatusPopover = document.getElementById("productStatusPopover");
 
         productStatusArea.addEventListener('click', function (e) {
             productStatusPopover.style.display = 'block';
-        });
-        document.addEventListener("click", function (e) {
-            if (!productStatusArea.contains(e.target) && !productStatusPopover.contains(e.target)) {
-                productStatusPopover.style.display = "none";
-            }
         });
 
         // UI: Proudct Tags Popover
@@ -867,7 +1012,11 @@
         productTagArea.addEventListener('click', function (e) {
             productTagPopover.style.display = 'block';
         });
+
         document.addEventListener("click", function (e) {
+            if (!productStatusArea.contains(e.target) && !productStatusPopover.contains(e.target)) {
+                productStatusPopover.style.display = "none";
+            }
             if (!productTagArea.contains(e.target) && !productTagPopover.contains(e.target)) {
                 productTagPopover.style.display = "none";
             }
@@ -886,6 +1035,12 @@
                 if (!bool) {
                     this.value = 0;
                 }
+            }
+        });
+        Alpine.store('gridSetting', {
+            open: false,
+            toggle(bool) {
+                this.open = bool !== undefined ? bool : !this.open;
             }
         });
     });

@@ -895,78 +895,91 @@ HDGrid.prototype.setFocusedWorkingCell = function () {
  * @returns {Promise<*|*[]|boolean>}
  */
 async function getMyColumns(gridCallback, gridDiv, default_columns, grid_number = 1) {
-    let url_path_array = String(window.location.href).split('?')[0].split('/');
-    let pid = filter_pid(String(url_path_array[url_path_array.length - 1]).toLocaleUpperCase());
-    pid = pid + '_' + grid_number;
+    // let setting_btn_id = gridDiv.id.replace('div-', '') + '-setting';
+    // new GridCustomSettingEditor(setting_btn_id, grid_number, gridCallback);
 
-    let setting_btn_id = gridDiv.id.replace('div-', '') + '-setting';
-    new GridCustomSettingEditor(setting_btn_id, grid_number, gridCallback, pid);
+    try {
+        const response = await fetch('/api/personal-column', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-    let res = await axios({ method: 'get', url: '/head/cmm01/get?pid=' + pid });
-    if (res.data.code === 200) {
-        let parse_data = null;
-        let res_data = [];
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-        if (res.data.body.indiv_columns.length > 0) {
-            parse_data = JSON.parse(res.data.body.indiv_columns);
-            parse_data.forEach((value) => {
-                default_columns.forEach((col) => {
-                    if (value['field'] === col['field']) {
-                        if (value['children'].length > 0) {
-                            let value_children = value['children'];
-                            let col_children = col['children'];
-                            let new_children = [];
+        const res = await response.json();
+        if (!!res.columns) {
+            let res_data = [];
+            let parse_data = null;
+            if (res.columns.length > 0) {
+                parse_data = JSON.parse(res.columns);
+                parse_data.forEach((value) => {
+                    default_columns.forEach((col) => {
+                        if (value['field'] === col['field']) {
+                            if (value['children'].length > 0) {
+                                let value_children = value['children'];
+                                let col_children = col['children'];
+                                let new_children = [];
 
-                            if (value['hide'] === true) {
-                                res_data.push(Object.assign(clone(col), { 'hide': true }));
-                            } else {
-                                Object.keys(value_children).forEach((key) => {
-                                    if (value_children[key]['hide'] === true) {
-                                        new_children.push(Object.assign(col_children[key], { 'hide': true }));
-                                    } else if (value_children[key]['pinned'] === 'left' || value_children[key]['width'] !== null) {
-                                        let properties = {};
+                                if (value['hide'] === true) {
+                                    res_data.push(Object.assign(clone(col), { 'hide': true }));
+                                } else {
+                                    Object.keys(value_children).forEach((key) => {
+                                        if (value_children[key]['hide'] === true) {
+                                            new_children.push(Object.assign(col_children[key], { 'hide': true }));
+                                        } else if (value_children[key]['pinned'] === 'left' || value_children[key]['width'] !== null) {
+                                            let properties = {};
 
-                                        if (value_children[key]['pinned'] === 'left' && value_children[key]['width'] === undefined) {
-                                            properties = { 'pinned': 'left' };
-                                        } else if (value_children[key]['pinned'] === null && value_children[key]['width'] !== undefined) {
-                                            properties = { 'width': value_children[key]['width'] };
-                                        } else if (value_children[key]['pinned'] !== null && value_children[key]['width'] !== undefined) {
-                                            properties = { 'pinned': 'left', 'width': value_children[key]['width'] };
+                                            if (value_children[key]['pinned'] === 'left' && value_children[key]['width'] === undefined) {
+                                                properties = { 'pinned': 'left' };
+                                            } else if (value_children[key]['pinned'] === null && value_children[key]['width'] !== undefined) {
+                                                properties = { 'width': value_children[key]['width'] };
+                                            } else if (value_children[key]['pinned'] !== null && value_children[key]['width'] !== undefined) {
+                                                properties = {
+                                                    'pinned': 'left',
+                                                    'width': value_children[key]['width']
+                                                };
+                                            }
+
+                                            new_children.push(Object.assign(col_children[key], properties));
+                                        } else {
+                                            new_children.push(col_children[key]);
                                         }
+                                    });
 
-                                        new_children.push(Object.assign(col_children[key], properties));
-                                    } else {
-                                        new_children.push(col_children[key]);
-                                    }
-                                });
-
-                                col['children'] = new_children;
-                                res_data.push(col);
-                            }
-                        } else {
-                            if (value['hide'] === true) {
-                                res_data.push(Object.assign(clone(col), { 'hide': true }));
-                            } else if (value['pinned'] === 'left' || value['width'] !== undefined) {
-                                let copy_properties = {};
-
-                                if (value['pinned'] === 'left' && value['width'] === undefined) {
-                                    copy_properties = { 'pinned': 'left' };
-                                } else if (value['pinned'] === null && value['width'] !== undefined) {
-                                    copy_properties = { 'width': value['width'] };
-                                } else if (value['pinned'] !== null && value['width'] !== undefined) {
-                                    copy_properties = { 'pinned': 'left', 'width': value['width'] };
+                                    col['children'] = new_children;
+                                    res_data.push(col);
                                 }
-
-                                res_data.push(Object.assign(clone(col), copy_properties));
                             } else {
-                                res_data.push(clone(col));
+                                if (value['hide'] === true) {
+                                    res_data.push(Object.assign(clone(col), { 'hide': true }));
+                                } else if (value['pinned'] === 'left' || value['width'] !== undefined) {
+                                    let copy_properties = {};
+
+                                    if (value['pinned'] === 'left' && value['width'] === undefined) {
+                                        copy_properties = { 'pinned': 'left' };
+                                    } else if (value['pinned'] === null && value['width'] !== undefined) {
+                                        copy_properties = { 'width': value['width'] };
+                                    } else if (value['pinned'] !== null && value['width'] !== undefined) {
+                                        copy_properties = { 'pinned': 'left', 'width': value['width'] };
+                                    }
+
+                                    res_data.push(Object.assign(clone(col), copy_properties));
+                                } else {
+                                    res_data.push(clone(col));
+                                }
                             }
                         }
-                    }
+                    });
                 });
-            });
+            }
+            return res_data.length < 1 ? default_columns : res_data;
         }
-        return res_data.length < 1 ? default_columns : res_data;
+        return false;
+    } catch (error) {
+        console.error('Error fetching personal column:', error);
     }
-    return false;
 }
