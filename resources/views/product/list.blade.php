@@ -46,7 +46,7 @@
     <title>상품관리 :: 고로켓</title>
 </head>
 <body>
-<div class="container">
+<div class="container" x-data>
     <div class="Polaris-Page">
         <div class="Polaris-Box"
              style="--pc-box-padding-block-start-xs:var(--p-space-300);--pc-box-padding-block-start-md:var(--p-space-300);--pc-box-padding-block-end-xs:var(--p-space-300);--pc-box-padding-block-end-md:var(--p-space-300);--pc-box-padding-inline-start-xs:var(--p-space-400);--pc-box-padding-inline-start-sm:var(--p-space-0);--pc-box-padding-inline-end-xs:var(--p-space-400);--pc-box-padding-inline-end-sm:var(--p-space-0);position:relative">
@@ -85,6 +85,18 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div :style="`display: ${$store.progress.inProgress ? 'block' : 'none'}`">
+            <div class="mb-2" style="width:100%;">
+                <div class="Polaris-ProgressBar Polaris-ProgressBar--sizeMedium Polaris-ProgressBar--toneCritical" style="height: 25px;">
+                    <progress class="Polaris-ProgressBar__Progress" :value="$store.progress.value" max="100">
+                    </progress>
+                    <div class="Polaris-ProgressBar__Indicator Polaris-ProgressBar__IndicatorAppearActive" :style="`--pc-progress-bar-duration:500ms;--pc-progress-bar-percent:${$store.progress.value/100}`">
+                        <span class="Polaris-ProgressBar__Label" x-text="$store.progress.value + '%'"></span>
                     </div>
                 </div>
             </div>
@@ -473,7 +485,7 @@
                         <h2 class="Polaris-Text--root Polaris-Text--subdued">
                             Showing <strong id="gd-current" class="Polaris-Text--success">0</strong> of <strong id="gd-total" class="Polaris-Text--base">0</strong> <strong class="Polaris-Text--base">Products</strong>
                         </h2>
-                        <div style="display: flex;align-items: center;gap: 5px;">
+                        <div id="grid-actions" style="display: flex;align-items: center;gap: 5px;">
                             <button type="button"
                                     id="save_product"
                                     class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter">
@@ -516,6 +528,7 @@
     let channel = pusher.subscribe('gorocket-shop-{{ $shop_id }}');
     channel.bind('product-delete', function(data) {
         console.log(data);
+        Alpine.store('progress').setValue(data?.data?.progress || 0);
     });
 
     const pApp = new App('', { gridId: "#div-gd" });
@@ -803,6 +816,8 @@
             rows = rows.map(row => row.parent.product_id);
             rows = [ ...new Set(rows) ];
 
+            setProgressArea(true);
+
             fetch(`/api/products/delete`, {
                 method: 'POST',
                 headers: {
@@ -818,10 +833,12 @@
                 })
                 .then(data => {
                     alert('The selected product(s) have been deleted.');
+                    setProgressArea(false);
                 })
                 .catch(error => {
                     console.error(error.message);
                     alert('An error occurred while deleting the product.');
+                    setProgressArea(false);
                 });
         });
 
@@ -856,6 +873,37 @@
             }
         });
     });
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('progress', {
+            value: 0,
+            inProgress: false,
+            setValue(val) {
+                this.value = val;
+            },
+            setInProgress(bool) {
+                this.inProgress = bool;
+                if (!bool) {
+                    this.value = 0;
+                }
+            }
+        });
+    });
+
+    function setProgressArea(inProgress) {
+        Alpine.store('progress').setInProgress(inProgress);
+        if (inProgress) {
+            pApp.ResizeGrid(290);
+            document.querySelectorAll('#grid-actions button').forEach((btn) => {
+                btn.disabled = true;
+            });
+        } else {
+            pApp.ResizeGrid(255);
+            document.querySelectorAll('#grid-actions button').forEach((btn) => {
+                btn.disabled = false;
+            });
+        }
+    }
 </script>
 </body>
 </html>
