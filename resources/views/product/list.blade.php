@@ -128,7 +128,7 @@
                     <div class="Polaris-LegacyStack__Item" style="margin-top:0;">
                         <div id="basic-collapsible"
                              :style="`transition: max-height 100ms ease-in-out; max-height: ${searchTabExpanded ? '180px' : '0px'}; overflow: ${searchTabExpanded ? 'visible' : 'hidden'}`"
-                             class="Polaris-Collapsible Polaris-Collapsible--expandOnPrint" :aria-hidden="!!searchTabExpanded">
+                             class="Polaris-Collapsible Polaris-Collapsible--expandOnPrint">
                             <div style="padding-top:7px;">
                                 <form method="get" name="search">
                                     <div style="width:100%;height:auto">
@@ -445,7 +445,7 @@
                                                 <div class="Polaris-Select" x-data="{ pages: [10, 20, 50, 100, 200, 500], selectedPage: 100 }">
                                                     <select id="product_per_page" name="per_page" x-model="selectedPage" class="Polaris-Select__Input" aria-invalid="false">
                                                         <template x-for="page in pages" :key="page">
-                                                            <option :value="page" x-text="page" :selected="selectedPage === page"></option>
+                                                            <option :value="page" x-text="page" :selected="selectedPage == page"></option>
                                                         </template>
                                                     </select>
                                                     <div class="Polaris-Select__Content" aria-hidden="true">
