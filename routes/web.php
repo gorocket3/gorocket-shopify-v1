@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['verify.shopify', 'verify.scopes', 'billable'])->group(function () {
     Route::get('', fn() => view('welcome'))->name('home');
     Route::get('products', [ProductController::class, 'index'])->name('products');
-
+    Route::get('pricing', fn() => view('pricing'))->name('pricing');
     Route::get('help', [ProductController::class, 'test'])->name('test');
 });
 
