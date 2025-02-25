@@ -42,29 +42,10 @@ class ProductDeleteJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $shopId     = $this->container['user_id'];
             $productId  = $this->container['id'];
-
             if ($productId) {
                 Product::where('product_id', $productId)->delete();
                 Log::info("[HOOK][PRODUCT] Delete success - {$productId}");
-
-                $totalProducts = Redis::get("product-delete-total:{$shopId}") ?? 1;
-                $redisKey = "product-delete-progress:{$shopId}";
-                $deletedCount = Redis::incr($redisKey);
-
-                $progress = intval(($deletedCount / $totalProducts) * 100);
-                event(new MessageCompleted(
-                    $shopId,
-                    'product-delete',
-                    ['progress' => $progress]
-                ));
-
-                if ($progress >= 100) {
-                    Redis::del($redisKey);
-                    Redis::del("product-delete-total:{$shopId}");
-                }
-
             } else {
                 Log::warning("[HOOK][PRODUCT] Id is missing - {$productId}");
             }

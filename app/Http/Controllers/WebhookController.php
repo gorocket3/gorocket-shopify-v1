@@ -26,7 +26,6 @@ class WebhookController extends Controller
     {
         $payload = $request->all();
         $productId = $payload['id'] ?? null;
-        $updatedAt = $payload['updated_at'] ?? null;
 
         $shopDomain = $request->header('x-shopify-shop-domain');
         $shop = Shop::where('myshopify_domain', $shopDomain)->first();
@@ -37,7 +36,7 @@ class WebhookController extends Controller
         $payload['user_id'] = $shop->user_id;
         Log::info("[HOOK][RECEIVED] Webhook: {$type}", $payload);
 
-        if ($this->shouldSkipWebhook($productId, $updatedAt, $shop->timezone)) {
+        if ($this->shouldSkipWebhook($productId)) {
             return response()->json(['message' => 'Ignored webhook']);
         }
 
@@ -51,23 +50,12 @@ class WebhookController extends Controller
      * Check if webhook should be skipped.
      *
      * @param string|null $productId
-     * @param string|null $updatedAt
-     * @param string|null $timezone
      * @return bool
      */
-    private function shouldSkipWebhook(?string $productId, ?string $updatedAt, ?string $timezone): bool
+    private function shouldSkipWebhook(?string $productId): bool
     {
-        if (!$productId || !$updatedAt || !$timezone) {
+        if (!$productId) {
             return false;
-        }
-
-        $product = Product::where('product_id', $productId)->first();
-        if ($product) {
-            $webhookUpdatedAt = Carbon::parse($updatedAt)->setTimezone('UTC');
-            if ($webhookUpdatedAt < $product->updated_at) {
-                Log::info("[HOOK][HANDLE] Webhook outdated - {$productId}");
-                return true;
-            }
         }
 
         if (Redis::exists($productId)) {
