@@ -19,7 +19,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render( function( \Osiset\ShopifyApp\Exceptions\MissingShopDomainException $exception, Request $request ) {
-            return Redirect::to(env('SHOPIFY_REDIRECT'));
-        });
+
     })->create();
