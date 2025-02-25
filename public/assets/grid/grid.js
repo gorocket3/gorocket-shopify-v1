@@ -80,13 +80,18 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
     };
 
     this.gridOptions = {
-        columnDefs: applyBizestColumns(columns), defaultColDef: {
+        columnDefs: applyBizestColumns(columns),
+        defaultColDef: {
             suppressMenu: true, // set every column width
             flex: 1, // make every column editable
-            resizable: true, autoHeight: true, //suppressSizeToFit: true,
-            sortable: true, //minWidth:70,
+            resizable: true,
+            // suppressSizeToFit: false,
+            autoHeight: true,
+            sortable: true,
             suppressKeyboardEvent: setArrowKeyboardEvent,
-        }, enableRangeSelection: true, columnTypes: {
+        },
+        enableRangeSelection: true,
+        columnTypes: {
             numberType: {
                 //filter: 'agNumberColumnFilter',
                 comparator: sortnumber, valueFormatter: formatNumber, cellClass: 'hd-grid-number',
@@ -915,7 +920,8 @@ async function getMyColumns(gridCallback, gridDiv, default_columns, grid_number 
             let res_data = [];
             let parse_data = null;
             if (res.columns.length > 0) {
-                parse_data = JSON.parse(res.columns);
+                if (typeof res.columns === 'string') parse_data = JSON.parse(res.columns?.[0] || '');
+                else parse_data = res.columns?.[0] || [];
                 parse_data.forEach((value) => {
                     default_columns.forEach((col) => {
                         if (value['field'] === col['field']) {

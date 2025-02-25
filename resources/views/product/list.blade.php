@@ -65,7 +65,7 @@
                             <div style="display: flex;align-items: center;gap: 12px;">
                                 <ui-nav-menu>
                                     <a href="/products">상품</a>
-                                    <a href="/billing/2">결제</a>
+                                    <a href="/pricing">결제</a>
                                     <a href="/settings">설정</a>
                                     <a href="/help">도움</a>
                                 </ui-nav-menu>
@@ -652,7 +652,7 @@
         };
     };
 
-    const default_columns = [
+    const initial_columns = [
         { field: "product_status_changed", hide: true },
         { field: "product_name_changed", hide: true },
         { field: "product_tags_changed", hide: true },
@@ -667,7 +667,7 @@
             checkboxSelection: (p) => p.data.position < 2,
             headerCheckboxSelection: true,
             width: 24,
-            sort: null,
+            sort: false,
             cellStyle: cellMergeStyling
         },
         {
@@ -786,24 +786,31 @@
         pApp.BindSearchEnter('#search_product');
 
         const gridDiv = document.querySelector(pApp.options.gridId);
-        const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
-        gx = new HDGrid(gridDiv, my_columns, {
-            enableCellSpan: true,
-            suppressRowTransform: true,
-            rowClassRules: {
-                "even": "data.parent_index % 2 !== 0",
-            },
-            onRowSelected: (event) => {
-                if (event.node.data.parent.variants_cnt > 1) {
-                    gx.gridOptions.api.forEachNode((node) => {
-                        if (node.data.product_id === event.node.data.product_id) {
-                            node.setSelected(event.node.selected);
-                        }
-                    });
-                }
-            },
-        });
+        async function setGridInit() {
+            const default_columns = [...initial_columns];
+            const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
+
+            gx = new HDGrid(gridDiv, my_columns, {
+                enableCellSpan: true,
+                suppressRowTransform: true,
+                rowClassRules: {
+                    "even": "data.parent_index % 2 !== 0",
+                },
+                suppressFieldDotNotation: true,
+                onRowSelected: (event) => {
+                    if (event.node.data.parent.variants_cnt > 1) {
+                        gx.gridOptions.api.forEachNode((node) => {
+                            if (node.data.product_id === event.node.data.product_id) {
+                                node.setSelected(event.node.selected);
+                            }
+                        });
+                    }
+                },
+            });
+
+            searchProducts();
+        }
 
         // Search Products
         function searchProducts() {
@@ -847,7 +854,7 @@
             });
         }
 
-        searchProducts();
+        setGridInit();
 
         // Save Edited Products
         document.getElementById("save_product").addEventListener('click', function (e) {
@@ -928,7 +935,7 @@
         document.getElementById("save_columns").addEventListener('click', async function (e) {
             if (!confirm("Would you like to save the column information?")) return;
 
-            let column_datalist = gx.gridOptions.columnDefs;
+            let column_datalist = gx.gridOptions.api.getColumnDefs();
             let new_column_datalist = [];
 
             column_datalist.forEach((value) => {
@@ -958,7 +965,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ "columns": JSON.stringify(new_column_datalist) })
+                    body: JSON.stringify({ "columns": new_column_datalist })
                 });
 
                 if (!response.ok) {
@@ -990,8 +997,10 @@
                 // }
 
                 alert('Column information has been reset.');
-                // window.location.reload();
                 Alpine.store('gridSetting').toggle(false);
+
+                gx.gridOptions.api.destroy();
+                setGridInit();
             } catch (error) {
                 console.error('Error fetching personal column:', error);
             }
