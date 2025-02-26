@@ -8,6 +8,7 @@ Route::middleware(['verify.shopify', 'verify.scopes', 'billable'])->group(functi
     Route::get('', fn() => view('welcome'))->name('home');
     Route::get('products', [ProductController::class, 'index'])->name('products');
     Route::get('pricing', fn() => view('pricing'))->name('pricing');
+    Route::get('settings', fn() => view('setting'))->name('settings');
     Route::get('help', [ProductController::class, 'test'])->name('test');
 });
 
