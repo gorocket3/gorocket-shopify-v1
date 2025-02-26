@@ -12,7 +12,7 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/app.jsx', 'resources/css/app.css'])
+    @vite(['resources/js/product/app.jsx', 'resources/css/app.css'])
     <!-- // Vite -->
 
     <!-- CDN -->
@@ -91,10 +91,10 @@
         </div>
 
         <div :style="`display: ${$store.progress.inProgress ? 'block' : 'none'}`">
-            <div class="mb-2" style="width:100%;">
-                <div class="Polaris-ProgressBar Polaris-ProgressBar--sizeMedium Polaris-ProgressBar--toneCritical" style="height: 25px;">
-                    <progress class="Polaris-ProgressBar__Progress" :value="$store.progress.value" max="100">
-                    </progress>
+            <div class="mb-4" style="width:100%;text-align:center;">
+                <p class="mb-3 Polaris-Text--root Polaris-Text--bold">Deleting...</p>
+                <div class="Polaris-ProgressBar Polaris-ProgressBar--sizeMedium Polaris-ProgressBar--toneCritical striped-background animated-progress" style="height: 25px;">
+                    <progress class="Polaris-ProgressBar__Progress" :value="$store.progress.value" max="100"></progress>
                     <div class="Polaris-ProgressBar__Indicator Polaris-ProgressBar__IndicatorAppearActive" :style="`--pc-progress-bar-duration:500ms;--pc-progress-bar-percent:${$store.progress.value/100}`">
                         <span class="Polaris-ProgressBar__Label" x-text="$store.progress.value + '%'"></span>
                     </div>
@@ -585,11 +585,9 @@
                 </div>
             </div>
         </div>
-
-        <div id="app" class="mb-2"></div>
     </div>
 </div>
-
+<div id="app"></div>
 <div class="footer">
     <p>Email <a href="mailto:support@gorocket3.ai">support@gorocket3.ai</a> for help.</p>
     <p>&copy; 2025 GoRocket. By using this app, you agree to the <a href="#">Privacy Policy</a>.</p>
@@ -597,16 +595,37 @@
 
 <script language="JavaScript">
 
+    const product_delete_handler = {
+        set(target, property, value) {
+            target[property] = value;
+
+            if (property === 'progress') {
+                Alpine.store('progress').setValue(value);
+
+                if (value === 100) {
+                    // setTimeout(() => {
+                        setProgressArea(false);
+                        searchProducts();
+                    // }, 1000);
+                }
+            }
+
+            return true;
+        }
+    };
+
+    const product_delete_proxy = new Proxy({ 'progress': 0 }, product_delete_handler);
+
     let pusher = new Pusher("9d0419d5d7a8c8eaa4d3", {
         cluster: "ap3"
     });
 
-    // let channel = pusher.subscribe('gorocket-shop-1');
     let channel = pusher.subscribe('gorocket-shop-{{ $shop_id }}');
     channel.bind('product-delete', function(data) {
-        console.log(data);
-        Alpine.store('progress').setValue(data?.data?.progress || 0);
+        product_delete_proxy.progress = data?.data?.progress || 0;
     });
+
+    //
 
     const pApp = new App('', { gridId: "#div-gd" });
     let gx;
@@ -782,7 +801,7 @@
     ];
 
     document.addEventListener('DOMContentLoaded', async function () {
-        pApp.ResizeGrid(255);
+        pApp.ResizeGrid(225);
         pApp.BindSearchEnter('#search_product');
 
         const gridDiv = document.querySelector(pApp.options.gridId);
@@ -810,48 +829,6 @@
             });
 
             searchProducts();
-        }
-
-        // Search Products
-        function searchProducts() {
-            let params = $('form[name="search"]').serialize();
-
-            gx.Request('/api/products', params, 1, function (v) {
-                const data = v.data.reduce((a, c, i) => {
-                    return a.concat(c.variants.map((item, index) => {
-                        const { variants, ...parent } = c;
-                        return {
-                            ...item,
-                            parent_index: i,
-                            parent: {
-                                ...parent,
-                                variants_cnt: c.variants.length,
-                                images: parent.images?.sort((x, y) => x.position - y.position) || []
-                            }
-                        };
-                    }).sort((x, y) => x.position - y.position));
-                }, []);
-
-                const result = data.map((item, index) => {
-                    return {
-                        ...item,
-                        group_id: item.position !== 1 ? '' : item.parent.product_id,
-                        product_name: item.position !== 1 ? '' : item.parent.title,
-                        product_tags: item.position !== 1 ? '' : item.parent.tags,
-                        product_body: item.position !== 1 ? '' : item.parent.body_html,
-                        product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
-                        product_status: item.position !== 1 ? '' : item.parent.status,
-                        option_name: item.title,
-                        option_img: item.image?.src || '',
-                    };
-                });
-
-                if (v.current_page === 1) {
-                    gx.gridOptions.api.setRowData(result);
-                } else {
-                    gx.gridOptions.api.applyTransaction({ add: result });
-                }
-            });
         }
 
         setGridInit();
@@ -916,8 +893,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    alert('The selected product(s) have been deleted.');
-                    setProgressArea(false);
+                    // console.log(data);
                 })
                 .catch(error => {
                     console.error(error.message);
@@ -1054,15 +1030,57 @@
         });
     });
 
+    // Search Products
+    function searchProducts() {
+        let params = $('form[name="search"]').serialize();
+
+        gx.Request('/api/products', params, 1, function (v) {
+            const data = v.data.reduce((a, c, i) => {
+                return a.concat(c.variants.map((item, index) => {
+                    const { variants, ...parent } = c;
+                    return {
+                        ...item,
+                        parent_index: i,
+                        parent: {
+                            ...parent,
+                            variants_cnt: c.variants.length,
+                            images: parent.images?.sort((x, y) => x.position - y.position) || []
+                        }
+                    };
+                }).sort((x, y) => x.position - y.position));
+            }, []);
+
+            const result = data.map((item, index) => {
+                return {
+                    ...item,
+                    group_id: item.position !== 1 ? '' : item.parent.product_id,
+                    product_name: item.position !== 1 ? '' : item.parent.title,
+                    product_tags: item.position !== 1 ? '' : item.parent.tags,
+                    product_body: item.position !== 1 ? '' : item.parent.body_html,
+                    product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
+                    product_status: item.position !== 1 ? '' : item.parent.status,
+                    option_name: item.title,
+                    option_img: item.image?.src || '',
+                };
+            });
+
+            if (v.current_page === 1) {
+                gx.gridOptions.api.setRowData(result);
+            } else {
+                gx.gridOptions.api.applyTransaction({ add: result });
+            }
+        });
+    }
+
     function setProgressArea(inProgress) {
         Alpine.store('progress').setInProgress(inProgress);
         if (inProgress) {
-            pApp.ResizeGrid(290);
+            pApp.ResizeGrid(280);
             document.querySelectorAll('#grid-actions button').forEach((btn) => {
                 btn.disabled = true;
             });
         } else {
-            pApp.ResizeGrid(255);
+            pApp.ResizeGrid(225);
             document.querySelectorAll('#grid-actions button').forEach((btn) => {
                 btn.disabled = false;
             });

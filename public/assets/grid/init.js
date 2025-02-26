@@ -158,7 +158,7 @@ $(document).ready(function () {
 function resizeGrid(timeout = 0) {
     if (pApp.options.grid_resize == true) {
         setTimeout(function () {
-            pApp.ResizeGrid(pApp.options?.height || 255);
+            pApp.ResizeGrid(pApp.options?.height || 225);
         }, timeout);
     }
 }

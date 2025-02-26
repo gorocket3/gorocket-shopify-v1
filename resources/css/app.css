@@ -116,3 +116,35 @@ body {
 .Polaris-Popover__Content {
     max-width: unset !important;
 }
+
+/* Custom */
+
+/* 빗금 배경 패턴 정의 */
+.striped-background {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+}
+
+/* 빗금 배경 패턴 애니메이션 정의 */
+@keyframes progress-bar-stripes {
+    from {
+        background-position: 1rem 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+/* 빗금 배경 패턴 애니메이션 적용 */
+.animated-progress {
+    animation: progress-bar-stripes 1s linear infinite;
+}
