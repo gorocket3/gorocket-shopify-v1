@@ -10,12 +10,14 @@ import {
     Page,
     Icon,
     Button,
-    Scrollable
+    Scrollable,
+    Badge,
+    InlineStack
 } from '@shopify/polaris';
 import { StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
 
-function App() {
+function App({ data: { plans = [], shop_id } }) {
     return (
         <AppProvider i18n={{}}>
             <Page
@@ -36,31 +38,36 @@ function App() {
                     <div style={{ height: 'calc(100vh - 130px)' }}>
                         <InlineGrid columns={3}>
                             <Cell/>
-                            <Cell fullWidth={true}>
-                                <BlockStack gap="100">
-                                    <Text as="h2" variant="headingLg">
-                                        Free
-                                    </Text>
-                                    <Text as='p' variant="heading2xl">
-                                        $0
-                                        <Text as='span' variant="bodySm">/per month</Text>
-                                    </Text>
-                                    <Button variant="primary" size="large" fullWidth={true}>Start Now for
-                                        FREE</Button>
-                                </BlockStack>
-                            </Cell>
-                            <Cell fullWidth={true}>
-                                <BlockStack gap="100">
-                                    <Text as="h2" variant="headingLg">
-                                        Basic
-                                    </Text>
-                                    <Text as='p' variant="heading2xl">
-                                        $29.9
-                                        <Text as='span' variant="bodySm">/per month</Text>
-                                    </Text>
-                                    <Button variant="primary" size="large" fullWidth={true}>Start Now for FREE</Button>
-                                </BlockStack>
-                            </Cell>
+                            {plans.map((plan, index) => (
+                                <Cell key={index} fullWidth={true}>
+                                    <BlockStack gap="100">
+                                        <InlineStack gap="200" blockAlign="center">
+                                            <Text as="h2" variant="headingLg">
+                                                {plan.name}
+                                            </Text>
+                                            {plan.user_plan &&
+                                                <Badge tone="success">
+                                                    <Text as="span" variant="bodyXs" fontWeight="semibold">IN USE</Text>
+                                                </Badge>
+                                            }
+                                            {plan.id === 2 &&
+                                                <Badge tone="critical">
+                                                    <Text as="span" variant="bodyXs" fontWeight="semibold">RECOMMENDED</Text>
+                                                </Badge>
+                                            }
+                                        </InlineStack>
+                                        <Text as='p' variant="heading2xl">
+                                            ${plan.price}
+                                            <Text as='span' variant="bodySm">/{plan.interval}</Text>
+                                        </Text>
+                                        {!plan.user_plan && (
+                                            <Button url={'/billing/' + plan.id} variant="primary" size="large" fullWidth={true}>
+                                                Start Now for FREE
+                                            </Button>
+                                        )}
+                                    </BlockStack>
+                                </Cell>
+                            ))}
                         </InlineGrid>
                         <Divider/>
                         <InlineGrid columns={3}>
@@ -113,4 +120,8 @@ const Cell = ({ children, text = '', textCenter = false, fullWidth = false }) =>
     );
 };
 
-ReactDOM.createRoot(document.getElementById('app')).render(<App/>);
+if (document.getElementById('app')) {
+    const initial_data = document.getElementById('app').dataset?.initial || '{}';
+    const data = JSON.parse(initial_data);
+    ReactDOM.createRoot(document.getElementById('app')).render(<App data={data} />);
+}

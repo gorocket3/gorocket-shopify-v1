@@ -12,6 +12,6 @@
     <title>Pricing :: GoRocket</title>
 </head>
 <body>
-<div id="app"></div>
+<div id="app" data-initial="{{ json_encode($data) }}"></div>
 </body>
 </html>
