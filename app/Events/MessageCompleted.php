@@ -6,9 +6,9 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class MessageCompleted implements ShouldBroadcast
+class MessageCompleted implements ShouldBroadcastNow
 {
     /**
      * The number of times the job may be attempted.

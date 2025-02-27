@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\App\ProductDeleteJob;
+use App\Jobs\App\ProductUpdateJob;
 use App\Listeners\ProductUpdateListener;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
@@ -25,11 +26,11 @@ class ProductController extends Controller
         $shop = Auth::user();
 
         $validated = $request->validate([
-            'per_page' => 'integer|min:1|max:100',
-            'title' => 'nullable|string|max:255',
+            'per_page' => 'integer|min:1|max:1000',
+            'title' => 'nullable|string|max:512',
             'content' => 'nullable|string',
-            'product_type' => 'nullable|string|max:100',
-            'vendor' => 'nullable|string|max:100',
+            'product_type' => 'nullable|string|max:200',
+            'vendor' => 'nullable|string|max:200',
             'status' => 'nullable|array',
             'status.*' => 'string',
             'tags' => 'nullable|array',
@@ -120,14 +121,6 @@ class ProductController extends Controller
         ]);
     }
 
-
-
-
-
-
-
-
-
     /**
      * Edit multiple products
      *
@@ -139,25 +132,36 @@ class ProductController extends Controller
         $shop = Auth::user();
 
         $validated = $request->validate([
-            'products' => 'required|array',
-            'products.*.id' => 'required|integer|exists:products,id',
-            'products.*.title' => 'sometimes|string'
+            'products' => 'required|array|min:1',
+            'products.*.id' => 'required|integer|exists:products,product_id',
+            'products.*.title' => 'sometimes|string|max:255',
+            'products.*.status' => 'sometimes|string|max:100',
+            'products.*.tags' => 'sometimes|string',
+            'products.*.tags.*' => 'string|max:255',
+            'products.*.body_html' => 'sometimes|string',
+            'products.*.variants' => 'sometimes|array|min:1',
+            'products.*.variants.*.id' => 'required|integer|exists:product_variants,variant_id',
+            'products.*.variants.*.price' => 'required|numeric|min:0',
+            'products.*.variants.*.compare_at_price' => 'nullable|numeric|min:0',
+            'products.*.variants.*.inventory_item_id' => 'required|integer',
+            'products.*.variants.*.inventory_quantity' => 'required|integer|min:0',
+            'products.*.variants.*.weight' => 'nullable|numeric|min:0',
+            'products.*.variants.*.weight_unit' => 'nullable|string|in:g,kg,lb,oz',
+            'products.*.variants.*.sku' => 'nullable|string|max:255',
+            'products.*.variants.*.inventory_policy' => 'nullable|string|in:continue,deny',
+            'products.*.variants.*.taxable' => 'nullable|boolean',
+            'products.*.variants.*.barcode' => 'nullable|string|max:255',
+            'products.*.variants.*.requires_shipping' => 'nullable|boolean'
         ]);
 
-        foreach ($validated['products'] as $data) {
-            $product = Product::find($data['id']);
-            if (isset($data['title'])) {
-                $product->title = $data['title'];
-            }
-            $product->save();
+        ProductUpdateJob::dispatch([
+            'shop' => $shop,
+            'products' => $validated['products']
+        ]);
 
-            $shop->api()->rest('PUT', "/admin/api/2025-01/products/{$product->product_id}.json", [
-                'product' => [
-                    'title' => $data['title']
-                ]
-            ]);
-        }
-
-        return response()->json($shop);
+        return response()->json([
+            'message' => 'Product edit job dispatched successfully',
+            'shop_id' => $shop->id
+        ]);
     }
 }
