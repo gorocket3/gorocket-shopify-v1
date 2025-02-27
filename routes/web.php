@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PricingController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
