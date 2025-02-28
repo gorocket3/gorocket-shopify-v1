@@ -92,7 +92,7 @@
 
         <div :style="`display: ${$store.progress.inProgress ? 'block' : 'none'}`">
             <div class="mb-4" style="width:100%;text-align:center;">
-                <p class="mb-3 Polaris-Text--root Polaris-Text--bold">Deleting...</p>
+                <p id="product_actions_type" class="mb-3 Polaris-Text--root Polaris-Text--bold"></p>
                 <div class="Polaris-ProgressBar Polaris-ProgressBar--sizeMedium Polaris-ProgressBar--toneCritical striped-background animated-progress" style="height: 25px;">
                     <progress class="Polaris-ProgressBar__Progress" :value="$store.progress.value" max="100"></progress>
                     <div class="Polaris-ProgressBar__Indicator Polaris-ProgressBar__IndicatorAppearActive" :style="`--pc-progress-bar-duration:500ms;--pc-progress-bar-percent:${$store.progress.value/100}`">
@@ -595,7 +595,7 @@
 
 <script language="JavaScript">
 
-    const product_delete_handler = {
+    const product_action_handler = {
         set(target, property, value) {
             target[property] = value;
 
@@ -603,10 +603,10 @@
                 Alpine.store('progress').setValue(value);
 
                 if (value === 100) {
-                    // setTimeout(() => {
+                    setTimeout(() => {
                         setProgressArea(false);
                         searchProducts();
-                    // }, 1000);
+                    }, 1000);
                 }
             }
 
@@ -614,15 +614,18 @@
         }
     };
 
-    const product_delete_proxy = new Proxy({ 'progress': 0 }, product_delete_handler);
+    const product_action_proxy = new Proxy({ 'progress': 0 }, product_action_handler);
 
     let pusher = new Pusher("9d0419d5d7a8c8eaa4d3", {
         cluster: "ap3"
     });
 
     let channel = pusher.subscribe('gorocket-shop-{{ $shop_id }}');
+    channel.bind('product-update', function(data) {
+        product_action_proxy.progress = data?.data?.progress || 0;
+    });
     channel.bind('product-delete', function(data) {
-        product_delete_proxy.progress = data?.data?.progress || 0;
+        product_action_proxy.progress = data?.data?.progress || 0;
     });
 
     //
@@ -888,12 +891,39 @@
         document.getElementById("save_product").addEventListener('click', function (e) {
             const rows = [];
             gx.gridOptions.api.getSelectedRows().forEach((data) => {
-                if (data.product_name_changed) {
-                    const row = { id: data.product_id };
-                    row.title = data.product_name;
-                    rows.push(row);
+                const variant = {
+                    id: data.variant_id,
+                        price: data.price,
+                        compare_at_price: data.compare_at_price,
+                        inventory_item_id: data.inventory_item_id,
+                        inventory_quantity: data.inventory_quantity,
+                        weight: data.weight,
+                        weight_unit: data.weight_unit,
+                        sku: data.sku,
+                        inventory_policy: data.inventory_policy,
+                        taxable: data.taxable,
+                        barcode: data.barcode,
+                        requires_shipping: data.requires_shipping
+                }
+
+                const prev = rows.find(row => row.id === data.product_id);
+
+                if (prev) {
+                    prev.variants.push(variant);
+                } else {
+                    const product = {
+                        id: data.product_id,
+                        title: data.product_name,
+                        status: data.product_status,
+                        body_html: data.product_body,
+                        tags: data.product_tags.split(', ').join(','),
+                    };
+
+                    rows.push({ ...product, variants: [variant] });
                 }
             });
+
+            setProgressArea(true, 'Editing...');
 
             fetch('/api/products/edit', {
                 method: 'POST',
@@ -909,11 +939,12 @@
                     return response.json();
                 })
                 .then(data => {
-                    alert('The product changes have been saved.');
+                    // console.log(data);
                 })
                 .catch(error => {
                     console.error(error.message);
                     alert('An error occurred while updating the product.');
+                    setProgressArea(false);
                 });
         });
 
@@ -928,7 +959,7 @@
             rows = rows.map(row => row.parent.product_id);
             rows = [ ...new Set(rows) ];
 
-            setProgressArea(true);
+            setProgressArea(true, 'Deleting...');
 
             fetch(`/api/products/delete`, {
                 method: 'POST',
@@ -1126,8 +1157,10 @@
         });
     }
 
-    function setProgressArea(inProgress) {
+    function setProgressArea(inProgress, text = '') {
+        if(inProgress) document.getElementById('product_actions_type').innerHTML = text;
         Alpine.store('progress').setInProgress(inProgress);
+        Alpine.store('progress').setValue(1); // 기본값
         if (inProgress) {
             pApp.ResizeGrid(280);
             document.querySelectorAll('#grid-actions button').forEach((btn) => {
