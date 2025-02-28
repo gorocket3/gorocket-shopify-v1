@@ -1,10 +1,25 @@
 import { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { AppProvider, BlockStack, Button, Card, EmptyState, FooterHelp, Link, Page, Text } from '@shopify/polaris';
+import {
+    AppProvider,
+    BlockStack,
+    Button,
+    CalloutCard,
+    Card,
+    EmptyState,
+    FooterHelp,
+    InlineGrid,
+    InlineStack,
+    Link,
+    Page,
+    ProgressBar,
+    Text
+} from '@shopify/polaris';
 import fetchData from "./api/fetch";
 import '@shopify/polaris/build/esm/styles.css';
 
 function App() {
+    const [ introCardDismissed, setIntroCardDismissed ] = useState(false);
     const [ syncLoading, setSyncLoading ] = useState(false);
     const [ syncCompleted, setSyncCompleted ] = useState(false);
 
@@ -31,6 +46,56 @@ function App() {
                 ]}
             >
                 <BlockStack gap="200">
+                    {!introCardDismissed &&
+                        <CalloutCard
+                            title="Connect and manage your products"
+                            illustration="https://cdn-icons-png.flaticon.com/128/7603/7603938.png"
+                            primaryAction={{ content: 'Manage Products', url: '/products' }}
+                            onDismiss={() => setIntroCardDismissed(true)}
+                        >
+                            <p>Connect Shopify products and manage them with GoRocket Editor.</p>
+                        </CalloutCard>
+                    }
+                    <InlineGrid gap="200" columns={{ xs: 1, md: 3 }}>
+                        <Card>
+                            <BlockStack gap="400">
+                                <InlineGrid columns="1fr auto">
+                                    <Text as="h2" variant="headingMd">Active plan</Text>
+                                    <Button url="/pricing" variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
+                                </InlineGrid>
+                                <InlineStack gap="200" blockAlign="end">
+                                    <Text as="p" variant="headingXl">Free</Text>
+                                    <Text as="p" variant="bodySm" tone="subdued">~2025.12.12</Text>
+                                </InlineStack>
+                            </BlockStack>
+                        </Card>
+                        <Card>
+                            <BlockStack gap="200">
+                                <InlineGrid columns="1fr auto">
+                                    <Text as="h2" variant="headingMd">Total Product Count</Text>
+                                    <Button url="/products" accessibilityLabel="Manage">Manage</Button>
+                                </InlineGrid>
+                                <Text as="p" variant="headingXl">5,000 <Text as="span" variant="bodySm" tone="subdued">products</Text></Text>
+                            </BlockStack>
+                        </Card>
+                        <Card>
+                            <BlockStack gap="600">
+                                <InlineGrid columns="1fr auto">
+                                    <Text as="h2" variant="headingMd">Product Edit Count</Text>
+                                    <Button url="/pricing" variant="plain" accessibilityLabel="history">history</Button>
+                                </InlineGrid>
+                                <InlineStack gap="400" blockAlign="center">
+                                    <div style={{ width: 70 }}>
+                                        <ProgressBar progress={40} size="small" tone={40 > 80 ? 'critical' : 'highlight'} />
+                                    </div>
+                                    <Text as="p" variant="bodyLg">
+                                        <Text as="span" fontWeight="bold">400</Text>
+                                        /1,000
+                                    </Text>
+                                </InlineStack>
+                            </BlockStack>
+                        </Card>
+                    </InlineGrid>
                     <Card>
                         <EmptyState
                             fullWidth={true}
