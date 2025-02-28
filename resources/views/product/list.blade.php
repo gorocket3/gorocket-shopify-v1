@@ -740,6 +740,13 @@
             onCellValueChanged: (e) => changeCellState('product_name', e)
         },
         {
+            field: "product_type",
+            headerName: "Product Type",
+            cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.data.parent.product_type,
+            width: 100,
+        },
+        {
             field: "product_tags", headerName: "Tags", width: 200,
             cellRenderer: (p) => p.data.position > 1 ? '' : `
                 <div class="flex flex-wrap align-items-center gap-1 py-1">
@@ -772,6 +779,38 @@
             onCellValueChanged: (e) => changeCellState('product_body', e)
         },
         {
+            field: "vendor",
+            headerName: "Vendor",
+            cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.data.parent.vendor,
+            width: 80,
+        },
+        {
+            field: "handle",
+            headerName: "Handle",
+            cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.data.parent.handle,
+            width: 120,
+        },
+        {
+            field: "product_published_at",
+            headerName: "Published At",
+            type: "CustomDateTimeType",
+            cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
+        },
+        {
+            field: "product_created_at",
+            headerName: "Created At",
+            type: "CustomDateTimeType",
+            cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
+        },
+        {
+            field: "product_updated_at",
+            headerName: "Updated At",
+            type: "CustomDateTimeType",
+            cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
+        },
+        {
             field: "option_img", headerName: "Image", width: 60,
             cellRenderer: (p) => {
                 if (!!p.value) {
@@ -781,7 +820,7 @@
             },
         },
         {
-            field: "option_name", headerName: "Option Name", width: 120, editable: true,
+            field: "option_name", headerName: "Variant Name", width: 120, editable: true,
             cellClassRules: changedCellClassRules('option_name'),
             onCellValueChanged: (e) => changeCellState('option_name', e)
         },
@@ -792,12 +831,24 @@
             onCellValueChanged: (e) => changeCellState('price', e)
         },
         {
-            field: "inventory_quantity", headerName: "Quantity", width: 70, cellClass: 'hd-grid-number', editable: true,
+            field: "inventory_quantity", headerName: "Inventory Quantity", width: 120, cellClass: 'hd-grid-number', editable: true,
             cellRenderer: (p) => numberWithCommas(p.value),
             cellClassRules: changedCellClassRules('inventory_quantity'),
             onCellValueChanged: (e) => changeCellState('inventory_quantity', e)
         },
-        { width: 0 }
+        { field: "old_inventory_quantity", headerName: "Old Inventory Quantity", width: 150, cellClass: 'hd-grid-number' },
+        { field: "inventory_policy", headerName: "Inventory Policy", width: 120 },
+        { field: "compare_at_price", headerName: "Compare At Price", width: 130, cellClass: 'hd-grid-number' },
+        { field: "taxable", headerName: "Taxable", width: 70, cellClass: 'hd-grid-code' },
+        { field: "barcode", headerName: "Barcode", width: 130, cellClass: 'hd-grid-code' },
+        { field: "fullfillment_service", headerName: "Fulfillment Service", width: 180 },
+        {
+            field: "weight", headerName: "Weight", width: 80, cellClass: 'hd-grid-number',
+            cellRenderer: (p) => numberWithCommas(p.value) + ' ' + (p.data.weight_unit || '')
+        },
+        { field: "grams", headerName: "Grams", width: 70, cellClass: 'hd-grid-number' },
+        { field: "created_at", headerName: "Variant Created At", type: "CustomDateTimeType" },
+        { field: "updated_at", headerName: "Variant Updated At", type: "CustomDateTimeType" }
     ];
 
     document.addEventListener('DOMContentLoaded', async function () {
@@ -1059,6 +1110,9 @@
                     product_body: item.position !== 1 ? '' : item.parent.body_html,
                     product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
                     product_status: item.position !== 1 ? '' : item.parent.status,
+                    product_published_at: item.position !== 1 ? '' : item.parent.published_at,
+                    product_created_at: item.position !== 1 ? '' : item.parent.created_at,
+                    product_updated_at: item.position !== 1 ? '' : item.parent.updated_at,
                     option_name: item.title,
                     option_img: item.image?.src || '',
                 };

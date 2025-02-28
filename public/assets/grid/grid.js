@@ -157,9 +157,16 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
             DayType: {
                 //filter: 'agNumberColumnFilter',
                 width: 120, cellClass: 'hd-grid-code',
-            }, DateTimeType: {
+            },
+            DateTimeType: {
                 //filter: 'agNumberColumnFilter',
                 width: 130, cellClass: 'hd-grid-code',
+            },
+            CustomDateTimeType: {
+                width: 135, cellClass: 'hd-grid-code',
+                cellRenderer: function (params) {
+                    return (params.value || '').replace('T', ' ').replace(/\.\d+Z$/, '');
+                }
             },
 
             NumType: {
