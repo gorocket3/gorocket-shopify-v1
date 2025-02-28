@@ -916,7 +916,7 @@
                         title: data.product_name,
                         status: data.product_status,
                         body_html: data.product_body,
-                        tags: data.product_tags.split(', ').join(','),
+                        tags: data.product_tags,
                     };
 
                     rows.push({ ...product, variants: [variant] });

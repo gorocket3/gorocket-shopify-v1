@@ -47,6 +47,7 @@ class ProductController extends Controller
         ";
         $tags = DB::select($sql);
         $tags = array_map(fn($row) => $row->tag, $tags);
+        $tags = array_values(array_unique($tags));
 
         $values = [
             'types'     => $types,
