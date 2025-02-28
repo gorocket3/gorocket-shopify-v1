@@ -697,7 +697,7 @@
             //     }
             //     return 1;
             // },
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            cellRenderer: (p) => p.data.position > 1 ? '' : `<a href="shopify://admin/products/${p.value}" class="link">${p.value}</a>`,
             cellStyle: cellMergeStyling
         },
         {

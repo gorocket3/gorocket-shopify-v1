@@ -99,6 +99,14 @@ body {
     text-decoration: underline;
 }
 
+a.link {
+    color: #4361ff;
+}
+
+a.link:hover {
+    color: #0029ff;
+}
+
 /* Tailwind Custom */
 .text-2xs {
     font-size: 0.625rem;
