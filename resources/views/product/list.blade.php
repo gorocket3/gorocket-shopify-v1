@@ -56,19 +56,13 @@
                         <div class="Polaris-Header-Title__TitleWrapper">
                             <h1 class="Polaris-Header-Title">
                             <span
-                                class="Polaris-Text--root Polaris-Text--headingLg Polaris-Text--bold">Producs</span>
+                                class="Polaris-Text--root Polaris-Text--headingLg Polaris-Text--bold">Products</span>
                             </h1>
                         </div>
                     </div>
                     <div class="Polaris-Page-Header__RightAlign">
                         <div class="Polaris-Page-Header__PrimaryActionWrapper">
                             <div style="display: flex;align-items: center;gap: 12px;">
-                                <ui-nav-menu>
-                                    <a href="/products">상품</a>
-                                    <a href="/pricing">결제</a>
-                                    <a href="/settings">설정</a>
-                                    <a href="/help">도움</a>
-                                </ui-nav-menu>
                                 <button
                                     id="search_product"
                                     class="Polaris-Button Polaris-Button--pressable Polaris-Button--variantPrimary Polaris-Button--sizeMedium Polaris-Button--textAlignCenter Polaris-Button--iconWithText"

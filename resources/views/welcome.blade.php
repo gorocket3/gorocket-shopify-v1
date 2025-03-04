@@ -24,11 +24,5 @@
 </head>
 <body>
     <div id="app"></div>
-    <ui-nav-menu>
-        <a href="/products">상품</a>
-        <a href="/pricing">결제</a>
-        <a href="/settings">설정</a>
-        <a href="/help">도움</a>
-    </ui-nav-menu>
 </body>
 </html>
