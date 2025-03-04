@@ -20,8 +20,6 @@ return new class extends Migration
             $table->json('old_data');
             $table->json('new_data');
             $table->timestamps();
-
-            $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
         });
     }
 
