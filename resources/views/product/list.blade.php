@@ -829,13 +829,13 @@
         },
         {
             field: "price", headerName: "Price($)", width: 90, cellClass: 'hd-grid-number', editable: true,
-            cellRenderer: (p) => '$ ' + numberWithCommas(p.value),
+            cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
             cellClassRules: changedCellClassRules('price'),
             onCellValueChanged: (e) => changeCellState('price', e)
         },
         {
             field: "inventory_quantity", headerName: "Inventory Quantity", width: 120, cellClass: 'hd-grid-number', editable: true,
-            cellRenderer: (p) => numberWithCommas(p.value),
+            cellRenderer: (p) => numberWithCommas(p.value || 0),
             cellClassRules: changedCellClassRules('inventory_quantity'),
             onCellValueChanged: (e) => changeCellState('inventory_quantity', e)
         },
@@ -847,7 +847,7 @@
         { field: "fullfillment_service", headerName: "Fulfillment Service", width: 180 },
         {
             field: "weight", headerName: "Weight", width: 80, cellClass: 'hd-grid-number',
-            cellRenderer: (p) => numberWithCommas(p.value) + ' ' + (p.data.weight_unit || '')
+            cellRenderer: (p) => numberWithCommas(p.value || 0) + ' ' + (p.data.weight_unit || '')
         },
         { field: "grams", headerName: "Grams", width: 70, cellClass: 'hd-grid-number' },
         { field: "created_at", headerName: "Variant Created At", type: "CustomDateTimeType" },
