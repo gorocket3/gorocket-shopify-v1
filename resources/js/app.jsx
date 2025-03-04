@@ -37,7 +37,7 @@ function App() {
 }
 
 function MainApp({ redirect }) {
-    const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
+    const navigate = (url, options = {}) => redirect.dispatch(options.external ? Redirect.Action.REMOTE : Redirect.Action.APP, url);
 
     const [ introCardDismissed, setIntroCardDismissed ] = useState(false);
     const [ syncLoading, setSyncLoading ] = useState(false);
@@ -152,7 +152,7 @@ function MainApp({ redirect }) {
                         </EmptyState>
                     </Card>
                     <BlockStack inlineAlign='end'>
-                        <Button url='mailto:support@gorocket.ai'>
+                        <Button onClick={() => open('https://support.gorocket3.ai')}>
                             Customer Support
                         </Button>
                     </BlockStack>
