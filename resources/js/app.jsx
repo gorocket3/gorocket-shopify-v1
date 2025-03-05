@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import Pusher from "pusher-js";
 import createApp from "@shopify/app-bridge";
 import { Redirect } from '@shopify/app-bridge/actions';
 import { NavMenu } from "@shopify/app-bridge-react";
 import {
     AppProvider,
     BlockStack,
+    Box,
     Button,
     CalloutCard,
     Card,
-    EmptyState,
     FooterHelp,
+    Image,
     InlineGrid,
     InlineStack,
     Link,
@@ -21,7 +23,7 @@ import {
 import fetchData from "./api/fetch";
 import '@shopify/polaris/build/esm/styles.css';
 
-function App() {
+function App({ data }) {
     const config = {
         apiKey: import.meta.env.VITE_SHOPIFY_API_KEY,
         host: new URLSearchParams(location.search).get("host"),
@@ -32,14 +34,15 @@ function App() {
     const redirect = Redirect.create(app);
 
     return (
-        <MainApp redirect={redirect} />
+        <MainApp data={data} redirect={redirect} />
     )
 }
 
-function MainApp({ redirect }) {
+function MainApp({ data: { shop_id }, redirect }) {
     const navigate = (url, options = {}) => redirect.dispatch(options.external ? Redirect.Action.REMOTE : Redirect.Action.APP, url);
 
     const [ introCardDismissed, setIntroCardDismissed ] = useState(false);
+    const [ syncProgress, setSyncProgress ] = useState(0);
     const [ syncLoading, setSyncLoading ] = useState(false);
     const [ syncCompleted, setSyncCompleted ] = useState(false);
 
@@ -47,12 +50,34 @@ function MainApp({ redirect }) {
         try {
             setSyncLoading(true);
             const res = await fetchData({ method: 'POST', url: '/api/products/sync' });
-            setSyncCompleted(true);
-            setSyncLoading(false);
         } catch (e) {
             alert('An error occurred while connecting products. Please try again.');
         }
     }
+
+    useEffect(() => {
+        const pusherKey = "9d0419d5d7a8c8eaa4d3";
+        const channelName = 'gorocket-shop-' + shop_id;
+        const pusher = new Pusher(pusherKey, { cluster: "ap3" });
+
+        const channel = pusher.subscribe(channelName);
+        channel.bind('product-sync', function (d) {
+            setSyncProgress(d?.data?.progress || 0);
+        });
+
+        return () => {
+            pusher.unsubscribe(channelName);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (syncProgress === 100 && syncLoading) {
+            setTimeout(() => {
+                setSyncCompleted(true);
+                setSyncLoading(false);
+            }, 1000);
+        }
+    }, [ syncProgress ]);
 
     return (
         <AppProvider i18n={{}}>
@@ -123,33 +148,41 @@ function MainApp({ redirect }) {
                         </Card>
                     </InlineGrid>
                     <Card>
-                        <EmptyState
-                            fullWidth={true}
-                            heading="Connect and manage your products"
-                            action={{
-                                content: syncCompleted ? 'Connection Completed!' : 'Connect Products',
-                                tone: 'success',
-                                onAction: syncProducts,
-                                loading: syncLoading,
-                                disabled: syncCompleted
-                            }}
-                            secondaryAction={{ content: 'Manage Products', onAction: () => navigate('/products') }}
-                            footerContent={
+                        <Box paddingBlockEnd="800">
+                            <BlockStack inlineAlign="center" gap="100">
+                                <Image alt='Empty Products'
+                                       source={'https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png'}/>
+                                <Text as="h2" variant="headingMd">Connect and manage your products</Text>
+                                <p className="animated-stripes">
+                                    Connect Shopify products and manage them with{' '}
+                                    <Text as="span" tone="success" fontWeight="semibold">GoRocket Editor</Text>
+                                    .
+                                </p>
+                                <Box padding="400">
+                                    <InlineGrid columns="1fr auto" gap="200" alignItems="center">
+                                        <Button onClick={() => navigate('/products')}>Manage Products</Button>
+                                        <Box width="140px">
+                                            {syncLoading ? (
+                                                <ProgressBar progress={Math.max(syncProgress, 3)} tone="success"/>
+                                            ) : (
+                                                <Button variant="primary" tone="success" fullWidth={true}
+                                                        onClick={syncProducts}
+                                                        disabled={syncCompleted}
+                                                        loading={syncLoading}>
+                                                    {syncCompleted ? 'Completed!' : 'Connect Products'}
+                                                </Button>
+                                            )}
+                                        </Box>
+                                    </InlineGrid>
+                                </Box>
                                 <p>
                                     With <Link monochrome onClick={() => navigate('/billing/2')}>Basic Plan</Link>, you
                                     can integrate and
                                     manage
                                     over 100,000 products.
                                 </p>
-                            }
-                            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-                        >
-                            <p>
-                                Connect Shopify products and manage them with{' '}
-                                <Text as="span" tone="success" fontWeight="semibold">GoRocket Editor</Text>
-                                .
-                            </p>
-                        </EmptyState>
+                            </BlockStack>
+                        </Box>
                     </Card>
                     <BlockStack inlineAlign='end'>
                         <Button onClick={() => open('https://support.gorocket3.ai')}>
@@ -165,4 +198,8 @@ function MainApp({ redirect }) {
     );
 }
 
-ReactDOM.createRoot(document.getElementById('app')).render(<App/>);
+if (document.getElementById('app')) {
+    const initial_data = document.getElementById('app').dataset?.initial || '{}';
+    const data = JSON.parse(initial_data);
+    ReactDOM.createRoot(document.getElementById('app')).render(<App data={data}/>);
+}
