@@ -38,7 +38,7 @@ function App({ data }) {
     )
 }
 
-function MainApp({ data: { shop_id }, redirect }) {
+function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
     const navigate = (url, options = {}) => redirect.dispatch(options.external ? Redirect.Action.REMOTE : Redirect.Action.APP, url);
 
     const [ introCardDismissed, setIntroCardDismissed ] = useState(false);
@@ -107,46 +107,48 @@ function MainApp({ data: { shop_id }, redirect }) {
                             <p>Connect Shopify products and manage them with GoRocket Editor.</p>
                         </CalloutCard>
                     }
-                    <InlineGrid gap="200" columns={{ xs: 1, md: 3 }}>
-                        <Card>
-                            <BlockStack gap="400">
-                                <InlineGrid columns="1fr auto">
-                                    <Text as="h2" variant="headingMd">Active plan</Text>
-                                    <Button onClick={() => navigate('/pricing')} variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
-                                </InlineGrid>
-                                <InlineStack gap="200" blockAlign="end">
-                                    <Text as="p" variant="headingXl">Free</Text>
-                                    <Text as="p" variant="bodySm" tone="subdued">~2025.12.12</Text>
-                                </InlineStack>
-                            </BlockStack>
-                        </Card>
-                        <Card>
-                            <BlockStack gap="200">
-                                <InlineGrid columns="1fr auto">
-                                    <Text as="h2" variant="headingMd">Total Product Count</Text>
-                                    <Button onClick={() => navigate('/products')} accessibilityLabel="Manage">Manage</Button>
-                                </InlineGrid>
-                                <Text as="p" variant="headingXl">5,000 <Text as="span" variant="bodySm" tone="subdued">products</Text></Text>
-                            </BlockStack>
-                        </Card>
-                        <Card>
-                            <BlockStack gap="600">
-                                <InlineGrid columns="1fr auto">
-                                    <Text as="h2" variant="headingMd">Product Edit Count</Text>
-                                    <Button onClick={() => navigate('/history')} variant="plain" accessibilityLabel="history">History</Button>
-                                </InlineGrid>
-                                <InlineStack gap="400" blockAlign="center">
-                                    <div style={{ width: 70 }}>
-                                        <ProgressBar progress={40} size="small" tone={40 > 80 ? 'critical' : 'highlight'} />
-                                    </div>
-                                    <Text as="p" variant="bodyLg">
-                                        <Text as="span" fontWeight="bold">400</Text>
-                                        /1,000
-                                    </Text>
-                                </InlineStack>
-                            </BlockStack>
-                        </Card>
-                    </InlineGrid>
+                    {!!plan && (
+                        <InlineGrid gap="200" columns={{ xs: 1, md: 3 }}>
+                            <Card>
+                                <BlockStack gap="400">
+                                    <InlineGrid columns="1fr auto">
+                                        <Text as="h2" variant="headingMd">Active plan</Text>
+                                        <Button onClick={() => navigate('/pricing')} variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
+                                    </InlineGrid>
+                                    <InlineStack gap="200" blockAlign="end">
+                                        <Text as="p" variant="headingXl">{plan.name}</Text>
+                                        <Text as="p" variant="bodySm" tone="subdued">~2025.12.12</Text>
+                                    </InlineStack>
+                                </BlockStack>
+                            </Card>
+                            <Card>
+                                <BlockStack gap="200">
+                                    <InlineGrid columns="1fr auto">
+                                        <Text as="h2" variant="headingMd">Total Product Count</Text>
+                                        <Button onClick={() => navigate('/products')} accessibilityLabel="Manage">Manage</Button>
+                                    </InlineGrid>
+                                    <Text as="p" variant="headingXl">{total_product_count.toLocaleString('en-US')} <Text as="span" variant="bodySm" tone="subdued">products</Text></Text>
+                                </BlockStack>
+                            </Card>
+                            <Card>
+                                <BlockStack gap="600">
+                                    <InlineGrid columns="1fr auto">
+                                        <Text as="h2" variant="headingMd">Product Edit Count</Text>
+                                        <Button onClick={() => navigate('/history')} variant="plain" accessibilityLabel="history">History</Button>
+                                    </InlineGrid>
+                                    <InlineStack gap="400" blockAlign="center">
+                                        <div style={{ width: 70 }}>
+                                            <ProgressBar progress={40} size="small" tone={40 > 80 ? 'critical' : 'highlight'} />
+                                        </div>
+                                        <Text as="p" variant="bodyLg">
+                                            <Text as="span" fontWeight="bold">400</Text>
+                                            /1,000
+                                        </Text>
+                                    </InlineStack>
+                                </BlockStack>
+                            </Card>
+                        </InlineGrid>
+                    )}
                     <Card>
                         <Box paddingBlockEnd="800">
                             <BlockStack inlineAlign="center" gap="100">

@@ -23,8 +23,9 @@ class PricingController extends Controller
                  , `name`
                  , `price`
                  , `interval`
+                 , `terms`
                  , ((SELECT `plan_id` FROM users WHERE `id` = (SELECT `user_id` FROM shops WHERE `id` = :shop_id)) = `id`) AS `user_plan`
-            FROM plans;
+            FROM plans
         ";
         $plans = DB::select($sql, [ 'shop_id' => $shop->id ?? '' ]);
         $plans = array_map(fn($row) => array_merge((array) $row, [

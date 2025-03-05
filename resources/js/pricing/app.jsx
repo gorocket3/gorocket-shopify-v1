@@ -102,10 +102,9 @@ function PricingApp({ data: { plans = [], shop_id }, redirect }) {
                                     <Text as="h3" variant="headingMd">Overview</Text>
                                 </BlockStack>
                             </Cell>
-                            <Cell text="The Perfect Product Management Solution for Beginner Store Builders."
-                                  textCenter={true}/>
-                            <Cell text="For experienced businesses requiring more features and faster support."
-                                  textCenter={true}/>
+                            {plans.map((plan, index) => (
+                                <Cell key={index} text={plan.terms} textCenter={true} />
+                            ))}
                         </InlineGrid>
                         <Divider/>
                         <Scrollable shadow style={{ height: 'calc(100% - 200px)' }}>
