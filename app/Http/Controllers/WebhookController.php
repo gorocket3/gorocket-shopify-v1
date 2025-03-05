@@ -26,6 +26,7 @@ class WebhookController extends Controller
     {
         $payload = $request->all();
         $productId = $payload['id'] ?? null;
+        $updatedAt = $payload['updated_at'] ?? null;
 
         $shopDomain = $request->header('x-shopify-shop-domain');
         $shop = Shop::where('myshopify_domain', $shopDomain)->first();
@@ -36,7 +37,7 @@ class WebhookController extends Controller
         $payload['user_id'] = $shop->user_id;
         Log::info("[HOOK][RECEIVED] Webhook: {$type}", $payload);
 
-        if ($this->shouldSkipWebhook($productId)) {
+        if ($this->shouldSkipWebhook($productId, $updatedAt)) {
             return response()->json(['message' => 'Ignored webhook']);
         }
 
@@ -49,17 +50,25 @@ class WebhookController extends Controller
     /**
      * Check if webhook should be skipped.
      *
-     * @param string|null $productId
+     * @param string $productId
+     * @param string|null $updatedAt
      * @return bool
      */
-    private function shouldSkipWebhook(?string $productId): bool
+    private function shouldSkipWebhook(string $productId, ?string $updatedAt): bool
     {
         if (!$productId) {
             return false;
         }
 
-        if (Redis::exists($productId)) {
-            Redis::del($productId);
+        $product = Product::where('product_id', $productId)->first(['updated_at']);
+        if ($product && $updatedAt) {
+            if (strtotime($updatedAt) <= strtotime($product->updated_at)) {
+                Log::info("[HOOK][HANDLE] Webhook ignored - {$productId}");
+                return true;
+            }
+        }
+
+        if (!$product && !$updatedAt) {
             Log::info("[HOOK][HANDLE] Webhook ignored - {$productId}");
             return true;
         }

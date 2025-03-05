@@ -12,9 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 
 class ProductUpdateJob implements ShouldQueue
 {
@@ -48,35 +46,165 @@ class ProductUpdateJob implements ShouldQueue
             $shop = $this->container['shop'];
             $products = $this->container['products'];
 
-            $totalProducts = count($products);
-            $processedProducts = 0;
+//            foreach ($products as $product) {
+//                Redis::setex($product['id'], 60, true);
+//                //$this->updateProductDB($shop, $product);
+//
+//                if(isset($product['variants'])) {
+//                    foreach ($product['variants'] as $variant) {
+//                        //$this->updateVariant($shop, $variant);
+//                        //$this->updateInventory($shop, $variant);
+//                        //$this->updateVariantDB($variant);
+//                    }
+//                }
+//            }
 
-            foreach ($products as $product) {
-                $response = $this->updateProduct($shop, $product);
-                if (empty($response['errors'])) {
-                    Redis::setex($product['id'], 600, true);
-                }
-                $this->updateProductDB($shop, $product);
+            $this->updateProducts($shop, $products);
 
-                if(isset($product['variants'])) {
-                    foreach ($product['variants'] as $variant) {
-                        $this->updateVariant($shop, $variant);
-                        $this->updateInventory($shop, $variant);
-                        $this->updateVariantDB($variant);
-                    }
-                }
 
-                $progress = intval((++$processedProducts / $totalProducts) * 100);
-                event(new MessageCompleted(
-                    $shop->id,
-                    'product-update',
-                    ['progress' => $progress]
-                ));
-            }
         } catch (Exception $e) {
             Log::error("[APP][PRODUCT] Update failed - {$shop->id}, Error: {$e->getMessage()}");
         }
     }
+
+    /**
+     * Bulk update products
+     *
+     * @param User $shop
+     * @param array $products
+     *
+     * @return void
+     */
+    private function updateProducts(User $shop, array $products): void
+    {
+        $totalProducts = count($products);
+        $chunks = array_chunk($products, 10);
+        $processed = 0;
+
+        foreach ($chunks as $chunk) {
+            $mutations = [];
+            $productData = [];
+
+            foreach ($chunk as $product) {
+                $mutationName = "updateProduct" . $product['id'];
+                $mutations[] = sprintf(
+                    '%s: productUpdate(input: {
+                id: "gid://shopify/Product/%s",
+                title: "%s",
+                status: %s,
+                descriptionHtml: "%s",
+                tags: "%s"
+                productType: "%s"
+                vendor: "%s"
+                handle: "%s"
+            }) {
+                product {
+                    id
+                    title
+                    status
+                    descriptionHtml
+                    tags
+                    productType
+                    vendor
+                    handle
+                }
+                userErrors {
+                    field
+                    message
+                }
+            }',
+                    $mutationName,
+                    $product['id'],
+                    addslashes($product['title'] ?? ''),
+                    strtoupper($product['status']),
+                    addslashes($product['body_html'] ?? ''),
+                    addslashes($product['tags'] ?? ''),
+                    addslashes($product['product_type'] ?? ''),
+                    addslashes($product['vendor'] ?? ''),
+                    addslashes($product['handle'] ?? '')
+                );
+
+                $productData[] = [
+                    'shop_id' => $shop->id,
+                    'product_id' => $product['id'],
+                    'title' => $product['title'] ?? '',
+                    'status' => $product['status'],
+                    'description' => $product['body_html'] ?? '',
+                    'tags' => $product['tags'] ?? '',
+                    'product_type' => $product['product_type'] ?? '',
+                    'vendor' => $product['vendor'] ?? '',
+                    'handle' => $product['handle'] ?? '',
+                    'updated_at' => now()
+                ];
+            }
+
+            $query = sprintf('mutation {%s}', implode("\n", $mutations));
+            $response = $shop->api()->graph($query);
+            if (!empty($response['errors']) || !empty($response['data']['userErrors'])) {
+                Log::error("[APP][PRODUCT] Bulk Product Update Failed: " . json_encode($response));
+            } else {
+                $this->updateProductsDB($productData);
+            }
+
+            $processed += count($chunk);
+            $progress = min(100, round(($processed / $totalProducts) * 100));
+            event(new MessageCompleted(
+                $shop->id,
+                'product-update',
+                ['progress' => $progress]
+            ));
+            usleep(1000);
+        }
+    }
+
+    /**
+     * Update products in database
+     *
+     * @param array $products
+     * @return void
+     */
+    private function updateProductsDB(array $products): void
+    {
+        try {
+            foreach ($products as $product) {
+                $updateData = collect($product)
+                    ->only(['title', 'status', 'body_html', 'tags', 'product_type', 'vendor', 'handle'])
+                    ->filter()
+                    ->toArray();
+
+                if (!empty($updateData)) {
+                    $updateData['updated_at'] = now();
+                    $updated = Product::where('product_id', $product['product_id'])
+                        ->where('user_id', $product['shop_id'])
+                        ->update($updateData);
+
+                    if (!$updated) {
+                        Log::warning("[APP][PRODUCT] No matching product found for update - Product ID: {$product['product_id']}");
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            Log::error("[APP][PRODUCT] Bulk product update failed - Error: {$e->getMessage()}");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Update product variant

@@ -35,8 +35,6 @@ return new class extends Migration {
             $table->timestamp('shop_updated_at')->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('user_id')->unique();
-
-
         });
     }
 

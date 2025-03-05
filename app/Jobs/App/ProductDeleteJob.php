@@ -11,7 +11,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 
 class ProductDeleteJob implements ShouldQueue
 {
@@ -46,21 +45,45 @@ class ProductDeleteJob implements ShouldQueue
             $productIds = $this->container['product_ids'];
 
             $totalProducts = count($productIds);
-            $processedProducts = 0;
+            $chunks = array_chunk($productIds, 10);
+            $processed = 0;
 
-            foreach ($productIds as $productId) {
-                $response = $shop->api()->rest('DELETE', "/admin/api/" . env('SHOPIFY_API_VERSION') . "/products/{$productId}.json");
-                if (empty($response['errors'])) {
-                    Redis::setex($productId, 600, true);
+            foreach ($chunks as $chunk) {
+                $mutations = [];
+
+                foreach ($chunk as $productId) {
+                    $mutationName = "deleteProduct" . $productId;
+                    $mutations[] = sprintf(
+                        '%s: productDelete(input: { id: "gid://shopify/Product/%s" }) {
+                    deletedProductId
+                    userErrors {
+                        field
+                        message
+                    }
+                }',
+                        $mutationName,
+                        $productId
+                    );
                 }
-                Product::where('product_id', $productId)->delete();
 
-                $progress = intval((++$processedProducts / $totalProducts) * 100);
+                $query = sprintf('mutation {%s}', implode("\n", $mutations));
+                $response = $shop->api()->graph($query);
+
+                if (!empty($response['errors'])) {
+                    Log::error("[APP][PRODUCT] Bulk Product Delete Failed: " . json_encode($response));
+                    continue;
+                } else {
+                    Product::whereIn('product_id', $chunk)->delete();
+                }
+
+                $processed += count($chunk);
+                $progress = min(100, round(($processed / $totalProducts) * 100));
                 event(new MessageCompleted(
                     $shop->id,
                     'product-delete',
                     ['progress' => $progress]
                 ));
+                usleep(1000);
             }
         } catch (Exception $e) {
             Log::error("[APP][PRODUCT] Delete failed - {$shop->id}, Error: {$e->getMessage()}");
