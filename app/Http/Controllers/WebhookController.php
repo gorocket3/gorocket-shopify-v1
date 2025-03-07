@@ -35,9 +35,8 @@ class WebhookController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Shop not found'], 404);
         }
         $payload['user_id'] = $shop->user_id;
-        Log::info("[HOOK][RECEIVED] Webhook: {$type}", $payload);
 
-        if ($this->shouldSkipWebhook($productId, $updatedAt)) {
+        if ($this->shouldSkipWebhook($productId, $updatedAt, $payload)) {
             return response()->json(['message' => 'Ignored webhook']);
         }
 
@@ -52,9 +51,10 @@ class WebhookController extends Controller
      *
      * @param string $productId
      * @param string|null $updatedAt
+     * @param array $payload
      * @return bool
      */
-    private function shouldSkipWebhook(string $productId, ?string $updatedAt): bool
+    private function shouldSkipWebhook(string $productId, ?string $updatedAt, array $payload): bool
     {
         if (!$productId) {
             return false;
@@ -62,7 +62,11 @@ class WebhookController extends Controller
 
         $product = Product::where('product_id', $productId)->first(['updated_at']);
         if ($product && $updatedAt) {
-            if (strtotime($updatedAt) <= strtotime($product->updated_at)) {
+            $rawTimezone = Shop::where('user_id', $payload['user_id'])->value('timezone');
+            $timezone = trim(preg_replace('/^\(GMT[+-]\d{2}:\d{2}\) /', '', $rawTimezone));
+
+            $updatedAtUtc = Carbon::parse($updatedAt, $timezone)->setTimezone('UTC');
+            if ($updatedAtUtc->lessThanOrEqualTo($product->updated_at)) {
                 Log::info("[HOOK][HANDLE] Webhook ignored - {$productId}");
                 return true;
             }

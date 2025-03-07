@@ -62,6 +62,8 @@ class ProductUpdateJob implements ShouldQueue
             $this->updateProducts($shop, $products);
 
 
+
+
         } catch (Exception $e) {
             Log::error("[APP][PRODUCT] Update failed - {$shop->id}, Error: {$e->getMessage()}");
         }
@@ -80,6 +82,9 @@ class ProductUpdateJob implements ShouldQueue
         $totalProducts = count($products);
         $chunks = array_chunk($products, 10);
         $processed = 0;
+
+        $variants = [];
+
 
         foreach ($chunks as $chunk) {
             $mutations = [];
@@ -129,13 +134,20 @@ class ProductUpdateJob implements ShouldQueue
                     'product_id' => $product['id'],
                     'title' => $product['title'] ?? '',
                     'status' => $product['status'],
-                    'description' => $product['body_html'] ?? '',
+                    'body_html' => $product['body_html'] ?? '',
                     'tags' => $product['tags'] ?? '',
                     'product_type' => $product['product_type'] ?? '',
                     'vendor' => $product['vendor'] ?? '',
                     'handle' => $product['handle'] ?? '',
                     'updated_at' => now()
                 ];
+
+                if (!empty($product['variants']) && is_array($product['variants'])) {
+                    foreach ($product['variants'] as $variant) {
+                        $variant['product_id'] = $product['id'];
+                        $variants[] = $variant;
+                    }
+                }
             }
 
             $query = sprintf('mutation {%s}', implode("\n", $mutations));
@@ -144,6 +156,10 @@ class ProductUpdateJob implements ShouldQueue
                 Log::error("[APP][PRODUCT] Bulk Product Update Failed: " . json_encode($response));
             } else {
                 $this->updateProductsDB($productData);
+            }
+
+            if (!empty($variants)) {
+                $this->updateVariants($shop, $variants);
             }
 
             $processed += count($chunk);
@@ -188,177 +204,144 @@ class ProductUpdateJob implements ShouldQueue
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
-     * Update product variant
+     * Bulk update product variants using GraphQL
      *
      * @param User $shop
-     * @param array $product
-     *
-     * @return array
-     */
-    private function updateProduct(User $shop, array $product): array
-    {
-        $payload = ['product' => ['id' => $product['id']]];
-        if (isset($product['title'])) {
-            $payload['product']['title'] = $product['title'];
-        }
-        if (isset($product['status'])) {
-            $payload['product']['status'] = $product['status'];
-        }
-        if (isset($product['body_html'])) {
-            $payload['product']['body_html'] = $product['body_html'];
-        }
-        if (isset($product['tags'])) {
-            $payload['product']['tags'] = $product['tags'];
-        }
-
-        return $shop->api()->rest('PUT', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products/' . $product['id'] . '.json', $payload);
-    }
-
-    /**
-     * Update product in database
-     *
-     * @param User $shop
-     * @param array $product
+     * @param array $variants
      *
      * @return void
      */
-    private function updateProductDB(User $shop, array $product): void
+    private function updateVariants(User $shop, array $variants): void
     {
-        try {
-            if (isset($product['title'])) {
-                $updateData['title'] = $product['title'];
-            }
-            if (isset($product['status'])) {
-                $updateData['status'] = $product['status'];
-            }
-            if (isset($product['body_html'])) {
-                $updateData['body_html'] = $product['body_html'];
-            }
-            if (isset($product['tags'])) {
-                $updateData['tags'] = $product['tags'];
-            }
-            $updateData['updated_at'] = now();
+        $chunks = array_chunk($variants, 10);
 
-            Product::where('product_id', $product['id'])
-                ->where('user_id', $shop->id)
-                ->update($updateData);
+        foreach ($chunks as $chunk) {
+            $variantsData = [];
+            $variantDataForDB = [];
+            $productId = null;
 
-        } catch (Exception $e) {
-            Log::error("[APP][PRODUCT] Product update failed - Product ID: {$product['id']}, Error: {$e->getMessage()}");
-        }
-    }
+            foreach ($chunk as $variant) {
+                $productId = "gid://shopify/Product/{$variant['product_id']}";
 
-    /**
-     * Update product variant
-     *
-     * @param User $shop
-     * @param array $variant
-     *
-     * @return void
-     */
-    private function updateVariant(User $shop, array $variant): void
-    {
-        $payload = ['variant' => ['id' => $variant['id']]];
-        if (isset($variant['price'])) {
-            $payload['variant']['price'] = $variant['price'];
-        }
-        if (isset($variant['compare_at_price'])) {
-            $payload['variant']['compare_at_price'] = $variant['compare_at_price'];
-        }
-        if (isset($variant['weight'])) {
-            $payload['variant']['weight'] = (float) $variant['weight'];
-        }
-        if (isset($variant['weight_unit'])) {
-            $payload['variant']['weight_unit'] = $variant['weight_unit'];
-        }
-        if (isset($variant['sku'])) {
-            $payload['variant']['sku'] = $variant['sku'];
-        }
-        if (isset($variant['inventory_policy'])) {
-            $payload['variant']['inventory_policy'] = $variant['inventory_policy'];
-        }
-        if (isset($variant['taxable'])) {
-            $payload['variant']['taxable'] = $variant['taxable'];
-        }
-        if (isset($variant['barcode'])) {
-            $payload['variant']['barcode'] = $variant['barcode'];
-        }
+                $unitMapping = ['g'  => 'GRAMS', 'kg' => 'KILOGRAMS', 'lb' => 'POUNDS', 'oz' => 'OUNCES'];
+                $inputUnit = strtolower($variant['weight_unit'] ?? 'kg');
+                $weightUnit = $unitMapping[$inputUnit] ?? 'KILOGRAMS';
 
-        $shop->api()->rest('PUT', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/variants/' . $variant['id'] . '.json', $payload);
-    }
+                $variantsData[] = sprintf(
+                    '{
+                    id: "gid://shopify/ProductVariant/%s",
+                    price: "%s",
+                    compareAtPrice: "%s",
+                    barcode: "%s",
+                    taxable: %s,
+                    inventoryPolicy: %s,
+                    inventoryItem: {
+                        sku: "%s",
+                        requiresShipping: %s,
+                        measurement: {
+                            weight: {
+                                value: %s,
+                                unit: %s
+                            }
+                        }
+                    }
+                }',
+                    $variant['id'],
+                    $variant['price'] ?? '0.00',
+                    $variant['compare_at_price'] ?? '0.00',
+                    addslashes($variant['barcode'] ?? ''),
+                    $variant['taxable'] ? 'true' : 'false',
+                    strtoupper($variant['inventory_policy'] ?? 'DENY'),
+                    addslashes($variant['sku'] ?? ''),
+                    $variant['requires_shipping'] ? 'true' : 'false',
+                    isset($variant['weight']) ? (float)$variant['weight'] : 0.0,
+                    $weightUnit
+                );
 
-    /**
-     * Update variant in database
-     *
-     * @param array $variant
-     *
-     * @return void
-     */
-    private function updateVariantDB(array $variant): void
-    {
-        try {
-            if (isset($variant['product_id'])) {
-                $updateData['product_id'] = $variant['product_id'];
+                $variantDataForDB[] = [
+                    'variant_id' => $variant['id'],
+                    'product_id' => $variant['product_id'],
+                    'price' => $variant['price'] ?? '0.00',
+                    'compare_at_price' => $variant['compare_at_price'] ?? '0.00',
+                    'inventory_quantity' => $variant['inventory_quantity'] ?? 0,
+                    'sku' => $variant['sku'] ?? '',
+                    'requires_shipping' => $variant['requires_shipping'] ?? false,
+                    'inventory_policy' => $variant['inventory_policy'],
+                    'taxable' => $variant['taxable'] ?? false,
+                    'barcode' => $variant['barcode'] ?? '',
+                    'weight' => $variant['weight'] ?? 0,
+                    'weight_unit' => $inputUnit,
+                    'updated_at' => now()
+                ];
             }
-            if (isset($variant['price'])) {
-                $updateData['price'] = $variant['price'];
-            }
-            if (isset($variant['compare_at_price'])) {
-                $updateData['compare_at_price'] = $variant['compare_at_price'];
-            }
-            if (isset($variant['inventory_quantity'])) {
-                $updateData['inventory_quantity'] = $variant['inventory_quantity'];
-            }
-            if (isset($variant['weight'])) {
-                $updateData['weight'] = $variant['weight'];
-            }
-            if (isset($variant['weight_unit'])) {
-                $updateData['weight_unit'] = $variant['weight_unit'];
-            }
-            if (isset($variant['sku'])) {
-                $updateData['sku'] = $variant['sku'];
-            }
-            if (isset($variant['inventory_policy'])) {
-                $updateData['inventory_policy'] = $variant['inventory_policy'];
-            }
-            if (isset($variant['taxable'])) {
-                $updateData['taxable'] = $variant['taxable'];
-            }
-            if (isset($variant['barcode'])) {
-                $updateData['barcode'] = $variant['barcode'];
-            }
-            if (isset($variant['requires_shipping'])) {
-                $updateData['requires_shipping'] = $variant['requires_shipping'];
-            }
-            $updateData['updated_at'] = now();
 
-            ProductVariant::updateOrCreate(
-                ['variant_id' => $variant['id']],
-                $updateData
+            $query = sprintf(
+                'mutation {
+                productVariantsBulkUpdate(
+                    productId: "%s",
+                    variants: [%s]
+                ) {
+                    product {
+                        id
+                    }
+                    productVariants {
+                        id
+                        price
+                        compareAtPrice
+                        barcode
+                        inventoryQuantity
+                        inventoryItem {
+                            sku
+                            requiresShipping
+                            measurement {
+                                weight {
+                                    value
+                                    unit
+                                }
+                            }
+                        }
+                    }
+                    userErrors {
+                        field
+                        message
+                    }
+                }
+            }',
+                $productId,
+                implode(", ", $variantsData)
             );
-        } catch (Exception $e) {
-            Log::error("[APP][VARIANT] Variant update failed - Variant ID: {$variant['id']}, Error: {$e->getMessage()}");
+
+            $response = $shop->api()->graph($query);
+            if (!empty($response['errors']) || !empty($response['data']['userErrors'])) {
+                Log::error("[APP][VARIANT] Bulk Variant Update Failed: " . json_encode($response));
+            } else {
+                $this->updateVariantsDB($variantDataForDB);
+            }
         }
     }
+
+    /**
+     * Bulk update variants in database
+     *
+     * @param array $variants
+     * @return void
+     */
+    private function updateVariantsDB(array $variants): void
+    {
+        try {
+            foreach ($variants as $variant) {
+                ProductVariant::updateOrCreate(
+                    ['variant_id' => $variant['variant_id']],
+                    $variant
+                );
+            }
+        } catch (Exception $e) {
+            Log::error("[APP][VARIANT] Bulk variant update failed - Error: {$e->getMessage()}");
+        }
+    }
+
+
 
     /**
      * Update inventory

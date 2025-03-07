@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
  * @method static orderBy(string $string, string $string1)
  * @method static find(mixed $id)
  * @method static upsert(mixed[] $toArray, string[] $array)
- * @method static whereNotIn(string $string, \Illuminate\Support\Collection $currentProductIds)
  * @method static whereIn(string $string, mixed $productIds)
  */
 class Product extends BaseModel
