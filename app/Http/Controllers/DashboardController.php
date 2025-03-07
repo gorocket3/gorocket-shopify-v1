@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -15,38 +16,25 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        $shop = Auth::user();
+        $shop       = Auth::user();
+        $shop_id    = $shop->id ?? '';
 
-        $sql = "
-            SELECT `id`
-                 , `type`
-                 , `name`
-                 , `price`
-                 , `interval`
-                 , `capped_amount`
-                 , `terms`
-                 , `trial_days`
-                 , `on_install`
-            FROM `plans`
-            WHERE `id` = (
-                SELECT `plan_id`
-                FROM users
-                WHERE `id` = (SELECT `user_id` FROM shops WHERE `id` = :shop_id)
-            )
-        ";
-        $plan = DB::selectOne($sql, [ 'shop_id' => $shop->id ?? '' ]);
+        $default_plan_id = Cache::rememberForever('default_plan_id', function () {
+            return DB::table('plans')->where('on_install', true)->value('id');
+        });
 
-        $sql = "
-            SELECT COUNT(`id`) AS total
-            FROM `products`
-            WHERE `user_id` = (SELECT `user_id` FROM shops WHERE `id` = :shop_id)
-        ";
-        $total_product_count = DB::selectOne($sql, [ 'shop_id' => $shop->id ?? '' ])->total;
+        $user_id            = DB::table('shops')->where('id', $shop_id)->value('user_id');
+        $user_plan_id       = DB::table('users')->where('id', $user_id)->value('plan_id');
+        $plan_id            = $user_plan_id ?? $default_plan_id;
+        $plan               = DB::table('plans')->where('id', $plan_id)->first();
+        $plan->billing_on   = DB::table('charges')->where('user_id', $user_id)->where('status', 'ACTIVE')->value('billing_on');
+
+        $total_product_count = DB::table('products')->where('user_id', $user_id)->count();
 
         $values = [
-            'shop_id' => $shop->id ?? '',
-            'plan' => $plan,
-            'total_product_count' => $total_product_count,
+            'shop_id'               => $shop_id,
+            'plan'                  => $plan,
+            'total_product_count'   => $total_product_count,
         ];
 
         return view('welcome', [ 'data' => $values ]);

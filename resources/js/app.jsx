@@ -6,6 +6,7 @@ import { Redirect } from '@shopify/app-bridge/actions';
 import { NavMenu } from "@shopify/app-bridge-react";
 import {
     AppProvider,
+    Badge,
     BlockStack,
     Box,
     Button,
@@ -114,9 +115,22 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
                                         <Text as="h2" variant="headingMd">Active plan</Text>
                                         <Button onClick={() => navigate('/plan')} variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
                                     </InlineGrid>
-                                    <InlineStack gap="200" blockAlign="end">
+                                    <InlineStack gap="200" blockAlign="center">
                                         <Text as="p" variant="headingXl">{plan.name}</Text>
-                                        <Text as="p" variant="bodySm" tone="subdued">~2025.12.12</Text>
+                                        {false ?
+                                            <Box paddingBlockStart={100}>
+                                                <Badge tone="critical">
+                                                    <Text as="span" variant="bodyXs" fontWeight="semibold">Trial D-20</Text>
+                                                </Badge>
+                                            </Box>
+                                            : (!!plan.billing_on &&
+                                                <Box paddingBlockStart={100}>
+                                                    <Badge tone="info">
+                                                        <Text as="span" variant="bodyXs" fontWeight="semibold">Until {plan.billing_on.substring(0, 10).replaceAll('-', '.')}</Text>
+                                                    </Badge>
+                                                </Box>
+                                            )
+                                        }
                                     </InlineStack>
                                 </BlockStack>
                             </Card>
