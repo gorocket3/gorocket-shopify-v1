@@ -6,7 +6,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class PricingController extends Controller
+class PlanController extends Controller
 {
     /**
      * Plans List View
@@ -38,6 +38,6 @@ class PricingController extends Controller
             'shop_id'   => $shop->id ?? ''
         ];
 
-        return view('pricing', [ 'data' => $values ]);
+        return view('plan', [ 'data' => $values ]);
     }
 }

@@ -17,24 +17,23 @@ function App() {
     const redirect = Redirect.create(app);
 
     return (
-        <SettingApp redirect={redirect} />
+        <HistoryApp redirect={redirect} />
     )
 }
 
-function SettingApp({ redirect }) {
+function HistoryApp({ redirect }) {
     const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
 
     return (
         <AppProvider i18n={{}}>
             <NavMenu>
-                <a href="/products">상품</a>
-                <a href="/pricing">결제</a>
-                <a href="/settings">설정</a>
-                <a href="/help">도움</a>
+                <a href="/products">Products</a>
+                <a href="/plan">Plan</a>
+                <a href="/history">History</a>
             </NavMenu>
             <Page
                 backAction={{ content: 'Home', onAction: () => navigate('/') }}
-                title="Setting"
+                title="History"
                 fullWidth={true}
             >
             </Page>

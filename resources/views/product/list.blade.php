@@ -513,7 +513,7 @@
                                          id="gridSettingPopover"
                                          class="p-theme-light Polaris-ThemeProvider--themeContainer"
                                          style="position:relative;">
-                                        <div :class="`Polaris-PositionedOverlay Polaris-Popover__PopoverOverlay ${$store.gridSetting.open ? 'Polaris-Popover__PopoverOverlay--open' : 'Polaris-Popover__PopoverOverlay--close'}`"
+                                        <div :class="`Polaris-PositionedOverlay Polaris-Popover__PopoverOverlay ${$store.gridSetting.open ? 'Polaris-Popover__PopoverOverlay--open' : 'Polaris-Popover__PopoverOverlay--close hidden'}`"
                                             style="width:130px;top:2px;right:0;">
                                             <div class="Polaris-Popover" data-polaris-overlay="true" style="margin:0;">
                                                 <div class="Polaris-Popover__FocusTracker" tabindex="0"></div>

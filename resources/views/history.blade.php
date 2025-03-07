@@ -13,10 +13,10 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/setting/app.jsx'])
+    @vite(['resources/js/history/app.jsx'])
     <!-- // Vite -->
 
-    <title>Pricing :: GoRocket</title>
+    <title>History :: GoRocket</title>
 </head>
 <body>
 <div id="app"></div>

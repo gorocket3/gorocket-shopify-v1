@@ -31,24 +31,23 @@ function App({ data }) {
     const redirect = Redirect.create(app);
 
     return (
-        <PricingApp data={data} redirect={redirect} />
+        <PlanApp data={data} redirect={redirect} />
     )
 }
 
-function PricingApp({ data: { plans = [], shop_id }, redirect }) {
+function PlanApp({ data: { plans = [], shop_id }, redirect }) {
     const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
 
     return (
         <AppProvider i18n={{}}>
             <NavMenu>
-                <a href="/products">상품</a>
-                <a href="/pricing">결제</a>
-                <a href="/settings">설정</a>
-                <a href="/help">도움</a>
+                <a href="/products">Products</a>
+                <a href="/plan">Plan</a>
+                <a href="/history">History</a>
             </NavMenu>
             <Page
                 backAction={{ content: 'Home', onAction: () => navigate('/') }}
-                title="Pricing"
+                title="Plan"
                 fullWidth={true}
                 // secondaryActions={[
                 //     { content: 'Print', url: '/print' },

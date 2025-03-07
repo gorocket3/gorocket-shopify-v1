@@ -13,10 +13,10 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/pricing/app.jsx'])
+    @vite(['resources/js/plan/app.jsx'])
     <!-- // Vite -->
 
-    <title>Pricing :: GoRocket</title>
+    <title>Plan :: GoRocket</title>
 </head>
 <body>
 <div id="app" data-initial="{{ json_encode($data) }}"></div>

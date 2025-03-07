@@ -52,6 +52,7 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
             const res = await fetchData({ method: 'POST', url: '/api/products/sync' });
         } catch (e) {
             alert('An error occurred while connecting products. Please try again.');
+            setSyncLoading(false);
         }
     }
 
@@ -82,18 +83,16 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
     return (
         <AppProvider i18n={{}}>
             <NavMenu>
-                <a href="/products">상품</a>
-                <a href="/pricing">결제</a>
-                <a href="/settings">설정</a>
-                <a href="/help">도움</a>
+                <a href="/products">Products</a>
+                <a href="/plan">Plan</a>
+                <a href="/history">History</a>
             </NavMenu>
             <Page
                 title="Gorocket Editor"
                 secondaryActions={[
                     { content: 'Products', onAction: () => navigate('/products') },
-                    { content: 'Pricing', onAction: () => navigate('/pricing') },
-                    { content: 'Setting', onAction: () => navigate('/settings') },
-                    { content: 'Help', onAction: () => navigate('/help') },
+                    { content: 'Plan', onAction: () => navigate('/plan') },
+                    { content: 'History', onAction: () => navigate('/history') },
                 ]}
             >
                 <BlockStack gap="200">
@@ -113,7 +112,7 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
                                 <BlockStack gap="400">
                                     <InlineGrid columns="1fr auto">
                                         <Text as="h2" variant="headingMd">Active plan</Text>
-                                        <Button onClick={() => navigate('/pricing')} variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
+                                        <Button onClick={() => navigate('/plan')} variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
                                     </InlineGrid>
                                     <InlineStack gap="200" blockAlign="end">
                                         <Text as="p" variant="headingXl">{plan.name}</Text>

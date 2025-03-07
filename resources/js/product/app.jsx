@@ -27,10 +27,9 @@ function ProductApp({ redirect }) {
     return (
         <AppProvider i18n={{}}>
             <NavMenu>
-                <a href="/products">상품</a>
-                <a href="/pricing">결제</a>
-                <a href="/settings">설정</a>
-                <a href="/help">도움</a>
+                <a href="/products">Products</a>
+                <a href="/plan">Plan</a>
+                <a href="/history">History</a>
             </NavMenu>
         </AppProvider>
     );
