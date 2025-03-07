@@ -154,6 +154,12 @@ class ProductController extends Controller
             'products.*.variants.*.requires_shipping' => 'nullable|boolean'
         ]);
 
+        $validated['products'] = array_map(function ($product) {
+            if (is_null($product['body_html'])) $product['body_html'] = '';
+            if (is_null($product['tags'])) $product['tags'] = '';
+            return $product;
+        }, $validated['products']);
+
         ProductUpdateJob::dispatch([
             'shop' => $shop,
             'products' => $validated['products']
