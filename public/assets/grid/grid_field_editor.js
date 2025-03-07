@@ -76,8 +76,8 @@ class GridFieldMultipleEditor {
     }
 
     init(params) {
-        this.values = params.values;
-        this.value = params.value;
+        this.values = params.values || [];
+        this.value = params.value || '';
         this.valueArray = this.value.split(', ');
         this.label = params.label || 'label';
         this.containerWidth = params.width || '200px';
@@ -99,6 +99,12 @@ class GridFieldMultipleEditor {
             item.addEventListener('click', () => {
                 this.selectValue(val.id);
             });
+            this.wrapper.appendChild(item);
+        }
+
+        if (this.values.length < 1) {
+            const item = document.createElement('div');
+            item.innerText = 'No Items';
             this.wrapper.appendChild(item);
         }
 
@@ -126,10 +132,12 @@ class GridFieldMultipleEditor {
             const item = items[i];
             const val = this.values.find(v => v.id === item.innerText);
 
-            if (this.valueArray.includes(val.id)) {
-                item.className = this.selectedClass;
-            } else {
-                item.className = this.defaultClass;
+            if (val?.id) {
+                if (this.valueArray.includes(val.id)) {
+                    item.className = this.selectedClass;
+                } else {
+                    item.className = this.defaultClass;
+                }
             }
         }
     }

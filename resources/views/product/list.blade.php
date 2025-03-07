@@ -745,11 +745,11 @@
         },
         {
             field: "product_tags", headerName: "Tags", width: 200,
-            cellRenderer: (p) => p.data.position > 1 ? '' : `
+            cellRenderer: (p) => p.data.position > 1 ? '' : (!p.value ? '-' : `
                 <div class="flex flex-wrap align-items-center gap-1 py-1">
-                    ${p.value === '' ? '' : p.value.split(', ').map((tag) => `<span class="grid-badge Polaris-Badge--toneInfo" style="display:inline-block;line-height:normal;">${tag || ''}</span>`).join('')}
+                    ${p.value.split(', ').map((tag) => `<span class="grid-badge Polaris-Badge--toneInfo" style="display:inline-block;line-height:normal;">${tag || ''}</span>`).join('')}
                 </div>
-            `,
+            `),
             cellStyle: cellMergeStyling,
             editable: (p) => p.data.position < 2,
             cellEditor: GridFieldMultipleEditor,
