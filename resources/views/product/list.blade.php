@@ -671,11 +671,22 @@
     const initial_columns = [
         { field: "product_status_changed", hide: true },
         { field: "product_name_changed", hide: true },
+        { field: "product_type_changed", hide: true },
         { field: "product_tags_changed", hide: true },
         { field: "product_body_changed", hide: true },
+        { field: "vendor_changed", hide: true },
+        { field: "handle_changed", hide: true },
         { field: "option_name_changed", hide: true },
         { field: "price_changed", hide: true },
         { field: "inventory_quantity_changed", hide: true },
+        { field: "old_inventory_quantity_changed", hide: true },
+        { field: "inventory_policy_changed", hide: true },
+        { field: "compare_at_price_changed", hide: true },
+        { field: "taxable_changed", hide: true },
+        { field: "barcode_changed", hide: true },
+        { field: "fullfillment_service_changed", hide: true },
+        { field: "weight_changed", hide: true },
+        { field: "weight_unit_changed", hide: true },
         {
             field: "chk",
             headerName: '',
@@ -739,9 +750,12 @@
         {
             field: "product_type",
             headerName: "Product Type",
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.data.parent.product_type,
+            editable: (p) => p.data.position < 2,
             width: 100,
+            cellClassRules: changedCellClassRules('product_type'),
+            onCellValueChanged: (e) => changeCellState('product_type', e)
         },
         {
             field: "product_tags", headerName: "Tags", width: 200,
@@ -779,15 +793,21 @@
             field: "vendor",
             headerName: "Vendor",
             cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.data.parent.vendor,
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            editable: (p) => p.data.position < 2,
             width: 80,
+            cellClassRules: changedCellClassRules('vendor'),
+            onCellValueChanged: (e) => changeCellState('vendor', e)
         },
         {
             field: "handle",
             headerName: "Handle",
             cellStyle: (p) => ({  ...cellMergeStyling(p), whiteSpace: 'normal' }),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.data.parent.handle,
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            editable: (p) => p.data.position < 2,
             width: 120,
+            cellClassRules: changedCellClassRules('handle'),
+            onCellValueChanged: (e) => changeCellState('handle', e)
         },
         {
             field: "product_published_at",
@@ -833,17 +853,75 @@
             cellClassRules: changedCellClassRules('inventory_quantity'),
             onCellValueChanged: (e) => changeCellState('inventory_quantity', e)
         },
-        { field: "old_inventory_quantity", headerName: "Old Inventory Quantity", width: 150, cellClass: 'hd-grid-number' },
-        { field: "inventory_policy", headerName: "Inventory Policy", width: 120 },
-        { field: "compare_at_price", headerName: "Compare At Price", width: 130, cellClass: 'hd-grid-number' },
-        { field: "taxable", headerName: "Taxable", width: 70, cellClass: 'hd-grid-code' },
-        { field: "barcode", headerName: "Barcode", width: 130, cellClass: 'hd-grid-code' },
-        { field: "fullfillment_service", headerName: "Fulfillment Service", width: 180 },
         {
-            field: "weight", headerName: "Weight", width: 80, cellClass: 'hd-grid-number',
-            cellRenderer: (p) => numberWithCommas(p.value || 0) + ' ' + (p.data.weight_unit || '')
+            field: "old_inventory_quantity",
+            headerName: "Old Inventory Quantity",
+            width: 150,
+            cellClass: 'hd-grid-number',
+            editable: true,
+            cellClassRules: changedCellClassRules('old_inventory_quantity'),
+            onCellValueChanged: (e) => changeCellState('old_inventory_quantity', e)
         },
-        { field: "grams", headerName: "Grams", width: 70, cellClass: 'hd-grid-number' },
+        {
+            field: "inventory_policy", headerName: "Inventory Policy", width: 120, cellClass: 'hd-grid-code', editable: true,
+            cellEditor: GridFieldEditor,
+            cellEditorParams: {
+                cellEditor: GridFieldEditor,
+                values: [ 'continue', 'deny' ].map((v) => ({ id: v, label: v })),
+                width: "80px",
+            },
+            cellEditorPopup: true,
+            cellClassRules: changedCellClassRules('inventory_policy'),
+            onCellValueChanged: (e) => changeCellState('inventory_policy', e)
+        },
+        {
+            field: "compare_at_price",
+            headerName: "Compare At Price",
+            width: 130,
+            cellClass: 'hd-grid-number',
+            editable: true,
+            cellClassRules: changedCellClassRules('compare_at_price'),
+            onCellValueChanged: (e) => changeCellState('compare_at_price', e)
+        },
+        {
+            field: "taxable", headerName: "Taxable", width: 70, cellClass: 'hd-grid-code', editable: true,
+            cellEditor: GridFieldEditor,
+            cellEditorParams: {
+                cellEditor: GridFieldEditor,
+                values: [ 'true', 'false' ].map((v) => ({ id: v, label: v })),
+                width: "80px",
+            },
+            cellEditorPopup: true,
+            cellClassRules: changedCellClassRules('taxable'),
+            onCellValueChanged: (e) => changeCellState('taxable', e)
+        },
+        {
+            field: "barcode", headerName: "Barcode", width: 130, cellClass: 'hd-grid-code', editable: true,
+            cellClassRules: changedCellClassRules('barcode'),
+            onCellValueChanged: (e) => changeCellState('barcode', e)
+        },
+        {
+            field: "fullfillment_service", headerName: "Fulfillment Service", width: 180, editable: true,
+            cellClassRules: changedCellClassRules('fullfillment_service'),
+            onCellValueChanged: (e) => changeCellState('fullfillment_service', e)
+        },
+        {
+            field: "weight", headerName: "Weight", width: 80, cellClass: 'hd-grid-number', editable: true,
+            cellClassRules: changedCellClassRules('weight'),
+            onCellValueChanged: (e) => changeCellState('weight', e)
+        },
+        {
+            field: "weight_unit", headerName: "Unit", width: 40, editable: true,
+            cellEditor: GridFieldEditor,
+            cellEditorParams: {
+                cellEditor: GridFieldEditor,
+                values: [ 'g', 'kg', 'lb', 'oz' ].map((unit) => ({ id: unit, label: unit })),
+                width: "60px",
+            },
+            cellEditorPopup: true,
+            cellClassRules: changedCellClassRules('weight_unit'),
+            onCellValueChanged: (e) => changeCellState('weight_unit', e)
+        },
         { field: "created_at", headerName: "Variant Created At", type: "CustomDateTimeType" },
         { field: "updated_at", headerName: "Variant Updated At", type: "CustomDateTimeType" }
     ];
@@ -887,17 +965,17 @@
             gx.gridOptions.api.getSelectedRows().forEach((data) => {
                 const variant = {
                     id: data.variant_id,
-                        price: data.price,
-                        compare_at_price: data.compare_at_price,
-                        inventory_item_id: data.inventory_item_id,
-                        inventory_quantity: data.inventory_quantity,
-                        weight: data.weight,
-                        weight_unit: data.weight_unit,
-                        sku: data.sku,
-                        inventory_policy: data.inventory_policy,
-                        taxable: data.taxable,
-                        barcode: data.barcode,
-                        requires_shipping: data.requires_shipping
+                    price: data.price,
+                    compare_at_price: data.compare_at_price,
+                    inventory_item_id: data.inventory_item_id,
+                    inventory_quantity: data.inventory_quantity,
+                    weight: data.weight,
+                    weight_unit: data.weight_unit,
+                    sku: data.sku,
+                    inventory_policy: data.inventory_policy,
+                    taxable: data.taxable,
+                    barcode: data.barcode,
+                    requires_shipping: data.requires_shipping
                 }
 
                 const prev = rows.find(row => row.id === data.product_id);
@@ -1131,10 +1209,13 @@
                     ...item,
                     group_id: item.position !== 1 ? '' : item.parent.product_id,
                     product_name: item.position !== 1 ? '' : item.parent.title,
+                    product_type: item.position !== 1 ? '' : item.parent.product_type,
                     product_tags: item.position !== 1 ? '' : item.parent.tags,
                     product_body: item.position !== 1 ? '' : item.parent.body_html,
                     product_img: item.position !== 1 ? '' : (item.parent.images[0]?.src || ''),
                     product_status: item.position !== 1 ? '' : item.parent.status,
+                    vendor: item.position !== 1 ? '' : item.parent.vendor,
+                    handle: item.position !== 1 ? '' : item.parent.handle,
                     product_published_at: item.position !== 1 ? '' : item.parent.published_at,
                     product_created_at: item.position !== 1 ? '' : item.parent.created_at,
                     product_updated_at: item.position !== 1 ? '' : item.parent.updated_at,
