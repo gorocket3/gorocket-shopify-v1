@@ -139,6 +139,14 @@ class ProductController extends Controller
             'products.*.tags' => 'nullable|string',
             'products.*.tags.*' => 'string|max:255',
             'products.*.body_html' => 'nullable|string',
+            'products.*.product_type' => 'nullable|string|max:255',
+            'products.*.vendor' => 'nullable|string|max:255',
+            'products.*.handle' => [
+                'required', 'string', 'max:255',
+                function ($attribute, $value, $fail) use ($shop, $request) {
+                    $this->checkHandleUniqueness($request->products, $shop, $fail);
+                }
+            ],
             'products.*.variants' => 'sometimes|array|min:1',
             'products.*.variants.*.id' => 'required|integer|exists:product_variants,variant_id',
             'products.*.variants.*.price' => 'required|numeric|min:0',
@@ -169,5 +177,30 @@ class ProductController extends Controller
             'message' => 'Product edit job dispatched successfully',
             'shop_id' => $shop->id
         ]);
+    }
+
+    /**
+     * Check for duplicate handles within the shop
+     *
+     * @param array $products
+     * @param mixed $shop
+     * @param callable $fail
+     */
+    private function checkHandleUniqueness(array $products, mixed $shop, callable $fail): void
+    {
+        foreach ($products as $product) {
+            if (!isset($product['id'], $product['handle'])) {
+                continue;
+            }
+
+            $exists = Product::where('handle', $product['handle'])
+                ->where('user_id', $shop->id)
+                ->where('product_id', '!=', $product['id']) // 자기 자신 제외
+                ->exists();
+
+            if ($exists) {
+                $fail("The handle '{$product['handle']}' is already taken.");
+            }
+        }
     }
 }

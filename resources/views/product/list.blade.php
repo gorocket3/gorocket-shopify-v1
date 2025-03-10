@@ -684,7 +684,7 @@
         { field: "compare_at_price_changed", hide: true },
         { field: "taxable_changed", hide: true },
         { field: "barcode_changed", hide: true },
-        { field: "fullfillment_service_changed", hide: true },
+        { field: "sku_changed", hide: true },
         { field: "weight_changed", hide: true },
         { field: "weight_unit_changed", hide: true },
         {
@@ -875,11 +875,8 @@
             onCellValueChanged: (e) => changeCellState('inventory_policy', e)
         },
         {
-            field: "compare_at_price",
-            headerName: "Compare At Price",
-            width: 130,
-            cellClass: 'hd-grid-number',
-            editable: true,
+            field: "compare_at_price", headerName: "Compare At Price", width: 130, cellClass: 'hd-grid-number', editable: true,
+            cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
             cellClassRules: changedCellClassRules('compare_at_price'),
             onCellValueChanged: (e) => changeCellState('compare_at_price', e)
         },
@@ -901,9 +898,9 @@
             onCellValueChanged: (e) => changeCellState('barcode', e)
         },
         {
-            field: "fullfillment_service", headerName: "Fulfillment Service", width: 180, editable: true,
-            cellClassRules: changedCellClassRules('fullfillment_service'),
-            onCellValueChanged: (e) => changeCellState('fullfillment_service', e)
+            field: "sku", headerName: "sku", width: 120, cellClass: 'hd-grid-code', editable: true,
+            cellClassRules: changedCellClassRules('sku'),
+            onCellValueChanged: (e) => changeCellState('sku', e)
         },
         {
             field: "weight", headerName: "Weight", width: 80, cellClass: 'hd-grid-number', editable: true,
@@ -989,6 +986,9 @@
                         status: data.product_status,
                         body_html: data.product_body,
                         tags: data.product_tags,
+                        product_type: data.product_type,
+                        vendor: data.vendor,
+                        handle: data.handle
                     };
 
                     rows.push({ ...product, variants: [variant] });
