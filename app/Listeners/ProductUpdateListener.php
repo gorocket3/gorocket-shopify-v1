@@ -29,25 +29,35 @@ class ProductUpdateListener implements ShouldQueue
         try {
             $shopId = $event->shopId->toNative();
             $shop = User::find($shopId);
-
-            $totalProducts = 0;
-            $processedProducts = 0;
-            $progress = 0;
+            $chunk = 250;
 
             if (!$shop) {
                 Log::error("[LISTENER][PRODUCT] Shop not found - {$shopId}");
                 return;
             } else {
                 do {
-                    $deleted = Product::where('user_id', $shopId)->limit(1000)->delete();
+                    $deleted = Product::where('user_id', $shopId)->limit($chunk)->delete();
                 } while ($deleted > 0);
             }
 
+            $totalProductsQuery = <<<GRAPHQL
+            {
+                productsCount {
+                    count
+                }
+            }
+            GRAPHQL;
+
+            $totalResponse = $shop->api()->graph($totalProductsQuery);
+            $totalProducts = $totalResponse['body']['data']['productsCount']['count'] ?? 0;
+            $processedProducts = 0;
+            $progress = 0;
             $batch = [];
             $nextPage = null;
+
             do {
                 $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
-                    'limit' => 250,
+                    'limit' => $chunk,
                     'page_info' => $nextPage
                 ]);
 
@@ -57,7 +67,6 @@ class ProductUpdateListener implements ShouldQueue
                 }
 
                 $products = $response['body']['products'];
-                $totalProducts += count($products);
                 foreach ($products as $product) {
                     $data = [
                         'id'                     => $product['id'],
@@ -128,7 +137,7 @@ class ProductUpdateListener implements ShouldQueue
 
                     $batch[] = $data;
                     $progress = intval((++$processedProducts / $totalProducts) * 100);
-                    if (count($batch) >= 100) {
+                    if (count($batch) >= $chunk) {
                         ProductUpdateJob::dispatch($batch, $shopId, $progress);
                         $batch = [];
                     }
