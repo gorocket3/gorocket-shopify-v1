@@ -69,14 +69,9 @@ export default function getInitialColumns(data) {
         },
         {
             field: "group_id", headerName: "Product ID", width: 110, cellClass: 'hd-grid-code',
-            // rowSpan: (p) => {
-            //     if (p.data?.position === 1) {
-            //         return p.data?.parent?.variants_cnt || 1;
-            //     }
-            //     return 1;
-            // },
             cellRenderer: (p) => p.data.position > 1 ? '' : `<a href="shopify://admin/products/${p.value}" class="link">${p.value}</a>`,
-            cellStyle: cellMergeStyling
+            cellStyle: cellMergeStyling,
+            filter: true,
         },
         {
             field: "product_status",
@@ -94,7 +89,12 @@ export default function getInitialColumns(data) {
             },
             cellEditorPopup: true,
             cellClassRules: changedCellClassRules('product_status'),
-            onCellValueChanged: (e) => changeCellState('product_status', e)
+            onCellValueChanged: (e) => changeCellState('product_status', e),
+            filter: true,
+            filterParams: {
+                values: status,
+                valueFormatter: (p) => PRODUCT_STATUS[p.value]?.label || '-',
+            }
         },
         {
             field: "product_img", headerName: "Image", width: 60,
@@ -115,7 +115,8 @@ export default function getInitialColumns(data) {
             cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             editable: (p) => p.data.position < 2,
             cellClassRules: changedCellClassRules('product_name'),
-            onCellValueChanged: (e) => changeCellState('product_name', e)
+            onCellValueChanged: (e) => changeCellState('product_name', e),
+            filter: true,
         },
         {
             field: "product_type",
@@ -125,7 +126,11 @@ export default function getInitialColumns(data) {
             editable: (p) => p.data.position < 2,
             width: 100,
             cellClassRules: changedCellClassRules('product_type'),
-            onCellValueChanged: (e) => changeCellState('product_type', e)
+            onCellValueChanged: (e) => changeCellState('product_type', e),
+            filter: true,
+            filterParams: {
+                values: types,
+            }
         },
         {
             field: "product_tags", headerName: "Tags", width: 200,
@@ -144,7 +149,11 @@ export default function getInitialColumns(data) {
             },
             cellEditorPopup: true,
             cellClassRules: changedCellClassRules('product_tags'),
-            onCellValueChanged: (e) => changeCellState('product_tags', e)
+            onCellValueChanged: (e) => changeCellState('product_tags', e),
+            filter: "agTextColumnFilter",
+            filterParams: {
+                filterOptions: ["contains", "notContains"],
+            }
         },
         {
             field: "product_body",
@@ -174,7 +183,11 @@ export default function getInitialColumns(data) {
             },
             cellEditorPopup: true,
             cellClassRules: changedCellClassRules('vendor'),
-            onCellValueChanged: (e) => changeCellState('vendor', e)
+            onCellValueChanged: (e) => changeCellState('vendor', e),
+            filter: true,
+            filterParams: {
+                values: vendor,
+            }
         },
         {
             field: "handle",
@@ -184,7 +197,8 @@ export default function getInitialColumns(data) {
             editable: (p) => p.data.position < 2,
             width: 120,
             cellClassRules: changedCellClassRules('handle'),
-            onCellValueChanged: (e) => changeCellState('handle', e)
+            onCellValueChanged: (e) => changeCellState('handle', e),
+            filter: true,
         },
         {
             field: "product_published_at",
@@ -216,13 +230,15 @@ export default function getInitialColumns(data) {
         {
             field: "option_name", headerName: "Variant Name", width: 120, editable: true,
             cellClassRules: changedCellClassRules('option_name'),
-            onCellValueChanged: (e) => changeCellState('option_name', e)
+            onCellValueChanged: (e) => changeCellState('option_name', e),
+            filter: true,
         },
         {
-            field: "price", headerName: "Price($)", width: 90, cellClass: 'hd-grid-number', editable: true,
+            field: "price", headerName: "Price($)", width: 90, type: "currencyType", editable: true,
             cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
             cellClassRules: changedCellClassRules('price'),
-            onCellValueChanged: (e) => changeCellState('price', e)
+            onCellValueChanged: (e) => changeCellState('price', e),
+            filter: "agNumberColumnFilter",
         },
         {
             field: "inventory_quantity",
@@ -232,7 +248,8 @@ export default function getInitialColumns(data) {
             editable: true,
             cellRenderer: (p) => numberWithCommas(p.value || 0),
             cellClassRules: changedCellClassRules('inventory_quantity'),
-            onCellValueChanged: (e) => changeCellState('inventory_quantity', e)
+            onCellValueChanged: (e) => changeCellState('inventory_quantity', e),
+            filter: "agNumberColumnFilter",
         },
         {
             field: "old_inventory_quantity",
@@ -241,7 +258,8 @@ export default function getInitialColumns(data) {
             cellClass: 'hd-grid-number',
             editable: true,
             cellClassRules: changedCellClassRules('old_inventory_quantity'),
-            onCellValueChanged: (e) => changeCellState('old_inventory_quantity', e)
+            onCellValueChanged: (e) => changeCellState('old_inventory_quantity', e),
+            filter: "agNumberColumnFilter",
         },
         {
             field: "inventory_policy",
@@ -257,16 +275,21 @@ export default function getInitialColumns(data) {
             },
             cellEditorPopup: true,
             cellClassRules: changedCellClassRules('inventory_policy'),
-            onCellValueChanged: (e) => changeCellState('inventory_policy', e)
+            onCellValueChanged: (e) => changeCellState('inventory_policy', e),
+            filter: true,
+            filterParams: {
+                values: [ 'continue', 'deny' ],
+            }
         },
         {
             field: "compare_at_price",
             headerName: "Compare At Price",
             width: 130,
-            cellClass: 'hd-grid-number',
+            type: 'currencyType',
             editable: true,
             cellClassRules: changedCellClassRules('compare_at_price'),
-            onCellValueChanged: (e) => changeCellState('compare_at_price', e)
+            onCellValueChanged: (e) => changeCellState('compare_at_price', e),
+            filter: "agNumberColumnFilter",
         },
         {
             field: "taxable", headerName: "Taxable", width: 70, cellClass: 'hd-grid-code', editable: true,
@@ -278,25 +301,32 @@ export default function getInitialColumns(data) {
             },
             cellEditorPopup: true,
             cellClassRules: changedCellClassRules('taxable'),
-            onCellValueChanged: (e) => changeCellState('taxable', e)
+            onCellValueChanged: (e) => changeCellState('taxable', e),
+            filter: true,
+            filterParams: {
+                values: [ 'true', 'false' ],
+            }
         },
         {
             field: "barcode", headerName: "Barcode", width: 130, cellClass: 'hd-grid-code', editable: true,
             cellClassRules: changedCellClassRules('barcode'),
-            onCellValueChanged: (e) => changeCellState('barcode', e)
+            onCellValueChanged: (e) => changeCellState('barcode', e),
+            filter: true,
         },
         {
             field: "fullfillment_service", headerName: "Fulfillment Service", width: 180, editable: true,
             cellClassRules: changedCellClassRules('fullfillment_service'),
-            onCellValueChanged: (e) => changeCellState('fullfillment_service', e)
+            onCellValueChanged: (e) => changeCellState('fullfillment_service', e),
+            filter: true,
         },
         {
-            field: "weight", headerName: "Weight", width: 80, cellClass: 'hd-grid-number', editable: true,
+            field: "weight", headerName: "Weight", width: 80, type: 'currencyType', editable: true,
             cellClassRules: changedCellClassRules('weight'),
-            onCellValueChanged: (e) => changeCellState('weight', e)
+            onCellValueChanged: (e) => changeCellState('weight', e),
+            filter: "agNumberColumnFilter",
         },
         {
-            field: "weight_unit", headerName: "Unit", width: 40, editable: true,
+            field: "weight_unit", headerName: "Unit", width: 60, editable: true,
             cellEditor: GridFieldEditor,
             cellEditorParams: {
                 cellEditor: GridFieldEditor,
@@ -305,7 +335,11 @@ export default function getInitialColumns(data) {
             },
             cellEditorPopup: true,
             cellClassRules: changedCellClassRules('weight_unit'),
-            onCellValueChanged: (e) => changeCellState('weight_unit', e)
+            onCellValueChanged: (e) => changeCellState('weight_unit', e),
+            filter: true,
+            filterParams: {
+                values: [ 'g', 'kg', 'lb', 'oz' ],
+            }
         },
         { field: "created_at", headerName: "Variant Created At", type: "CustomDateTimeType" },
         { field: "updated_at", headerName: "Variant Updated At", type: "CustomDateTimeType" }

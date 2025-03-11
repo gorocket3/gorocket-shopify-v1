@@ -82,6 +82,14 @@
     justify-content: center;
 }
 
+.ag-floating-filter-body {
+    margin-left: 3px;
+}
+
+.ag-theme-balham .ag-ltr .ag-floating-filter-button, .ag-theme-balham .ag-rtl .ag-header-select-all {
+    margin-left: 3px;
+}
+
 /*.card {margin-bottom: 0px;}*/
 /*#content .innter_wrap {padding: calc(70px + 20px) calc(40px / 2) 20px calc(40px / 2);}*/
 /*#search-area .card-header {padding: 1.25rem 1.25rem 0.5rem 1.25rem;}*/

@@ -52,6 +52,9 @@ export function searchProducts(e) {
                 product_updated_at: filterByPosition(item, item.parent.updated_at),
                 option_name: item.title,
                 option_img: item.image?.src || '',
+                price: item.price * 1,
+                compare_at_price: item.compare_at_price * 1,
+                weight: item.weight * 1,
             };
         });
 
@@ -250,6 +253,7 @@ async function refreshGrid(data) {
             "even": "data.parent_index % 2 !== 0",
         },
         suppressFieldDotNotation: true,
+        floatingFilter: true,
         onRowSelected: (event) => {
             if (event.node.data.parent.variants_cnt > 1) {
                 gx.gridOptions.api.forEachNode((node) => {
