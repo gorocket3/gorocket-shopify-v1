@@ -45,25 +45,9 @@ class ProductUpdateJob implements ShouldQueue
         try {
             $shop = $this->container['shop'];
             $products = $this->container['products'];
+            $progress = $this->container['progress'];
 
-//            foreach ($products as $product) {
-//                Redis::setex($product['id'], 60, true);
-//                //$this->updateProductDB($shop, $product);
-//
-//                if(isset($product['variants'])) {
-//                    foreach ($product['variants'] as $variant) {
-//                        //$this->updateVariant($shop, $variant);
-//                        //$this->updateInventory($shop, $variant);
-//                        //$this->updateVariantDB($variant);
-//                    }
-//                }
-//            }
-
-            $this->updateProducts($shop, $products);
-
-
-
-
+            $this->updateProducts($shop, $products, $progress);
         } catch (Exception $e) {
             Log::error("[APP][PRODUCT] Update failed - {$shop->id}, Error: {$e->getMessage()}");
         }
@@ -74,103 +58,96 @@ class ProductUpdateJob implements ShouldQueue
      *
      * @param User $shop
      * @param array $products
+     * @param int $progress
      *
      * @return void
      */
-    private function updateProducts(User $shop, array $products): void
+    private function updateProducts(User $shop, array $products, int $progress): void
     {
-        $totalProducts = count($products);
-        $chunks = array_chunk($products, 10);
-        $processed = 0;
-
         $variants = [];
 
 
-        foreach ($chunks as $chunk) {
-            $mutations = [];
-            $productData = [];
+        $mutations = [];
+        $productData = [];
 
-            foreach ($chunk as $product) {
-                $mutationName = "updateProduct" . $product['id'];
-                $mutations[] = sprintf(
-                    '%s: productUpdate(input: {
-                id: "gid://shopify/Product/%s",
-                title: "%s",
-                status: %s,
-                descriptionHtml: "%s",
-                tags: "%s"
-                productType: "%s"
-                vendor: "%s"
-                handle: "%s"
-            }) {
-                product {
-                    id
-                    title
-                    status
-                    descriptionHtml
-                    tags
-                    productType
-                    vendor
-                    handle
-                }
-                userErrors {
-                    field
-                    message
-                }
-            }',
-                    $mutationName,
-                    $product['id'],
-                    addslashes($product['title'] ?? ''),
-                    strtoupper($product['status']),
-                    addslashes($product['body_html'] ?? ''),
-                    addslashes($product['tags'] ?? ''),
-                    addslashes($product['product_type'] ?? ''),
-                    addslashes($product['vendor'] ?? ''),
-                    addslashes($product['handle'] ?? '')
-                );
+        foreach ($products as $product) {
+            $mutationName = "updateProduct" . $product['id'];
+            $mutations[] = sprintf(
+                '%s: productUpdate(input: {
+            id: "gid://shopify/Product/%s",
+            title: "%s",
+            status: %s,
+            descriptionHtml: "%s",
+            tags: "%s"
+            productType: "%s"
+            vendor: "%s"
+            handle: "%s"
+        }) {
+            product {
+                id
+                title
+                status
+                descriptionHtml
+                tags
+                productType
+                vendor
+                handle
+            }
+            userErrors {
+                field
+                message
+            }
+        }',
+                $mutationName,
+                $product['id'],
+                addslashes($product['title'] ?? ''),
+                strtoupper($product['status']),
+                addslashes($product['body_html'] ?? ''),
+                addslashes($product['tags'] ?? ''),
+                addslashes($product['product_type'] ?? ''),
+                addslashes($product['vendor'] ?? ''),
+                addslashes($product['handle'] ?? '')
+            );
 
-                $productData[] = [
-                    'shop_id' => $shop->id,
-                    'product_id' => $product['id'],
-                    'title' => $product['title'] ?? '',
-                    'status' => $product['status'],
-                    'body_html' => $product['body_html'] ?? '',
-                    'tags' => $product['tags'] ?? '',
-                    'product_type' => $product['product_type'] ?? '',
-                    'vendor' => $product['vendor'] ?? '',
-                    'handle' => $product['handle'] ?? '',
-                    'updated_at' => now()
-                ];
+            $productData[] = [
+                'shop_id' => $shop->id,
+                'product_id' => $product['id'],
+                'title' => $product['title'] ?? '',
+                'status' => $product['status'],
+                'body_html' => $product['body_html'] ?? '',
+                'tags' => $product['tags'] ?? '',
+                'product_type' => $product['product_type'] ?? '',
+                'vendor' => $product['vendor'] ?? '',
+                'handle' => $product['handle'] ?? '',
+                'updated_at' => now()
+            ];
 
-                if (!empty($product['variants']) && is_array($product['variants'])) {
-                    foreach ($product['variants'] as $variant) {
-                        $variant['product_id'] = $product['id'];
-                        $variants[] = $variant;
-                    }
+            if (!empty($product['variants']) && is_array($product['variants'])) {
+                foreach ($product['variants'] as $variant) {
+                    $variant['product_id'] = $product['id'];
+                    $variants[] = $variant;
                 }
             }
-
-            $query = sprintf('mutation {%s}', implode("\n", $mutations));
-            $response = $shop->api()->graph($query);
-            if (!empty($response['errors']) || !empty($response['data']['userErrors'])) {
-                Log::error("[APP][PRODUCT] Bulk Product Update Failed: " . json_encode($response));
-            } else {
-                $this->updateProductsDB($productData);
-            }
-
-            if (!empty($variants)) {
-                $this->updateVariants($shop, $variants);
-            }
-
-            $processed += count($chunk);
-            $progress = min(100, round(($processed / $totalProducts) * 100));
-            event(new MessageCompleted(
-                $shop->id,
-                'product-update',
-                ['progress' => $progress]
-            ));
-            usleep(1000);
         }
+
+        $query = sprintf('mutation {%s}', implode("\n", $mutations));
+        $response = $shop->api()->graph($query);
+        if (!empty($response['errors']) || !empty($response['data']['userErrors'])) {
+            Log::error("[APP][PRODUCT] Bulk Product Update Failed: " . json_encode($response));
+        } else {
+            $this->updateProductsDB($productData);
+        }
+
+        if (!empty($variants)) {
+            $this->updateVariants($shop, $variants);
+        }
+
+        event(new MessageCompleted(
+            $shop->id,
+            'product-update',
+            ['progress' => $progress]
+        ));
+        usleep(1000);
     }
 
     /**

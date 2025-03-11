@@ -110,10 +110,20 @@ class ProductController extends Controller
             'product_ids.*' => 'integer|exists:products,product_id'
         ]);
 
-        ProductDeleteJob::dispatch([
-            'shop' => $shop,
-            'product_ids' => $validated['product_ids']
-        ]);
+        $processed = 0;
+        $totalProducts = count($validated['product_ids']);
+
+        $chunks = array_chunk($validated['product_ids'], 10);
+        foreach ($chunks as $chunk) {
+            $processed += count($chunk);
+            $progress = min(100, round(($processed / $totalProducts) * 100));
+
+            ProductDeleteJob::dispatch([
+                'shop' => $shop,
+                'product_ids' => $validated['product_ids'],
+                'progress' => $progress
+            ]);
+        }
 
         return response()->json([
             'message' => 'Product deletion job dispatched successfully',
@@ -133,7 +143,7 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             'products' => 'required|array|min:1',
-            'products.*.id' => 'required|integer|exists:products,product_id',
+            'products.*.id' => 'required|integer',
             'products.*.title' => 'sometimes|string|max:255',
             'products.*.status' => 'sometimes|string|max:100',
             'products.*.tags' => 'nullable|string',
@@ -141,14 +151,9 @@ class ProductController extends Controller
             'products.*.body_html' => 'nullable|string',
             'products.*.product_type' => 'nullable|string|max:255',
             'products.*.vendor' => 'nullable|string|max:255',
-            'products.*.handle' => [
-                'required', 'string', 'max:255',
-                function ($attribute, $value, $fail) use ($shop, $request) {
-                    $this->checkHandleUniqueness($request->products, $shop, $fail);
-                }
-            ],
+            'products.*.handle' => 'nullable|string|max:255',
             'products.*.variants' => 'sometimes|array|min:1',
-            'products.*.variants.*.id' => 'required|integer|exists:product_variants,variant_id',
+            'products.*.variants.*.id' => 'required|integer',
             'products.*.variants.*.price' => 'required|numeric|min:0',
             'products.*.variants.*.compare_at_price' => 'nullable|numeric|min:0',
             'products.*.variants.*.inventory_item_id' => 'required|integer',
@@ -168,10 +173,20 @@ class ProductController extends Controller
             return $product;
         }, $validated['products']);
 
-        ProductUpdateJob::dispatch([
-            'shop' => $shop,
-            'products' => $validated['products']
-        ]);
+        $processed = 0;
+        $totalProducts = count($validated['products']);
+
+        $chunks = array_chunk($validated['products'], 10);
+        foreach ($chunks as $chunk) {
+            $processed += count($chunk);
+            $progress = min(100, round(($processed / $totalProducts) * 100));
+
+            ProductUpdateJob::dispatch([
+                'shop' => $shop,
+                'products' => $chunk,
+                'progress' => $progress
+            ]);
+        }
 
         return response()->json([
             'message' => 'Product edit job dispatched successfully',
@@ -195,7 +210,7 @@ class ProductController extends Controller
 
             $exists = Product::where('handle', $product['handle'])
                 ->where('user_id', $shop->id)
-                ->where('product_id', '!=', $product['id']) // 자기 자신 제외
+                ->where('product_id', '!=', $product['id'])
                 ->exists();
 
             if ($exists) {
