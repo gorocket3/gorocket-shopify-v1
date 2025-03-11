@@ -68,11 +68,12 @@
     background-color: #71c3f6;
 }
 
-.ag-theme-balham .ag-ltr .ag-cell:not(:last-child):not(:focus) {
+.ag-theme-balham .ag-ltr .ag-cell:not(:last-child):not(:focus):not(.ag-cell-range-selected) {
     border-right: 1px solid #D9DDDF;
 }
 
-.ag-theme-balham .ag-ltr .ag-cell:focus {
+.ag-theme-balham .ag-ltr .ag-cell:focus,
+.ag-theme-balham .ag-ltr .ag-cell.ag-cell-range-selected {
     border-right: 1px solid #0091ea !important;
     border-bottom: 1px solid #0091ea !important;
 }

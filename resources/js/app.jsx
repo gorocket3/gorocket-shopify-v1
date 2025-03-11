@@ -58,7 +58,7 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
     }
 
     useEffect(() => {
-        const pusherKey = "9d0419d5d7a8c8eaa4d3";
+        const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
         const channelName = 'gorocket-shop-' + shop_id;
         const pusher = new Pusher(pusherKey, { cluster: "ap3" });
 
