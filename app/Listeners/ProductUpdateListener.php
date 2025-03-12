@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
 
 class ProductUpdateListener implements ShouldQueue
@@ -39,6 +40,11 @@ class ProductUpdateListener implements ShouldQueue
                     $deleted = Product::where('user_id', $shopId)->limit($chunk)->delete();
                 } while ($deleted > 0);
             }
+
+            Redis::hset("shop:{$shopId}:product_sync", 'syncing', true);
+            Redis::hset("shop:{$shopId}:product_sync", 'progress', 0);
+            Redis::expire("shop:{$shopId}:product_sync", 7200);
+
 
             $totalProductsQuery = <<<GRAPHQL
             {
@@ -152,6 +158,7 @@ class ProductUpdateListener implements ShouldQueue
             Log::info("[LISTENER][PRODUCT] Queue success - {$shopId}");
         } catch (Exception $e) {
             Log::error("[LISTENER][PRODUCT] Queue failed - {$shopId}, Error: {$e->getMessage()}");
+            Redis::del("shop:{$shopId}:product_sync");
         }
     }
 }

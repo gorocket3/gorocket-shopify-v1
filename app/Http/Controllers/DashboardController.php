@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\API\SyncController;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -31,10 +32,14 @@ class DashboardController extends Controller
 
         $total_product_count = DB::table('products')->where('user_id', $user_id)->count();
 
+        $syncController = app(SyncController::class);
+        $response = $syncController->getSyncStatus($shop_id);
+
         $values = [
             'shop_id'               => $shop_id,
             'plan'                  => $plan,
             'total_product_count'   => $total_product_count,
+            'sync_data'             => $response->getData()
         ];
 
         return view('welcome', [ 'data' => $values ]);

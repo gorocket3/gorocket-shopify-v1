@@ -70,6 +70,12 @@ class ProductUpdateJob implements ShouldQueue
                 'product-sync',
                 ['progress' => $this->progress]
             ));
+
+            if ($this->progress === 100) {
+                Redis::del("shop:{$this->shopId}:product_sync");
+            } else {
+                Redis::hset("shop:{$this->shopId}:product_sync", 'progress', $this->progress);
+            }
         }
     }
 

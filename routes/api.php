@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\CompositionController;
 use App\Http\Controllers\API\PersonalController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\SyncController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['verify.shopify'])->group(function () {
@@ -24,5 +25,8 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('personal-column', [PersonalController::class, 'index'])->name('personal.column.index');
     Route::post('personal-column', [PersonalController::class, 'store'])->name('personal.column.store');
     Route::delete('personal-column', [PersonalController::class, 'destroy'])->name('personal.column.destroy');
+
+    // Sync
+    Route::get('sync-status/{shopId}', [SyncController::class, 'getSyncStatus'])->name('sync.status');
 });
 
