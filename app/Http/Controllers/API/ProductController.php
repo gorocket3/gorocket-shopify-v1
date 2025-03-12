@@ -211,31 +211,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Check for duplicate handles within the shop
-     *
-     * @param array $products
-     * @param mixed $shop
-     * @param callable $fail
-     */
-    private function checkHandleUniqueness(array $products, mixed $shop, callable $fail): void
-    {
-        foreach ($products as $product) {
-            if (!isset($product['id'], $product['handle'])) {
-                continue;
-            }
-
-            $exists = Product::where('handle', $product['handle'])
-                ->where('user_id', $shop->id)
-                ->where('product_id', '!=', $product['id'])
-                ->exists();
-
-            if ($exists) {
-                $fail("The handle '{$product['handle']}' is already taken.");
-            }
-        }
-    }
-
-    /**
      * Check if the handle is unique
      *
      * @param Request $request
