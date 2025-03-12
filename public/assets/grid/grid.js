@@ -25,6 +25,10 @@ function formatNumber(params) {
     }
 }
 
+function formatDate(date) {
+    return date.replace('T', ' ').replace(/\.\d+Z$/, '');
+}
+
 // 셀 입력중, 키보드방향키로 셀 이동 (suppressKeyboardEvent)
 function setArrowKeyboardEvent(e) {
     let key = e.event.key;
@@ -165,7 +169,7 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
             CustomDateTimeType: {
                 width: 135, cellClass: 'hd-grid-code',
                 cellRenderer: function (params) {
-                    return (params.value || '').replace('T', ' ').replace(/\.\d+Z$/, '');
+                    return formatDate(params.value || '');
                 }
             },
 

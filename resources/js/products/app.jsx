@@ -54,7 +54,12 @@ function ProductApp({ data: { shop_id }, redirect }) {
     const [ productAction, setProductAction ] = useState({ ...initProductAction });
     const [ gridCustomPopoverActive, setGridCustomPopoverActive ] = useState(false);
 
+    // Search
+    const [ searchPerPage, setSearchPerPage ] = useState(10);
+    const [ searchPerPagePopoverActive, setSearchPerPagePopoverActive ] = useState(false);
+
     const toggleGridCustomPopover = () => setGridCustomPopoverActive((active) => !active);
+    const toggleSearchPerPagePopover = () => setSearchPerPagePopoverActive((active) => !active);
 
     const saveClick = () => {
         const rows = getProductsToUpdate();
@@ -72,18 +77,22 @@ function ProductApp({ data: { shop_id }, redirect }) {
         }
     }
 
+    const searchClick = () => {
+        searchProducts({ per_page: searchPerPage});
+    }
+
     useEffect(() => {
         if (productAction.progress === 100) {
             setTimeout(() => {
                 setProductAction({ ...initProductAction });
-                searchProducts();
+                searchClick();
             }, 1000);
         }
     }, [ productAction ]);
 
     useEffect(() => {
         // Grid
-        initGrid();
+        initGrid({ default_per_page: searchPerPage });
 
         // Pusher
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
@@ -150,15 +159,26 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                 <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
                                 Products
                             </Text>
-                            <InlineStack gap="100">
-                                <Button id="search_product"
-                                        variant="secondary"
-                                        icon={SearchIcon}
-                                        accessibilityLabel="Search"
-                                        disabled={productAction.in_progress}
-                                        onClick={searchProducts}>
-                                    Search
-                                </Button>
+                            <InlineStack gap="200">
+                                <Popover
+                                    active={searchPerPagePopoverActive}
+                                    activator={
+                                        <Button onClick={toggleSearchPerPagePopover} disclosure>
+                                            <Text as="span" fontWeight="regular">view</Text> {searchPerPage}
+                                        </Button>
+                                    }
+                                    onClose={toggleSearchPerPagePopover}
+                                >
+                                    <ActionList
+                                        actionRole="menuitem"
+                                        onActionAnyItem={toggleSearchPerPagePopover}
+                                        items={[ 10, 20, 50, 100, 200, 500 ].map((item) => ({
+                                            content: item,
+                                            onAction: () => setSearchPerPage(item),
+                                            active: searchPerPage === item
+                                        }))}
+                                    />
+                                </Popover>
                                 <Popover
                                     active={gridCustomPopoverActive}
                                     activator={<Button icon={SettingsIcon}
@@ -183,6 +203,14 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                         ]}
                                     />
                                 </Popover>
+                                <Button id="search_product"
+                                        variant="secondary"
+                                        icon={SearchIcon}
+                                        accessibilityLabel="Search"
+                                        disabled={productAction.in_progress}
+                                        onClick={searchClick}>
+                                    Search
+                                </Button>
                             </InlineStack>
                         </InlineGrid>
                         <div className="table-responsive">

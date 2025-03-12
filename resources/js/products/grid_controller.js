@@ -1,9 +1,9 @@
 import fetchData from "../api/fetch.js";
 import getInitialColumns from "./columns.js";
 
-let pApp, gx, gridDiv, initData;
+let pApp, gx, gridDiv, initData, defaultData;
 
-export async function initGrid() {
+export async function initGrid({ default_per_page }) {
     pApp = new App('', { gridId: "#div-gd" });
 
     pApp.ResizeGrid(170);
@@ -12,12 +12,13 @@ export async function initGrid() {
     gridDiv = document.querySelector(pApp.options.gridId);
 
     initData = await getInitialData();
-    refreshGrid(initData);
+    defaultData = { per_page: default_per_page };
+    refreshGrid(initData, defaultData);
 }
 
-export function searchProducts(e) {
+export function searchProducts({ per_page = 10 } = {}) {
     // let params = $('form[name="search"]').serialize();
-    let params = 'per_page=20';
+    let params = 'per_page=' + per_page;
 
     gx.Request('/api/products', params, 1, function (v) {
         const data = v.data.reduce((a, c, i) => {
@@ -38,18 +39,18 @@ export function searchProducts(e) {
         const result = data.map((item, index) => {
             return {
                 ...item,
-                group_id: filterByPosition(item, item.parent.product_id),
-                product_name: filterByPosition(item, item.parent.title),
-                product_type: filterByPosition(item, item.parent.product_type),
-                product_tags: filterByPosition(item, item.parent.tags),
-                product_body: filterByPosition(item, item.parent.body_html),
-                product_img: filterByPosition(item, (item, item.parent.images[0]?.src || '')),
-                product_status: filterByPosition(item, item.parent.status),
-                vendor: filterByPosition(item, item.parent.vendor),
-                handle: filterByPosition(item, item.parent.handle),
-                product_published_at: filterByPosition(item, item.parent.published_at),
-                product_created_at: filterByPosition(item, item.parent.created_at),
-                product_updated_at: filterByPosition(item, item.parent.updated_at),
+                group_id: item.parent.product_id,
+                product_name: item.parent.title,
+                product_type: item.parent.product_type,
+                product_tags: item.parent.tags,
+                product_body: item.parent.body_html,
+                product_img: (item, item.parent.images[0]?.src || ''),
+                product_status: item.parent.status,
+                vendor: item.parent.vendor,
+                handle: item.parent.handle,
+                product_published_at: item.parent.published_at,
+                product_created_at: item.parent.created_at,
+                product_updated_at: item.parent.updated_at,
                 option_name: item.title,
                 option_img: item.image?.src || '',
                 price: item.price * 1,
@@ -73,17 +74,18 @@ export function getProductsToUpdate() {
     gx.gridOptions.api.getSelectedRows().forEach((data) => {
         const variant = {
             id: data.variant_id,
-            price: data.price,
-            compare_at_price: data.compare_at_price,
+            price: parseFloat(data.price || 0),
+            compare_at_price: parseFloat(data.compare_at_price || 0),
             inventory_item_id: data.inventory_item_id,
-            inventory_quantity: data.inventory_quantity,
-            weight: data.weight,
+            inventory_quantity: parseInt(data.inventory_quantity || 0),
+            weight: parseFloat(data.weight || 0),
             weight_unit: data.weight_unit,
             sku: data.sku,
             inventory_policy: data.inventory_policy,
-            taxable: data.taxable,
+            taxable: data.taxable === 'true' ? true : false,
             barcode: data.barcode,
-            requires_shipping: data.requires_shipping
+            requires_shipping: data.requires_shipping === 'true' ? true : false,
+            // title: data.option_name,
         }
 
         const prev = rows.find(row => row.id === data.product_id);
@@ -232,7 +234,7 @@ export async function resetColumns(e) {
 
         alert('Column information has been reset.');
         gx.gridOptions.api.destroy();
-        refreshGrid(initData);
+        refreshGrid(initData, defaultData);
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
@@ -242,7 +244,7 @@ export async function resetColumns(e) {
     Private Function
 */
 
-async function refreshGrid(data) {
+async function refreshGrid(data, defaultData) {
     const default_columns = [ ...getInitialColumns(data) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
@@ -265,11 +267,7 @@ async function refreshGrid(data) {
         },
     });
 
-    searchProducts();
-}
-
-function filterByPosition(item, value) {
-    return item.position !== 1 ? '' : value;
+    searchProducts(defaultData);
 }
 
 async function getInitialData() {
