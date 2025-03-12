@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Jobs\Hook;
+
+use App\Models\ProductVariant;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+
+class InventoryItemsUpdateJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Shop data
+     *
+     * @var array
+     */
+    protected array $data;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        $this->data = $data;
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle(): void
+    {
+        try {
+            ProductVariant::updateOrCreate(
+                ['inventory_item_id' => $this->data['id']],
+                [
+                    'sku'               => $this->data['sku'],
+                    'requires_shipping' => $this->data['requires_shipping'],
+                    'weight'            => $this->data['weight_value'],
+                    'weight_unit'       => $this->data['weight_unit'],
+                    'created_at'        => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
+                    'updated_at'        => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
+                ]
+            );
+
+            Log::info("[HOOK][INVENTORY] Update success - {$this->data['id']}");
+        } catch (Exception $e) {
+            Log::error("[HOOK][INVENTORY] Update failed - {$this->data['id']}, Error: {$e->getMessage()}");
+        }
+    }
+}
