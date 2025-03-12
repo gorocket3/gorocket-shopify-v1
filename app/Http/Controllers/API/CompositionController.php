@@ -3,14 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Listeners\ProductUpdateListener;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
-use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
-use Osiset\ShopifyApp\Objects\Values\ShopId;
 
 class CompositionController extends Controller
 {
