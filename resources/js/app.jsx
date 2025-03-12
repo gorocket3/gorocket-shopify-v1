@@ -39,9 +39,10 @@ function App({ data }) {
     )
 }
 
-function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
+function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redirect }) {
     const navigate = (url, options = {}) => redirect.dispatch(options.external ? Redirect.Action.REMOTE : Redirect.Action.APP, url);
 
+    const [ totalProductCount, setTotalProductCount ] = useState(total_product_count);
     const [ introCardDismissed, setIntroCardDismissed ] = useState(false);
     const [ syncProgress, setSyncProgress ] = useState(0);
     const [ syncLoading, setSyncLoading ] = useState(false);
@@ -57,7 +58,28 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
         }
     }
 
+    async function getProductsTotalCount() {
+        try {
+            const res = await fetchData({ method: 'GET', url: '/api/products/count' });
+            return res?.count || 0;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function setProductsTotalCount() {
+        const count = await getProductsTotalCount();
+        setTotalProductCount(count || 0);
+    }
+
     useEffect(() => {
+        // Sync data
+        if (!!sync_data?.syncing) {
+            setSyncLoading(true);
+            setSyncProgress(sync_data.progress || 0);
+        }
+
+        // Pusher
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
         const channelName = 'gorocket-shop-' + shop_id;
         const pusher = new Pusher(pusherKey, { cluster: "ap3" });
@@ -80,6 +102,10 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
             }, 1000);
         }
     }, [ syncProgress ]);
+
+    useEffect(() => {
+        if (syncCompleted) setProductsTotalCount();
+    }, [ syncCompleted ]);
 
     return (
         <AppProvider i18n={{}}>
@@ -140,7 +166,7 @@ function MainApp({ data: { shop_id, plan, total_product_count }, redirect }) {
                                         <Text as="h2" variant="headingMd">Total Product Count</Text>
                                         <Button onClick={() => navigate('/products')} accessibilityLabel="Manage">Manage</Button>
                                     </InlineGrid>
-                                    <Text as="p" variant="headingXl">{total_product_count.toLocaleString('en-US')} <Text as="span" variant="bodySm" tone="subdued">products</Text></Text>
+                                    <Text as="p" variant="headingXl">{totalProductCount.toLocaleString('en-US')} <Text as="span" variant="bodySm" tone="subdued">products</Text></Text>
                                 </BlockStack>
                             </Card>
                             <Card>
