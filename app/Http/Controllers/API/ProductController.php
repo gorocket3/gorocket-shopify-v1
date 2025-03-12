@@ -234,4 +234,26 @@ class ProductController extends Controller
             }
         }
     }
+
+    /**
+     * Check if the handle is unique
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function checkHandle(Request $request): JsonResponse
+    {
+        $shop = Auth::user();
+
+        $request->validate([
+            'handle' => 'required|string|max:255'
+        ]);
+
+        $exists = Product::where('user_id', $shop->id)->where('handle', $request->handle)->exists();
+
+        return response()->json([
+            'handle' => $request->handle,
+            'exists' => $exists
+        ]);
+    }
 }
