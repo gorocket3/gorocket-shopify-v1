@@ -265,7 +265,6 @@ class ProductUpdateJob implements ShouldQueue
                         price
                         compareAtPrice
                         barcode
-                        inventoryQuantity
                         inventoryItem {
                             sku
                             requiresShipping
@@ -293,6 +292,12 @@ class ProductUpdateJob implements ShouldQueue
             } else {
                 $this->updateVariantsDB($variantDataDB);
             }
+
+            foreach ($chunk as $variant) {
+                if (isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
+                    $this->updateInventoryQuantity($shop, $variant);
+                }
+            }
         }
     }
 
@@ -316,30 +321,43 @@ class ProductUpdateJob implements ShouldQueue
         }
     }
 
-
-
     /**
-     * Update inventory
+     * Update inventory quantity
      *
      * @param User $shop
      * @param array $variant
      *
      * @return void
      */
-    private function updateInventory(User $shop, array $variant): void
+    private function updateInventoryQuantity(User $shop, array $variant): void
     {
-        if (isset($variant['inventory_item_id']) && isset($variant['inventory_quantity'])) {
-            $locationResponse = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels.json', ['inventory_item_ids' => $variant['inventory_item_id']]);
-            $locationId =  $locationResponse['body']['inventory_levels'][0]['location_id'] ?? null;
+        if (!isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
+            return;
+        }
 
-            if ($locationId) {
-                $payload = [
-                    'location_id' => $locationId,
-                    'inventory_item_id' => $variant['inventory_item_id'],
-                    'available' => (int) $variant['inventory_quantity']
-                ];
+        $locationResponse = $shop->api()->rest(
+            'GET',
+            '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels.json',
+            ['inventory_item_ids' => $variant['inventory_item_id']]
+        );
 
-                $shop->api()->rest('POST', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels/set.json', $payload);
+        $locationId = $locationResponse['body']['inventory_levels'][0]['location_id'] ?? null;
+
+        if ($locationId) {
+            $payload = [
+                'location_id' => $locationId,
+                'inventory_item_id' => $variant['inventory_item_id'],
+                'available' => (int) $variant['inventory_quantity']
+            ];
+
+            $response = $shop->api()->rest(
+                'POST',
+                '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels/set.json',
+                $payload
+            );
+
+            if ($response['errors'] ?? false) {
+                Log::error("[APP][INVENTORY] Inventory Update Failed: " . json_encode($response));
             }
         }
     }

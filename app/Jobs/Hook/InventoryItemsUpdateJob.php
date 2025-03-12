@@ -44,12 +44,13 @@ class InventoryItemsUpdateJob implements ShouldQueue
             ProductVariant::updateOrCreate(
                 ['inventory_item_id' => $this->data['id']],
                 [
-                    'sku'               => $this->data['sku'],
-                    'requires_shipping' => $this->data['requires_shipping'],
-                    'weight'            => $this->data['weight_value'],
-                    'weight_unit'       => $this->data['weight_unit'],
-                    'created_at'        => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
-                    'updated_at'        => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
+                    'sku'                   => $this->data['sku'],
+                    'requires_shipping'     => $this->data['requires_shipping'],
+                    'inventory_management'  => $this->data['tracked'] === true ? 'shopify' : null,
+                    'weight'                => $this->data['weight_value'],
+                    'weight_unit'           => $this->data['weight_unit'],
+                    'created_at'            => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
+                    'updated_at'            => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
                 ]
             );
 
