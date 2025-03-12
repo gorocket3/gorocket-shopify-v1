@@ -17,6 +17,7 @@ Route::middleware(['verify.shopify'])->group(function () {
 
     // Product
     Route::get('products', [ProductController::class, 'list'])->name('products.list');
+    Route::get('products/count', [ProductController::class, 'count'])->name('products.count');
     Route::post('products/sync', [ProductController::class, 'sync'])->name('products.sync');
     Route::post('products/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::post('products/delete', [ProductController::class, 'delete'])->name('products.delete');

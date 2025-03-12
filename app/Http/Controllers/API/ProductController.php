@@ -57,6 +57,22 @@ class ProductController extends Controller
     }
 
     /**
+     * Get the count of all products
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function count(Request $request): JsonResponse
+    {
+        $shop = Auth::user();
+
+        $query = Product::where('user_id', $shop->id);
+        $count = $query->count();
+
+        return response()->json(['count' => $count]);
+    }
+
+    /**
      * Apply filters to the query
      *
      * @param mixed $query

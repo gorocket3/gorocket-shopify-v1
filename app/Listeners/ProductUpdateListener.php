@@ -45,7 +45,6 @@ class ProductUpdateListener implements ShouldQueue
             Redis::hset("shop:{$shopId}:product_sync", 'progress', 0);
             Redis::expire("shop:{$shopId}:product_sync", 7200);
 
-
             $totalProductsQuery = <<<GRAPHQL
             {
                 productsCount {
