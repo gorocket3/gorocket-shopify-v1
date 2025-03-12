@@ -7,8 +7,10 @@ use App\Jobs\Hook\ProductDeleteJob;
 use App\Jobs\Hook\ProductUpdateJob;
 use App\Jobs\Hook\ShopUpdateJob;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Shop;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +27,7 @@ class WebhookController extends Controller
     private function handleWebhook(Request $request, string $type): JsonResponse
     {
         $payload = $request->all();
-        $productId = $payload['id'] ?? null;
+        $typeId = $payload['id'] ?? null;
         $updatedAt = $payload['updated_at'] ?? null;
 
         $shopDomain = $request->header('x-shopify-shop-domain');
@@ -36,7 +38,7 @@ class WebhookController extends Controller
         }
         $payload['user_id'] = $shop->user_id;
 
-        if ($this->shouldSkipWebhook($productId, $updatedAt, $payload)) {
+        if ($this->shouldSkipWebhook($type, $typeId, $updatedAt, $payload)) {
             return response()->json(['message' => 'Ignored webhook']);
         }
 
@@ -49,32 +51,35 @@ class WebhookController extends Controller
     /**
      * Check if webhook should be skipped.
      *
-     * @param string $productId
+     * @param string $type
+     * @param string $typeId
      * @param string|null $updatedAt
      * @param array $payload
      * @return bool
      */
-    private function shouldSkipWebhook(string $productId, ?string $updatedAt, array $payload): bool
+    private function shouldSkipWebhook(string $type, string $typeId, ?string $updatedAt, array $payload): bool
     {
-        if (!$productId) {
+        if (!$typeId) {
             return false;
         }
 
-        $product = Product::where('product_id', $productId)->first(['updated_at']);
-        if ($product && $updatedAt) {
-            $rawTimezone = Shop::where('user_id', $payload['user_id'])->value('timezone');
-            $timezone = trim(preg_replace('/^\(GMT[+-]\d{2}:\d{2}\) /', '', $rawTimezone));
+        $isData = ($type === 'inventory-items-update')
+            ? ProductVariant::where('inventory_item_id', $typeId)->first(['updated_at'])
+            : Product::where('product_id', $typeId)->first(['updated_at']);
 
-            $updatedAtUtc = Carbon::parse($updatedAt, $timezone)->setTimezone('UTC');
-            if ($updatedAtUtc->lessThanOrEqualTo($product->updated_at)) {
-                Log::info("[HOOK][HANDLE] Webhook ignored - {$productId}");
-                return true;
+        if ($isData && !empty($updatedAt) && strtotime($updatedAt) !== false) {
+            $rawTimezone = Shop::where('user_id', $payload['user_id'])->value('timezone') ?? 'UTC';
+            $timezone = trim(preg_replace('/^\(GMT[+-]\d{2}:\d{2}\) /', '', $rawTimezone)) ?: 'UTC';
+            try {
+                $updatedAtUtc = Carbon::parse($updatedAt, $timezone)->setTimezone('UTC');
+                if ($updatedAtUtc->lessThanOrEqualTo($isData->updated_at)) {
+                    Log::info("[HOOK][".strtoupper($type)."] Webhook ignored - {$typeId}");
+                    return true;
+                }
+            } catch (Exception $e) {
+                Log::error("[HOOK][ERROR] Invalid date format for product {$typeId}: " . $e->getMessage());
+                return false;
             }
-        }
-
-        if (!$product && !$updatedAt) {
-            Log::info("[HOOK][HANDLE] Webhook ignored - {$productId}");
-            return true;
         }
         return false;
     }
