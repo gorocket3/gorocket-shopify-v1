@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\Hook\InventoryItemsUpdateJob;
 use App\Jobs\Hook\ProductDeleteJob;
 use App\Jobs\Hook\ProductUpdateJob;
 use App\Jobs\Hook\ShopUpdateJob;
@@ -11,7 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 
 class WebhookController extends Controller
 {
@@ -89,9 +89,10 @@ class WebhookController extends Controller
     private function dispatchJob(string $type, array $payload): bool
     {
         $jobs = [
-            'shop-update'    => ShopUpdateJob::class,
-            'product-update' => ProductUpdateJob::class,
-            'product-delete' => ProductDeleteJob::class,
+            'shop-update'               => ShopUpdateJob::class,
+            'product-update'            => ProductUpdateJob::class,
+            'product-delete'            => ProductDeleteJob::class,
+            'inventory-items-update'    => InventoryItemsUpdateJob::class,
         ];
 
         if (!isset($jobs[$type])) {
@@ -134,5 +135,16 @@ class WebhookController extends Controller
     public function handleProductDelete(Request $request): JsonResponse
     {
         return $this->handleWebhook($request, 'product-delete');
+    }
+
+    /**
+     * Handle inventory items update webhook.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function handleInventoryItemsUpdate(Request $request): JsonResponse
+    {
+        return $this->handleWebhook($request, 'inventory-items-update');
     }
 }

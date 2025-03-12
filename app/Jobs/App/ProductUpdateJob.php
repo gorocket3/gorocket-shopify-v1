@@ -65,8 +65,6 @@ class ProductUpdateJob implements ShouldQueue
     private function updateProducts(User $shop, array $products, int $progress): void
     {
         $variants = [];
-
-
         $mutations = [];
         $productData = [];
 
@@ -195,7 +193,7 @@ class ProductUpdateJob implements ShouldQueue
 
         foreach ($chunks as $chunk) {
             $variantsData = [];
-            $variantDataForDB = [];
+            $variantDataDB = [];
             $productId = null;
 
             foreach ($chunk as $variant) {
@@ -236,16 +234,16 @@ class ProductUpdateJob implements ShouldQueue
                     $weightUnit
                 );
 
-                $variantDataForDB[] = [
+                $variantDataDB[] = [
                     'variant_id' => $variant['id'],
                     'product_id' => $variant['product_id'],
                     'price' => $variant['price'] ?? '0.00',
                     'compare_at_price' => $variant['compare_at_price'] ?? '0.00',
                     'inventory_quantity' => $variant['inventory_quantity'] ?? 0,
                     'sku' => $variant['sku'] ?? '',
-                    'requires_shipping' => $variant['requires_shipping'] ?? false,
+                    'requires_shipping' => $variant['requires_shipping'] ? 1 : 0,
                     'inventory_policy' => $variant['inventory_policy'],
-                    'taxable' => $variant['taxable'] ?? false,
+                    'taxable' => $variant['taxable'] ? 1 : 0,
                     'barcode' => $variant['barcode'] ?? '',
                     'weight' => $variant['weight'] ?? 0,
                     'weight_unit' => $inputUnit,
@@ -293,7 +291,7 @@ class ProductUpdateJob implements ShouldQueue
             if (!empty($response['errors']) || !empty($response['data']['userErrors'])) {
                 Log::error("[APP][VARIANT] Bulk Variant Update Failed: " . json_encode($response));
             } else {
-                $this->updateVariantsDB($variantDataForDB);
+                $this->updateVariantsDB($variantDataDB);
             }
         }
     }

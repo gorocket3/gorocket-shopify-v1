@@ -31,7 +31,7 @@ return new class extends Migration {
             $table->string('sku')->nullable();
             $table->decimal('weight', 10, 2)->nullable();
             $table->string('weight_unit')->nullable();
-            $table->unsignedBigInteger('inventory_item_id')->nullable();
+            $table->unsignedBigInteger('inventory_item_id')->index();
             $table->integer('inventory_quantity')->nullable();
             $table->integer('old_inventory_quantity')->nullable();
             $table->string('admin_graphql_api_id')->unique();

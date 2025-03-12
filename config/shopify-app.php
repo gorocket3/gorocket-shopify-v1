@@ -399,6 +399,17 @@ return [
             'topic' => 'PRODUCTS_DELETE',
             'address' => env('APP_URL') . 'handle/products-delete'
         ],
+        [
+            'topic' => 'INVENTORY_LEVELS_UPDATE',
+            'address' => env('APP_URL') . 'handle/inventory-levels-update'
+        ],
+        [
+            'topic' => 'INVENTORY_ITEMS_UPDATE',
+            'address' => env('APP_URL') . 'handle/inventory-items-update'
+        ],
+
+
+
 
 
         [
