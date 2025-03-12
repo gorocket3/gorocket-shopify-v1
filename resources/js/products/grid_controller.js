@@ -82,9 +82,9 @@ export function getProductsToUpdate() {
             weight_unit: data.weight_unit,
             sku: data.sku,
             inventory_policy: data.inventory_policy,
-            taxable: data.taxable === 'true' ? true : false,
+            taxable: [true, 'true'].includes(data.taxable),
             barcode: data.barcode,
-            requires_shipping: data.requires_shipping === 'true' ? true : false,
+            requires_shipping: [true, 'true'].includes(data.requires_shipping),
             // title: data.option_name,
         }
 

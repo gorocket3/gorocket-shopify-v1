@@ -321,6 +321,7 @@ export default function getInitialColumns(data) {
             filterParams: {
                 values: [ 'true', 'false' ],
             },
+            cellStyle: (p) => [true, 'true'].includes(p.value) ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('taxable'),
             onCellValueChanged: (e) => changeCellState('taxable', e),
@@ -357,6 +358,7 @@ export default function getInitialColumns(data) {
             headerName: "requires_shipping",
             width: 120,
             filter: true,
+            cellStyle: (p) => [true, 'true'].includes(p.value) ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('requires_shipping'),
             onCellValueChanged: (e) => changeCellState('requires_shipping', e),
