@@ -10,6 +10,7 @@ import {
     BlockStack,
     Box,
     Button,
+    ButtonGroup,
     Card,
     InlineGrid,
     InlineStack,
@@ -18,18 +19,20 @@ import {
     ProgressBar,
     Text
 } from '@shopify/polaris';
-import { SearchIcon, SettingsIcon } from "@shopify/polaris-icons";
+import { RedoIcon, SearchIcon, SettingsIcon, UndoIcon } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
 import {
     connectProducts,
     getProductsToRemove,
     getProductsToUpdate,
     initGrid,
+    redoGrid,
     removeProducts,
     resetColumns,
     saveColumns,
     saveProducts,
-    searchProducts
+    searchProducts,
+    undoGrid
 } from "./grid_controller.js";
 import '../../css/app.css';
 
@@ -59,6 +62,10 @@ function ProductApp({ data: { shop_id }, redirect }) {
     const [ searchPerPage, setSearchPerPage ] = useState(10);
     const [ searchPerPagePopoverActive, setSearchPerPagePopoverActive ] = useState(false);
 
+    // Undo/Redo
+    const [ disableUndo, setDisableUndo ] = useState(false);
+    const [ disableRedo, setDisableRedo ] = useState(false);
+
     const toggleGridCustomPopover = () => setGridCustomPopoverActive((active) => !active);
     const toggleSearchPerPagePopover = () => setSearchPerPagePopoverActive((active) => !active);
 
@@ -85,6 +92,20 @@ function ProductApp({ data: { shop_id }, redirect }) {
 
     const searchClick = () => {
         searchProducts({ per_page: searchPerPage});
+    }
+
+    const undoGridClick = () => {
+        const cnt = undoGrid();
+        if (cnt < 1) {
+            // setDisableUndo(true);
+        }
+    }
+
+    const redoGridClick = () => {
+        const cnt = redoGrid();
+        if (cnt < 1) {
+            // setDisableRedo(true);
+        }
     }
 
     useEffect(() => {
@@ -186,6 +207,10 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                 </Text>
                             </InlineStack>
                             <InlineStack gap="200">
+                                <ButtonGroup variant="segmented">
+                                    <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
+                                    <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
+                                </ButtonGroup>
                                 <Popover
                                     active={searchPerPagePopoverActive}
                                     activator={

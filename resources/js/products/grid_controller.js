@@ -182,6 +182,16 @@ export async function removeProducts(rows, errorCallback = null) {
         });
 }
 
+export async function undoGrid() {
+    gx.gridOptions.api.undoCellEditing();
+    return gx.gridOptions.api.getCurrentUndoSize();
+}
+
+export async function redoGrid() {
+    gx.gridOptions.api.redoCellEditing();
+    return gx.gridOptions.api.getCurrentRedoSize();
+}
+
 export async function connectProducts(errorCallback = null) {
     try {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
@@ -277,8 +287,8 @@ async function refreshGrid(data, defaultData) {
         },
         suppressFieldDotNotation: true,
         floatingFilter: true,
-        // undoRedoCellEditing: true,
-        // undoRedoCellEditingLimit: 20,
+        undoRedoCellEditing: true,
+        undoRedoCellEditingLimit: 20,
         tooltipShowDelay: 200,
         onRowSelected: (event) => {
             if (event.node.data.parent.variants_cnt > 1) {
