@@ -23,7 +23,6 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::post('products/delete', [ProductController::class, 'delete'])->name('products.delete');
     Route::get('products/check-handle', [ProductController::class, 'checkHandle'])->name('products.check-handle');
 
-
     // Personal-column
     Route::get('personal-column', [PersonalController::class, 'index'])->name('personal.column.index');
     Route::post('personal-column', [PersonalController::class, 'store'])->name('personal.column.store');

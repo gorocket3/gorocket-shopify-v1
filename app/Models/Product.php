@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
- * @method static where(string $string, mixed $admin_graphql_api_id)
+ * @method static where(string $string, mixed $product_id)
  * @method static orderBy(string $string, string $string1)
  * @method static find(mixed $id)
  * @method static upsert(mixed[] $toArray, string[] $array)
@@ -31,7 +31,6 @@ class Product extends BaseModel
             unset($dirty['published_at']);
             unset($dirty['created_at']);
             unset($dirty['updated_at']);
-            unset($dirty['admin_graphql_api_id']);
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
@@ -53,7 +52,6 @@ class Product extends BaseModel
      */
     protected $fillable = [
         'product_id',
-        'admin_graphql_api_id',
         'title',
         'handle',
         'body_html',

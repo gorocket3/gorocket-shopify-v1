@@ -14,8 +14,7 @@ return new class extends Migration {
     {
         Schema::create('products', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('product_id')->unique();
-            $table->string('admin_graphql_api_id')->unique();
+            $table->unsignedBigInteger('product_id');
             $table->string('title');
             $table->string('handle');
             $table->text('body_html')->nullable();
@@ -28,6 +27,7 @@ return new class extends Migration {
             $table->timestamps();
             $table->unsignedBigInteger('user_id')->index();
 
+            $table->unique(['product_id', 'user_id']);
             $table->unique(['handle', 'user_id']);
         });
     }

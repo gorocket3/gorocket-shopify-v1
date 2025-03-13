@@ -67,7 +67,6 @@ class ProductUpdateJob implements ShouldQueue
         Product::updateOrCreate(
             ['product_id' => $this->data['id']],
             [
-                'admin_graphql_api_id' => $this->data['admin_graphql_api_id'],
                 'title'                => $this->data['title'],
                 'handle'               => $this->data['handle'],
                 'body_html'            => $this->data['body_html'],

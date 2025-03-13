@@ -86,7 +86,6 @@ class ProductUpdateJob implements ShouldQueue
     {
         $products = collect($this->data)->map(fn($product) => [
             'product_id'           => $product['id'],
-            'admin_graphql_api_id' => $product['admin_graphql_api_id'],
             'title'                => $product['title'],
             'handle'               => $product['handle'],
             'body_html'            => $product['body_html'],
