@@ -46,7 +46,7 @@ export default function getInitialColumns(data) {
 
     const changeCellStateIfNumber = (field, e) => {
         if (isNaN(e.newValue * 1)) {
-            shopify.toast.show('Please enter in numeric format.');
+            shopify.toast.show('Please enter in numeric format.', { isError: true });
             e.data[e.colDef.field] = e.oldValue;
             e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
             return;
@@ -236,7 +236,7 @@ export default function getInitialColumns(data) {
             onCellValueChanged: async (e) => {
                 const rows = getAllRowsExceptCurrent(e).map(row => row.handle);
                 if (e.data.prev_handle !== e.newValue && ([ ...new Set(rows) ].includes(e.newValue) || await checkIsHandleDuplicate(e.newValue))) {
-                    shopify.toast.show('The URL handle is already in use.');
+                    shopify.toast.show('The URL handle is already in use.', { isError: true });
                     e.data[e.colDef.field] = e.oldValue;
                     e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
                     e.api.startEditingCell({ rowIndex: e.node.rowIndex, colKey: e.colDef.field });

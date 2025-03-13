@@ -72,8 +72,14 @@ export function searchProducts({ per_page = 10 } = {}) {
 }
 
 export function getProductsToUpdate() {
+    let selectedRows = gx.gridOptions.api.getSelectedRows();
+    if (selectedRows.length < 1) {
+        shopify.toast.show('Please select the product(s) to save.', { isError: true });
+        return null;
+    }
+
     const rows = [];
-    gx.gridOptions.api.getSelectedRows().forEach((data) => {
+    selectedRows.forEach((data) => {
         const variant = {
             id: data.variant_id,
             price: parseFloat(data.price || 0),
@@ -143,7 +149,7 @@ export async function saveProducts(rows, errorCallback = null) {
 export function getProductsToRemove() {
     let rows = gx.gridOptions.api.getSelectedRows();
     if (rows.length < 1) {
-        alert('Please select the product(s) to delete.');
+        shopify.toast.show('Please select the product(s) to delete.', { isError: true });
         return null;
     }
 
@@ -174,6 +180,15 @@ export async function removeProducts(rows, errorCallback = null) {
             alert('An error occurred while deleting the product.');
             if (errorCallback) errorCallback();
         });
+}
+
+export async function connectProducts(errorCallback = null) {
+    try {
+        await fetchData({ method: 'POST', url: '/api/products/sync' });
+    } catch (e) {
+        alert('An error occurred while connecting products. Please try again.');
+        if (errorCallback) errorCallback();
+    }
 }
 
 export async function saveColumns(e) {
@@ -217,7 +232,7 @@ export async function saveColumns(e) {
         }
 
         const res = await response.json();
-        alert('Column information has been save.');
+        shopify.toast.show('Column information has been save.');
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
@@ -238,7 +253,7 @@ export async function resetColumns(e) {
         //     throw new Error(`HTTP error! Status: ${response.status}`);
         // }
 
-        alert('Column information has been reset.');
+        shopify.toast.show('Column information has been reset.');
         gx.gridOptions.api.destroy();
         refreshGrid(initData, defaultData);
     } catch (error) {

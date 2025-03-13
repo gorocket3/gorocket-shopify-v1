@@ -21,6 +21,7 @@ import {
 import { SearchIcon, SettingsIcon } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
 import {
+    connectProducts,
     getProductsToRemove,
     getProductsToUpdate,
     initGrid,
@@ -77,6 +78,11 @@ function ProductApp({ data: { shop_id }, redirect }) {
         }
     }
 
+    const connectClick = () => {
+        setProductAction({ type: "connect", progress: 0, in_progress: true });
+        connectProducts(() => setProductAction({ ...initProductAction }));
+    }
+
     const searchClick = () => {
         searchProducts({ per_page: searchPerPage});
     }
@@ -105,6 +111,9 @@ function ProductApp({ data: { shop_id }, redirect }) {
         channel.bind('product-delete', function (d) {
             setProductAction({ type: "delete", progress: d?.data?.progress || 0, in_progress: true });
         });
+        channel.bind('product-sync', function (d) {
+            setProductAction({ type: "connect", progress: d?.data?.progress || 0, in_progress: true });
+        });
 
         return () => {
             pusher.unsubscribe(channelName);
@@ -130,6 +139,18 @@ function ProductApp({ data: { shop_id }, redirect }) {
                 }}
                 secondaryActions={
                     <InlineStack gap="200" blockAlign="center">
+                        {(!!productAction.in_progress && productAction.type === 'connect') && (
+                            <Box width="60px">
+                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success" />
+                            </Box>
+                        )}
+                        <Button variant="secondary"
+                                tone="success"
+                                onClick={connectClick}
+                                disabled={productAction.in_progress}
+                                loading={(productAction.type === 'connect' && productAction.in_progress)}>
+                            Connect
+                        </Button>
                         {(!!productAction.in_progress && productAction.type === 'delete') && (
                             <Box width="60px">
                                 <ProgressBar progress={Math.max(productAction.progress, 5)} tone="critical" />
@@ -144,7 +165,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                         </Button>
                         {(!!productAction.in_progress && productAction.type === 'update') && (
                             <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success" />
+                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight" />
                             </Box>
                         )}
                     </InlineStack>
