@@ -48,6 +48,7 @@ export function searchProducts({ per_page = 10 } = {}) {
                 product_status: item.parent.status,
                 vendor: item.parent.vendor,
                 handle: item.parent.handle,
+                prev_handle: item.parent.handle,
                 product_published_at: item.parent.published_at,
                 product_created_at: item.parent.created_at,
                 product_updated_at: item.parent.updated_at,
@@ -78,7 +79,7 @@ export function getProductsToUpdate() {
             price: parseFloat(data.price || 0),
             compare_at_price: parseFloat(data.compare_at_price || 0),
             inventory_item_id: data.inventory_item_id,
-            inventory_quantity: parseInt(data.inventory_quantity || 0),
+            inventory_management: data.inventory_management === 'true',
             weight: parseFloat(data.weight || 0),
             weight_unit: data.weight_unit,
             sku: data.sku,
@@ -87,6 +88,10 @@ export function getProductsToUpdate() {
             barcode: data.barcode,
             requires_shipping: [true, 'true'].includes(data.requires_shipping),
             // title: data.option_name,
+        }
+
+        if (data.inventory_management === 'true') {
+            variant.inventory_quantity = parseInt(data.inventory_quantity || 0);
         }
 
         const prev = rows.find(row => row.id === data.product_id);
@@ -257,6 +262,9 @@ async function refreshGrid(data, defaultData) {
         },
         suppressFieldDotNotation: true,
         floatingFilter: true,
+        // undoRedoCellEditing: true,
+        // undoRedoCellEditingLimit: 20,
+        tooltipShowDelay: 200,
         onRowSelected: (event) => {
             if (event.node.data.parent.variants_cnt > 1) {
                 gx.gridOptions.api.forEachNode((node) => {
@@ -270,12 +278,7 @@ async function refreshGrid(data, defaultData) {
             const cnt = [ ...new Set(selectedRows) ].length;
             document.getElementById('gd-checked').innerText = cnt;
         },
-        onCellEditingStarted: (e) => {
-            if (e.column.colId === "inventory_quantity" && e.data.inventory_management === 'false') {
-                shopify.toast.show('Inventory Quantity can only be modified when Inventory Management is set to "true".');
-                e.api.stopEditing();
-            }
-        },
+        onCellEditingStarted: (e) => {},
     });
 
     searchProducts(defaultData);

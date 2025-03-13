@@ -1,3 +1,5 @@
+import fetchData from "../api/fetch.js";
+
 export default function getInitialColumns(data) {
     const { status = [], tags = [], types = [], vendor = [] } = data || {};
 
@@ -22,6 +24,16 @@ export default function getInitialColumns(data) {
         }
         return {};
     };
+
+    const getAllRowsExceptCurrent  = (gridOptions) => {
+        let rows = [];
+        gridOptions.api.forEachNode((node) => {
+            if (gridOptions.node.rowIndex !== node.rowIndex) {
+                rows.push(node.data);
+            }
+        });
+        return rows;
+    }
 
     const changeCellState = (field, e) => {
         e.node.setDataValue(field + '_changed', true);
@@ -186,6 +198,11 @@ export default function getInitialColumns(data) {
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('product_body', e),
             editable: (p) => p.data.position < 2,
+            cellEditor: 'agLargeTextCellEditor',
+            cellEditorPopup: true,
+            cellEditorParams: {
+                maxLength: 100
+            },
         },
         {
             field: "vendor",
@@ -210,13 +227,23 @@ export default function getInitialColumns(data) {
         },
         {
             field: "handle",
-            headerName: "Handle",
-            width: 120,
+            headerName: "URL Handle",
+            width: 130,
             filter: true,
             cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             cellClassRules: changedCellClassRules('handle'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: (e) => changeCellState('handle', e),
+            onCellValueChanged: async (e) => {
+                const rows = getAllRowsExceptCurrent(e).map(row => row.handle);
+                if (e.data.prev_handle !== e.newValue && ([ ...new Set(rows) ].includes(e.newValue) || await checkIsHandleDuplicate(e.newValue))) {
+                    shopify.toast.show('The URL handle is already in use.');
+                    e.data[e.colDef.field] = e.oldValue;
+                    e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
+                    e.api.startEditingCell({ rowIndex: e.node.rowIndex, colKey: e.colDef.field });
+                    return;
+                }
+                changeCellState('handle', e);
+            },
             editable: (p) => p.data.position < 2,
         },
         {
@@ -293,7 +320,10 @@ export default function getInitialColumns(data) {
             cellClassRules: changedCellClassRules('inventory_quantity'),
             cellRenderer: (p) => numberWithCommas(p.value || 0),
             onCellValueChanged: (e) => changeCellStateIfNumber('inventory_quantity', e),
-            editable: true,
+            editable: (p) => p.data.inventory_management === 'true',
+            tooltipValueGetter: (p) => p.data.inventory_management === 'true'
+                ? null
+                : ' Inventory Quantity can only be modified when Inventory Management is set to "true". ',
         },
         {
             field: "inventory_policy",
@@ -314,6 +344,10 @@ export default function getInitialColumns(data) {
                 values: [ 'continue', 'deny' ].map((v) => ({ id: v, label: v })),
                 width: "80px",
             },
+            // cellEditor: "agRichSelectCellEditor",
+            // cellEditorParams: {
+            //     values: [ 'continue', 'deny' ],
+            // },
         },
         {
             field: "compare_at_price",
@@ -427,4 +461,9 @@ export default function getInitialColumns(data) {
     ];
 
     return initial_columns;
+}
+
+async function checkIsHandleDuplicate(newHandle) {
+    const { exists } = await fetchData({ method: 'GET', url: '/api/products/check-handle?handle=' + newHandle });
+    return exists; // true: duplicate, false: not duplicate
 }
