@@ -153,12 +153,17 @@ function ProductApp({ data: { shop_id }, redirect }) {
                 <Card>
                     <BlockStack gap="200">
                         <InlineGrid columns="1fr auto">
-                            <Text as="h2" variant="bodyLg">
-                                Showing{' '}
-                                <Text as="strong" id="gd-current" tone="success" fontWeight="bold">0</Text> of{' '}
-                                <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
-                                Products
-                            </Text>
+                            <InlineStack gap="200" blockAlign="center">
+                                <Text as="h2" variant="bodyLg">
+                                    Showing{' '}
+                                    <Text as="strong" id="gd-current" tone="success" fontWeight="bold">0</Text> of{' '}
+                                    <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
+                                    Products
+                                </Text>
+                                <Text as="p" variant="bodySm" tone="magic">
+                                    [ <Text as="strong" id="gd-checked" fontWeight="bold">0</Text> checked ]
+                                </Text>
+                            </InlineStack>
                             <InlineStack gap="200">
                                 <Popover
                                     active={searchPerPagePopoverActive}

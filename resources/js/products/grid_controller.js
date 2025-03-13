@@ -53,6 +53,7 @@ export function searchProducts({ per_page = 10 } = {}) {
                 product_updated_at: item.parent.updated_at,
                 option_name: item.title,
                 option_img: item.image?.src || '',
+                inventory_management: item.inventory_management === 'shopify' ? 'true' : 'false',
                 price: item.price * 1,
                 compare_at_price: item.compare_at_price * 1,
                 weight: item.weight * 1,
@@ -263,6 +264,16 @@ async function refreshGrid(data, defaultData) {
                         node.setSelected(event.node.selected);
                     }
                 });
+            }
+
+            const selectedRows = event.api.getSelectedRows().map(row => row.product_id);
+            const cnt = [ ...new Set(selectedRows) ].length;
+            document.getElementById('gd-checked').innerText = cnt;
+        },
+        onCellEditingStarted: (e) => {
+            if (e.column.colId === "inventory_quantity" && e.data.inventory_management === 'false') {
+                shopify.toast.show('Inventory Quantity can only be modified when Inventory Management is set to "true".');
+                e.api.stopEditing();
             }
         },
     });

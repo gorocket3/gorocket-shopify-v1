@@ -272,10 +272,23 @@ export default function getInitialColumns(data) {
             editable: true,
         },
         {
+            field: "inventory_management",
+            headerName: "Inventory Management",
+            width: 150,
+            filter: true,
+            filterParams: {
+                values: [ 'true', 'false' ],
+            },
+            cellStyle: (p) => p.value === 'true' ? { color: 'green' } : { color: '#666666' },
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => `<a href="shopify://admin/products/${p.data.group_id}" class="underline">${p.value}</a>`
+        },
+        {
             field: "inventory_quantity",
             headerName: "Inventory Quantity",
             width: 120,
             filter: "agNumberColumnFilter",
+            cellStyle: (p) => p.data.inventory_management !== 'true' ? { textDecoration: 'line-through' } : {},
             cellClass: 'hd-grid-number',
             cellClassRules: changedCellClassRules('inventory_quantity'),
             cellRenderer: (p) => numberWithCommas(p.value || 0),
