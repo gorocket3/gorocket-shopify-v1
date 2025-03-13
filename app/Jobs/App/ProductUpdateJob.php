@@ -239,7 +239,6 @@ class ProductUpdateJob implements ShouldQueue
                     'product_id' => $variant['product_id'],
                     'price' => $variant['price'] ?? '0.00',
                     'compare_at_price' => $variant['compare_at_price'] ?? '0.00',
-                    'inventory_quantity' => $variant['inventory_quantity'] ?? 0,
                     'sku' => $variant['sku'] ?? '',
                     'requires_shipping' => $variant['requires_shipping'] ? 1 : 0,
                     'inventory_policy' => $variant['inventory_policy'],
@@ -249,6 +248,10 @@ class ProductUpdateJob implements ShouldQueue
                     'weight_unit' => $inputUnit,
                     'updated_at' => now()
                 ];
+
+                if (isset($variant['inventory_quantity'])) {
+                    $variantDataDB['inventory_quantity'] = $variant['inventory_quantity'];
+                }
             }
 
             $query = sprintf(
@@ -291,12 +294,7 @@ class ProductUpdateJob implements ShouldQueue
                 Log::error("[APP][VARIANT] Bulk Variant Update Failed: " . json_encode($response));
             } else {
                 $this->updateVariantsDB($variantDataDB);
-            }
-
-            foreach ($chunk as $variant) {
-                if (isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
-                    $this->updateInventoryQuantity($shop, $variant);
-                }
+                $this->updateInventoryQuantity($shop, $chunk);
             }
         }
     }
@@ -325,40 +323,71 @@ class ProductUpdateJob implements ShouldQueue
      * Update inventory quantity
      *
      * @param User $shop
-     * @param array $variant
+     * @param array $variants
      *
      * @return void
      */
-    private function updateInventoryQuantity(User $shop, array $variant): void
+    private function updateInventoryQuantity(User $shop, array $variants): void
     {
-        if (!isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
+        $inventoryUpdates = [];
+        $inventoryItemIds = [];
+
+        foreach ($variants as $variant) {
+            if (isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
+                $inventoryItemIds[] = $variant['inventory_item_id'];
+            }
+        }
+
+        if (empty($inventoryItemIds)) {
             return;
         }
 
         $locationResponse = $shop->api()->rest(
             'GET',
             '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels.json',
-            ['inventory_item_ids' => $variant['inventory_item_id']]
+            ['inventory_item_ids' => implode(',', $inventoryItemIds)]
         );
 
-        $locationId = $locationResponse['body']['inventory_levels'][0]['location_id'] ?? null;
+        if (empty($locationResponse['body']['inventory_levels'])) {
+            Log::error("[APP][INVENTORY] No location found for inventory items: " . json_encode($inventoryItemIds));
+            return;
+        }
 
-        if ($locationId) {
-            $payload = [
-                'location_id' => $locationId,
-                'inventory_item_id' => $variant['inventory_item_id'],
-                'available' => (int) $variant['inventory_quantity']
-            ];
+        $locationMap = [];
+        foreach ($locationResponse['body']['inventory_levels'] as $level) {
+            $locationMap[$level['inventory_item_id']] = $level['location_id'];
+        }
 
-            $response = $shop->api()->rest(
-                'POST',
-                '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels/set.json',
-                $payload
-            );
-
-            if ($response['errors'] ?? false) {
-                Log::error("[APP][INVENTORY] Inventory Update Failed: " . json_encode($response));
+        foreach ($variants as $variant) {
+            if (!isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
+                continue;
             }
+
+            $inventoryItemId = $variant['inventory_item_id'];
+            if (!isset($locationMap[$inventoryItemId])) {
+                Log::warning("[APP][INVENTORY] No location found for inventory_item_id: $inventoryItemId");
+                continue;
+            }
+
+            $inventoryUpdates[] = [
+                'location_id' => $locationMap[$inventoryItemId],
+                'inventory_item_id' => $inventoryItemId,
+                'available_adjustment' => (int) $variant['inventory_quantity']
+            ];
+        }
+
+        if (empty($inventoryUpdates)) {
+            return;
+        }
+
+        $response = $shop->api()->rest(
+            'POST',
+            '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels/adjust.json',
+            ['changes' => $inventoryUpdates]
+        );
+
+        if ($response['errors'] ?? false) {
+            Log::error("[APP][INVENTORY] Inventory Update Failed: " . json_encode($response));
         }
     }
 }
