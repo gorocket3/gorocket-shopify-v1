@@ -55,11 +55,6 @@ return new class extends Migration
                     SET old_values = JSON_SET(old_values, "$.tags", OLD.tags);
                     SET new_values = JSON_SET(new_values, "$.tags", NEW.tags);
                 END IF;
-                IF (CASE WHEN OLD.published_at IS NULL THEN "" ELSE OLD.published_at END)
-                   <> (CASE WHEN NEW.published_at IS NULL THEN "" ELSE NEW.published_at END) THEN
-                    SET old_values = JSON_SET(old_values, "$.published_at", OLD.published_at);
-                    SET new_values = JSON_SET(new_values, "$.published_at", NEW.published_at);
-                END IF;
 
                 IF JSON_LENGTH(new_values) > 0 THEN
                     INSERT INTO change_logs (product_id, user_id, event, old_values, new_values, created_at, updated_at)

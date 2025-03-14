@@ -234,7 +234,7 @@ class ProductUpdateJob implements ShouldQueue
                     $weightUnit
                 );
 
-                $variantData = [
+                $variantDataDB[] = [
                     'variant_id' => $variant['id'],
                     'product_id' => $variant['product_id'],
                     'price' => $variant['price'] ?? '0.00',
@@ -243,17 +243,14 @@ class ProductUpdateJob implements ShouldQueue
                     'requires_shipping' => $variant['requires_shipping'] ? 1 : 0,
                     'inventory_item_id' => $variant['inventory_item_id'],
                     'inventory_policy' => $variant['inventory_policy'],
+                    'inventory_management' => $variant['inventory_management'] === true ? 'shopify' : null,
+                    'inventory_quantity' => $variant['inventory_quantity'] ?? 0,
                     'taxable' => $variant['taxable'] ? 1 : 0,
                     'barcode' => $variant['barcode'] ?? '',
                     'weight' => $variant['weight'] ?? 0,
                     'weight_unit' => $inputUnit,
                     'updated_at' => now()
                 ];
-
-                if (isset($variant['inventory_quantity'])) {
-                    $variantData['inventory_quantity'] = $variant['inventory_quantity'];
-                }
-                $variantDataDB[] = $variantData;
             }
 
             $query = sprintf(
@@ -299,9 +296,7 @@ class ProductUpdateJob implements ShouldQueue
             }
 
             foreach ($chunk as $variant) {
-                if (isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
-                    $this->updateInventoryQuantity($shop, $variant);
-                }
+                $this->updateInventoryQuantity($shop, $variant);
             }
         }
     }
@@ -331,7 +326,7 @@ class ProductUpdateJob implements ShouldQueue
      */
     private function updateInventoryQuantity(User $shop, array $variant): void
     {
-        if (!isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
+        if (!isset($variant['inventory_item_id'], $variant['inventory_quantity']) || empty($variant['inventory_management'])) {
             return;
         }
 
@@ -342,7 +337,6 @@ class ProductUpdateJob implements ShouldQueue
         );
 
         $locationId = $locationResponse['body']['inventory_levels'][0]['location_id'] ?? null;
-
         if ($locationId) {
             $payload = [
                 'location_id' => $locationId,

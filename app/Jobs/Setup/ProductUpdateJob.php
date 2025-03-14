@@ -115,7 +115,7 @@ class ProductUpdateJob implements ShouldQueue
             'price'                => $variant['price'],
             'position'             => $variant['position'],
             'inventory_policy'     => $variant['inventory_policy'],
-            'compare_at_price'     => $variant['compare_at_price'],
+            'compare_at_price'     => $variant['compare_at_price'] ?? '0.00',
             'option1'              => $variant['option1'],
             'option2'              => $variant['option2'],
             'option3'              => $variant['option3'],
