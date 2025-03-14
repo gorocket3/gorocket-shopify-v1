@@ -63,7 +63,119 @@ return new class extends Migration
 
                 IF JSON_LENGTH(new_values) > 0 THEN
                     INSERT INTO change_logs (product_id, user_id, event, old_values, new_values, created_at, updated_at)
-                    VALUES (NEW.product_id, NEW.user_id, "update", old_values, new_values, NOW(), NOW());
+                    VALUES (NEW.product_id, NEW.user_id, "product_update", old_values, new_values, NOW(), NOW());
+                END IF;
+            END;
+        ');
+
+        DB::unprepared('
+            CREATE TRIGGER after_product_variant_update
+            AFTER UPDATE ON product_variants
+            FOR EACH ROW
+            BEGIN
+                DECLARE old_values JSON;
+                DECLARE new_values JSON;
+                SET old_values = JSON_OBJECT();
+                SET new_values = JSON_OBJECT();
+
+                IF (CASE WHEN OLD.title IS NULL THEN "" ELSE OLD.title END)
+                   <> (CASE WHEN NEW.title IS NULL THEN "" ELSE NEW.title END) THEN
+                    SET old_values = JSON_SET(old_values, "$.title", OLD.title);
+                    SET new_values = JSON_SET(new_values, "$.title", NEW.title);
+                END IF;
+                IF (CASE WHEN OLD.price IS NULL THEN "" ELSE OLD.price END)
+                   <> (CASE WHEN NEW.price IS NULL THEN "" ELSE NEW.price END) THEN
+                    SET old_values = JSON_SET(old_values, "$.price", OLD.price);
+                    SET new_values = JSON_SET(new_values, "$.price", NEW.price);
+                END IF;
+                IF (CASE WHEN OLD.position IS NULL THEN "" ELSE OLD.position END)
+                   <> (CASE WHEN NEW.position IS NULL THEN "" ELSE NEW.position END) THEN
+                    SET old_values = JSON_SET(old_values, "$.position", OLD.position);
+                    SET new_values = JSON_SET(new_values, "$.position", NEW.position);
+                END IF;
+                IF (CASE WHEN OLD.inventory_policy IS NULL THEN "" ELSE OLD.inventory_policy END)
+                   <> (CASE WHEN NEW.inventory_policy IS NULL THEN "" ELSE NEW.inventory_policy END) THEN
+                    SET old_values = JSON_SET(old_values, "$.inventory_policy", OLD.inventory_policy);
+                    SET new_values = JSON_SET(new_values, "$.inventory_policy", NEW.inventory_policy);
+                END IF;
+                IF (CASE WHEN OLD.compare_at_price IS NULL THEN "" ELSE OLD.compare_at_price END)
+                   <> (CASE WHEN NEW.compare_at_price IS NULL THEN "" ELSE NEW.compare_at_price END) THEN
+                    SET old_values = JSON_SET(old_values, "$.compare_at_price", OLD.compare_at_price);
+                    SET new_values = JSON_SET(new_values, "$.compare_at_price", NEW.compare_at_price);
+                END IF;
+                IF (CASE WHEN OLD.option1 IS NULL THEN "" ELSE OLD.option1 END)
+                   <> (CASE WHEN NEW.option1 IS NULL THEN "" ELSE NEW.option1 END) THEN
+                    SET old_values = JSON_SET(old_values, "$.option1", OLD.option1);
+                    SET new_values = JSON_SET(new_values, "$.option1", NEW.option1);
+                END IF;
+                IF (CASE WHEN OLD.option2 IS NULL THEN "" ELSE OLD.option2 END)
+                   <> (CASE WHEN NEW.option2 IS NULL THEN "" ELSE NEW.option2 END) THEN
+                    SET old_values = JSON_SET(old_values, "$.option2", OLD.option2);
+                    SET new_values = JSON_SET(new_values, "$.option2", NEW.option2);
+                END IF;
+                IF (CASE WHEN OLD.option3 IS NULL THEN "" ELSE OLD.option3 END)
+                   <> (CASE WHEN NEW.option3 IS NULL THEN "" ELSE NEW.option3 END) THEN
+                    SET old_values = JSON_SET(old_values, "$.option3", OLD.option3);
+                    SET new_values = JSON_SET(new_values, "$.option3", NEW.option3);
+                END IF;
+                IF (CASE WHEN OLD.taxable IS NULL THEN "" ELSE OLD.taxable END)
+                   <> (CASE WHEN NEW.taxable IS NULL THEN "" ELSE NEW.taxable END) THEN
+                    SET old_values = JSON_SET(old_values, "$.taxable", OLD.taxable);
+                    SET new_values = JSON_SET(new_values, "$.taxable", NEW.taxable);
+                END IF;
+                IF (CASE WHEN OLD.barcode IS NULL THEN "" ELSE OLD.barcode END)
+                   <> (CASE WHEN NEW.barcode IS NULL THEN "" ELSE NEW.barcode END) THEN
+                    SET old_values = JSON_SET(old_values, "$.barcode", OLD.barcode);
+                    SET new_values = JSON_SET(new_values, "$.barcode", NEW.barcode);
+                END IF;
+                IF (CASE WHEN OLD.sku IS NULL THEN "" ELSE OLD.sku END)
+                   <> (CASE WHEN NEW.sku IS NULL THEN "" ELSE NEW.sku END) THEN
+                    SET old_values = JSON_SET(old_values, "$.sku", OLD.sku);
+                    SET new_values = JSON_SET(new_values, "$.sku", NEW.sku);
+                END IF;
+                IF (CASE WHEN OLD.weight IS NULL THEN "" ELSE OLD.weight END)
+                   <> (CASE WHEN NEW.weight IS NULL THEN "" ELSE NEW.weight END) THEN
+                    SET old_values = JSON_SET(old_values, "$.weight", OLD.weight);
+                    SET new_values = JSON_SET(new_values, "$.weight", NEW.weight);
+                END IF;
+                IF (CASE WHEN OLD.weight_unit IS NULL THEN "" ELSE OLD.weight_unit END)
+                   <> (CASE WHEN NEW.weight_unit IS NULL THEN "" ELSE NEW.weight_unit END) THEN
+                    SET old_values = JSON_SET(old_values, "$.weight_unit", OLD.weight_unit);
+                    SET new_values = JSON_SET(new_values, "$.weight_unit", NEW.weight_unit);
+                END IF;
+                IF (CASE WHEN OLD.inventory_management IS NULL THEN "" ELSE OLD.inventory_management END)
+                   <> (CASE WHEN NEW.inventory_management IS NULL THEN "" ELSE NEW.inventory_management END) THEN
+                    SET old_values = JSON_SET(old_values, "$.inventory_management", OLD.inventory_management);
+                    SET new_values = JSON_SET(new_values, "$.inventory_management", NEW.inventory_management);
+                END IF;
+                IF (CASE WHEN OLD.inventory_quantity IS NULL THEN "" ELSE OLD.inventory_quantity END)
+                   <> (CASE WHEN NEW.inventory_quantity IS NULL THEN "" ELSE NEW.inventory_quantity END) THEN
+                    SET old_values = JSON_SET(old_values, "$.inventory_quantity", OLD.inventory_quantity);
+                    SET new_values = JSON_SET(new_values, "$.inventory_quantity", NEW.inventory_quantity);
+                END IF;
+                 IF (CASE WHEN OLD.requires_shipping IS NULL THEN "" ELSE OLD.requires_shipping END)
+                   <> (CASE WHEN NEW.requires_shipping IS NULL THEN "" ELSE NEW.requires_shipping END) THEN
+                    SET old_values = JSON_SET(old_values, "$.requires_shipping", OLD.requires_shipping);
+                    SET new_values = JSON_SET(new_values, "$.requires_shipping", NEW.requires_shipping);
+                END IF;
+                IF (CASE WHEN OLD.image_id IS NULL THEN "" ELSE OLD.image_id END)
+                   <> (CASE WHEN NEW.image_id IS NULL THEN "" ELSE NEW.image_id END) THEN
+                    SET old_values = JSON_SET(old_values, "$.image_id", OLD.image_id);
+                    SET new_values = JSON_SET(new_values, "$.image_id", NEW.image_id);
+                END IF;
+
+                IF JSON_LENGTH(new_values) > 0 THEN
+                    INSERT INTO change_logs (product_id, related_id, user_id, event, old_values, new_values, created_at, updated_at)
+                    VALUES (
+                        NEW.product_id,
+                        NEW.variant_id,
+                        (SELECT user_id FROM products WHERE products.product_id = NEW.product_id LIMIT 1),
+                        "product_variant_update",
+                        old_values,
+                        new_values,
+                        NOW(),
+                        NOW()
+                    );
                 END IF;
             END;
         ');
@@ -75,5 +187,6 @@ return new class extends Migration
     public function down(): void
     {
         DB::unprepared('DROP TRIGGER IF EXISTS after_product_update');
+        DB::unprepared('DROP TRIGGER IF EXISTS after_product_variant_update');
     }
 };

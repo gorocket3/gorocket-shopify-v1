@@ -152,4 +152,15 @@ class WebhookController extends Controller
     {
         return $this->handleWebhook($request, 'inventory-items-update');
     }
+
+    /*
+     * Handle inventory level update webhook.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function handleInventoryLevelsUpdate(Request $request): JsonResponse
+    {
+        return response()->json(['status' => 'not-implemented']);
+    }
 }

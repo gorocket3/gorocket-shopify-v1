@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('change_logs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id')->index();
+            $table->unsignedBigInteger('related_id')->nullable()->index();
             $table->unsignedBigInteger('user_id')->index();
             $table->string('event');
             $table->json('old_values')->nullable();
