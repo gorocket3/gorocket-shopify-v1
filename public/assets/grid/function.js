@@ -572,11 +572,20 @@ function clone(o) {
     if (!isObject(o)) {
         throw 'o must be a a non-function object';
     }
-    return (function inner(a, b = {}) {
-        Object.keys(a).forEach(k => {
-            isObject(a[k]) ? b[k] = inner(a[k]) : b[k] = a[k];
-        });
-        return b;
+    return (function inner(a) {
+        if (Array.isArray(a)) {
+            return a.map(inner);
+        }
+
+        if (isObject(a)) {
+            const b = {};
+            Object.keys(a).forEach(k => {
+                b[k] = isObject(a[k]) ? inner(a[k]) : a[k];
+            });
+            return b;
+        }
+
+        return a;
     }(o));
 }
 
