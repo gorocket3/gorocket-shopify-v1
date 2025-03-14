@@ -36,6 +36,8 @@ export default function getInitialColumns(data) {
     }
 
     const changeCellState = (field, e) => {
+        if (e.oldValue === e.newValue) return;
+
         e.node.setDataValue(field + '_changed', true);
         e.api.forEachNode((node) => {
             if (node.data.product_id === e.data.product_id) {

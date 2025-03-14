@@ -283,9 +283,19 @@ async function refreshGrid(data, defaultData) {
             "even": "data.parent_index % 2 !== 0",
         },
         suppressFieldDotNotation: true,
+        suppressCopyRowsToClipboard: true,
+        suppressClearOnFillReduction: true,
+        enableFillHandle: true,
+        fillHandleDirection: 'y',
+        fillOperation: (e) => {
+            if (e.column.colId === 'handle') {
+                return e.currentCellValue;
+            }
+            return false;
+        },
         floatingFilter: true,
         undoRedoCellEditing: true,
-        undoRedoCellEditingLimit: 20,
+        undoRedoCellEditingLimit: 100,
         tooltipShowDelay: 200,
         onRowSelected: (event) => {
             if (event.node.data.parent.variants_cnt > 1) {
