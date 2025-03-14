@@ -86,6 +86,7 @@ export function getProductsToUpdate() {
             compare_at_price: parseFloat(data.compare_at_price || 0),
             inventory_item_id: data.inventory_item_id,
             inventory_management: data.inventory_management === 'true',
+            inventory_quantity: parseInt(data.inventory_quantity || 0),
             weight: parseFloat(data.weight || 0),
             weight_unit: data.weight_unit,
             sku: data.sku,
@@ -94,10 +95,6 @@ export function getProductsToUpdate() {
             barcode: data.barcode,
             requires_shipping: [true, 'true'].includes(data.requires_shipping),
             // title: data.option_name,
-        }
-
-        if (data.inventory_management === 'true') {
-            variant.inventory_quantity = parseInt(data.inventory_quantity || 0);
         }
 
         const prev = rows.find(row => row.id === data.product_id);
