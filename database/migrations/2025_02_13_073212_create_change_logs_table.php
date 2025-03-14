@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('change_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('change_id')->index();
             $table->unsignedBigInteger('product_id')->index();
-            $table->string('model_type');
-            $table->unsignedBigInteger('model_id');
-            $table->json('old_data');
-            $table->json('new_data');
+            $table->unsignedBigInteger('user_id')->index();
+            $table->string('event');
+            $table->json('old_values')->nullable();
+            $table->json('new_values');
             $table->timestamps();
         });
     }

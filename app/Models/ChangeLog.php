@@ -5,9 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @method static create(array $array)
- */
 class ChangeLog extends Model
 {
     /**
@@ -16,12 +13,11 @@ class ChangeLog extends Model
      * @var array
      */
     protected $fillable = [
-        'change_id',
         'product_id',
-        'model_type',
-        'model_id',
-        'old_data',
-        'new_data'
+        'user_id',
+        'event',
+        'old_values',
+        'new_values'
     ];
 
     /**

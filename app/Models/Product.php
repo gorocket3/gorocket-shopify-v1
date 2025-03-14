@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Jobs\App\ChangeLogJob;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\hasMany;
 
@@ -16,36 +15,6 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
  */
 class Product extends BaseModel
 {
-    /**
-     * The "booting" method of the model.
-     *
-     * @return void
-     */
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::updating(function ($product) {
-            $dirty = $product->getDirty();
-
-            unset($dirty['published_at'], $dirty['created_at'], $dirty['updated_at']);
-            $dirty = array_filter($dirty, function ($value) {
-                return !is_null($value) && $value !== "";
-            });
-
-            if (!empty($dirty)) {
-                ChangeLogJob::dispatch([
-                    'change_id'     => self::getRequestChangeId(),
-                    'product_id'    => $product->product_id,
-                    'model_type'    => get_class($product),
-                    'model_id'      => $product->id,
-                    'old_data'      => json_encode(array_intersect_key($product->getOriginal(), $dirty)),
-                    'new_data'      => json_encode($dirty)
-                ]);
-            }
-        });
-    }
-
     /**
      * The attributes that are mass assignable.
      *
