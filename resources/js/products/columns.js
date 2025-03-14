@@ -315,15 +315,15 @@ export default function getInitialColumns(data) {
             headerName: "Inventory Quantity",
             width: 120,
             filter: "agNumberColumnFilter",
-            // cellStyle: (p) => p.data.inventory_management !== 'true' ? { textDecoration: 'line-through' } : {},
+            cellStyle: (p) => p.data.inventory_management !== 'true' ? { textDecoration: 'line-through' } : {},
             cellClass: 'hd-grid-number',
             cellClassRules: changedCellClassRules('inventory_quantity'),
             cellRenderer: (p) => numberWithCommas(p.value || 0),
             onCellValueChanged: (e) => changeCellStateIfNumber('inventory_quantity', e),
-            editable: true,
-            // tooltipValueGetter: (p) => p.data.inventory_management === 'true'
-            //     ? null
-            //     : ' Inventory Quantity can only be modified when Inventory Management is set to "true". ',
+            editable: (p) => p.data.inventory_management === 'true',
+            tooltipValueGetter: (p) => p.data.inventory_management === 'true'
+                ? null
+                : ' Inventory Quantity can only be modified when Inventory Management is set to "true". ',
         },
         {
             field: "inventory_policy",
