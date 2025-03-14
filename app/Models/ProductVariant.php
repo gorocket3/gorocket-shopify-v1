@@ -28,7 +28,6 @@ class ProductVariant extends BaseModel
 
             unset($dirty['created_at']);
             unset($dirty['updated_at']);
-            unset($dirty['admin_graphql_api_id']);
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
@@ -80,7 +79,6 @@ class ProductVariant extends BaseModel
         'inventory_item_id',
         'inventory_quantity',
         'old_inventory_quantity',
-        'admin_graphql_api_id',
         'image_id'
     ];
 

@@ -157,23 +157,23 @@ class ProductUpdateJob implements ShouldQueue
     private function updateProductsDB(array $products): void
     {
         try {
-            foreach ($products as $product) {
-                $updateData = collect($product)
-                    ->only(['title', 'status', 'body_html', 'tags', 'product_type', 'vendor', 'handle'])
-                    ->filter()
-                    ->toArray();
+            $updateData = collect($products)->map(function ($product) {
+                return [
+                    'user_id' => $product['shop_id'],
+                    'product_id' => $product['product_id'],
+                    'title' => $product['title'] ?? '',
+                    'status' => $product['status'],
+                    'body_html' => $product['body_html'] ?? '',
+                    'tags' => $product['tags'] ?? '',
+                    'product_type' => $product['product_type'] ?? '',
+                    'vendor' => $product['vendor'] ?? '',
+                    'handle' => $product['handle'] ?? '',
+                    'updated_at' => now()
+                ];
+            })->toArray();
 
-                if (!empty($updateData)) {
-                    $updateData['updated_at'] = now();
-                    $updated = Product::where('product_id', $product['product_id'])
-                        ->where('user_id', $product['shop_id'])
-                        ->update($updateData);
+            Product::upsert($updateData, ['product_id', 'user_id']);
 
-                    if (!$updated) {
-                        Log::warning("[APP][PRODUCT] No matching product found for update - Product ID: {$product['product_id']}");
-                    }
-                }
-            }
         } catch (Exception $e) {
             Log::error("[APP][PRODUCT] Bulk product update failed - Error: {$e->getMessage()}");
         }
@@ -234,13 +234,14 @@ class ProductUpdateJob implements ShouldQueue
                     $weightUnit
                 );
 
-                $variantDataDB[] = [
+                $variantData = [
                     'variant_id' => $variant['id'],
                     'product_id' => $variant['product_id'],
                     'price' => $variant['price'] ?? '0.00',
                     'compare_at_price' => $variant['compare_at_price'] ?? '0.00',
                     'sku' => $variant['sku'] ?? '',
                     'requires_shipping' => $variant['requires_shipping'] ? 1 : 0,
+                    'inventory_item_id' => $variant['inventory_item_id'],
                     'inventory_policy' => $variant['inventory_policy'],
                     'taxable' => $variant['taxable'] ? 1 : 0,
                     'barcode' => $variant['barcode'] ?? '',
@@ -250,8 +251,9 @@ class ProductUpdateJob implements ShouldQueue
                 ];
 
                 if (isset($variant['inventory_quantity'])) {
-                    $variantDataDB['inventory_quantity'] = $variant['inventory_quantity'];
+                    $variantData['inventory_quantity'] = $variant['inventory_quantity'];
                 }
+                $variantDataDB[] = $variantData;
             }
 
             $query = sprintf(
@@ -294,7 +296,12 @@ class ProductUpdateJob implements ShouldQueue
                 Log::error("[APP][VARIANT] Bulk Variant Update Failed: " . json_encode($response));
             } else {
                 $this->updateVariantsDB($variantDataDB);
-                $this->updateInventoryQuantity($shop, $chunk);
+            }
+
+            foreach ($chunk as $variant) {
+                if (isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
+                    $this->updateInventoryQuantity($shop, $variant);
+                }
             }
         }
     }
@@ -308,12 +315,7 @@ class ProductUpdateJob implements ShouldQueue
     private function updateVariantsDB(array $variants): void
     {
         try {
-            foreach ($variants as $variant) {
-                ProductVariant::updateOrCreate(
-                    ['variant_id' => $variant['variant_id']],
-                    $variant
-                );
-            }
+            ProductVariant::upsert($variants, ['variant_id']);
         } catch (Exception $e) {
             Log::error("[APP][VARIANT] Bulk variant update failed - Error: {$e->getMessage()}");
         }
@@ -323,71 +325,40 @@ class ProductUpdateJob implements ShouldQueue
      * Update inventory quantity
      *
      * @param User $shop
-     * @param array $variants
+     * @param array $variant
      *
      * @return void
      */
-    private function updateInventoryQuantity(User $shop, array $variants): void
+    private function updateInventoryQuantity(User $shop, array $variant): void
     {
-        $inventoryUpdates = [];
-        $inventoryItemIds = [];
-
-        foreach ($variants as $variant) {
-            if (isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
-                $inventoryItemIds[] = $variant['inventory_item_id'];
-            }
-        }
-
-        if (empty($inventoryItemIds)) {
+        if (!isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
             return;
         }
 
         $locationResponse = $shop->api()->rest(
             'GET',
             '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels.json',
-            ['inventory_item_ids' => implode(',', $inventoryItemIds)]
+            ['inventory_item_ids' => $variant['inventory_item_id']]
         );
 
-        if (empty($locationResponse['body']['inventory_levels'])) {
-            Log::error("[APP][INVENTORY] No location found for inventory items: " . json_encode($inventoryItemIds));
-            return;
-        }
+        $locationId = $locationResponse['body']['inventory_levels'][0]['location_id'] ?? null;
 
-        $locationMap = [];
-        foreach ($locationResponse['body']['inventory_levels'] as $level) {
-            $locationMap[$level['inventory_item_id']] = $level['location_id'];
-        }
-
-        foreach ($variants as $variant) {
-            if (!isset($variant['inventory_item_id'], $variant['inventory_quantity'])) {
-                continue;
-            }
-
-            $inventoryItemId = $variant['inventory_item_id'];
-            if (!isset($locationMap[$inventoryItemId])) {
-                Log::warning("[APP][INVENTORY] No location found for inventory_item_id: $inventoryItemId");
-                continue;
-            }
-
-            $inventoryUpdates[] = [
-                'location_id' => $locationMap[$inventoryItemId],
-                'inventory_item_id' => $inventoryItemId,
-                'available_adjustment' => (int) $variant['inventory_quantity']
+        if ($locationId) {
+            $payload = [
+                'location_id' => $locationId,
+                'inventory_item_id' => $variant['inventory_item_id'],
+                'available' => (int) $variant['inventory_quantity']
             ];
-        }
 
-        if (empty($inventoryUpdates)) {
-            return;
-        }
+            $response = $shop->api()->rest(
+                'POST',
+                '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels/set.json',
+                $payload
+            );
 
-        $response = $shop->api()->rest(
-            'POST',
-            '/admin/api/' . env('SHOPIFY_API_VERSION') . '/inventory_levels/adjust.json',
-            ['changes' => $inventoryUpdates]
-        );
-
-        if ($response['errors'] ?? false) {
-            Log::error("[APP][INVENTORY] Inventory Update Failed: " . json_encode($response));
+            if ($response['errors'] ?? false) {
+                Log::error("[APP][INVENTORY] Inventory Update Failed: " . json_encode($response));
+            }
         }
     }
 }

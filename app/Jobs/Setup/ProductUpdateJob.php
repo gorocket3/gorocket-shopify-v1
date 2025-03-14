@@ -131,7 +131,6 @@ class ProductUpdateJob implements ShouldQueue
             'inventory_item_id'    => $variant['inventory_item_id'],
             'inventory_quantity'   => $variant['inventory_quantity'],
             'old_inventory_quantity' => $variant['old_inventory_quantity'],
-            'admin_graphql_api_id' => $variant['admin_graphql_api_id'],
             'image_id'             => $variant['image_id'],
             'created_at'           => Carbon::parse($product['created_at'])->setTimezone('UTC'),
             'updated_at'           => Carbon::parse($product['updated_at'])->setTimezone('UTC'),

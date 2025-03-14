@@ -75,7 +75,6 @@ class ProductUpdateListener implements ShouldQueue
                 foreach ($products as $product) {
                     $data = [
                         'id'                     => $product['id'],
-                        'admin_graphql_api_id'   => $product['admin_graphql_api_id'],
                         'title'                  => $product['title'],
                         'handle'                 => $product['handle'],
                         'body_html'              => $product['body_html'],
@@ -114,8 +113,7 @@ class ProductUpdateListener implements ShouldQueue
                                 'inventory_item_id'     => $variant['inventory_item_id'],
                                 'inventory_quantity'    => $variant['inventory_quantity'],
                                 'old_inventory_quantity'=> $variant['old_inventory_quantity'],
-                                'image_id'              => $variant['image_id'],
-                                'admin_graphql_api_id'  => $variant['admin_graphql_api_id']
+                                'image_id'              => $variant['image_id']
                             ];
                         }, $product['variants']->toArray()) : [],
                         'images'                 => !empty($product['images']) ? array_map(function ($image) {
