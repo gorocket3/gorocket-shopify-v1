@@ -24,10 +24,11 @@ class ProductOption extends BaseModel
 
         static::updating(function ($option) {
             $dirty = $option->getDirty();
-            if (isset($dirty['values'])) {
-                $dirty['values'] = json_decode($dirty['values'], true);
-            }
+
             unset($dirty['updated_at']);
+            $dirty = array_filter($dirty, function ($value) {
+                return !is_null($value) && $value !== "";
+            });
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([

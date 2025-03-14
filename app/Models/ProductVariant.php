@@ -26,8 +26,10 @@ class ProductVariant extends BaseModel
         static::updating(function ($variant) {
             $dirty = $variant->getDirty();
 
-            unset($dirty['created_at']);
-            unset($dirty['updated_at']);
+            unset($dirty['created_at'], $dirty['updated_at']);
+            $dirty = array_filter($dirty, function ($value) {
+                return !is_null($value) && $value !== "";
+            });
 
             if (!empty($dirty)) {
                 ChangeLogJob::dispatch([
