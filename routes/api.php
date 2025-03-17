@@ -30,5 +30,8 @@ Route::middleware(['verify.shopify'])->group(function () {
 
     // Sync
     Route::get('sync-status/{shopId}', [SyncController::class, 'getSyncStatus'])->name('sync.status');
+
+    // History
+    Route::get('history', [HistoryController::class, 'index'])->name('history.list');
 });
 

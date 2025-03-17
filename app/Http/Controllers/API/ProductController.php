@@ -51,7 +51,7 @@ class ProductController extends Controller
         if ($startDate && $endDate) {
             $query->whereBetween($searchType, [$startDate, $endDate]);
         }
-        $products = $query->orderByDesc('created_at')->paginate($perPage);
+        $products = $query->latest()->paginate($perPage);
 
         return response()->json($products);
     }
