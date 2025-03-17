@@ -53,8 +53,7 @@ class HistoryController extends Controller
 
         $query = ChangeLog::where('user_id', $shop->id)
             ->where('updated_by', 'gorocket')
-            ->where('created_at', '>=', now()->startOfDay())
-            ->where('created_at', '<', now()->endOfDay());
+            ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()]);
 
         return response()->json(['count' => $query->count()]);
     }
