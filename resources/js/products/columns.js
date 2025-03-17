@@ -63,6 +63,7 @@ export default function getInitialColumns(data) {
     };
 
     const initial_columns = [
+        { field: "group_id", hide: true },
         { field: "product_status_changed", hide: true },
         { field: "product_name_changed", hide: true },
         { field: "product_type_changed", hide: true },
@@ -91,17 +92,65 @@ export default function getInitialColumns(data) {
             cellStyle: cellMergeStyling,
             cellClass: 'hd-grid-code',
         },
+        // {
+        //     field: "group_id",
+        //     headerName: "Product ID",
+        //     width: 120,
+        //     filter: 'agTextColumnFilter',
+        //     filterParams: {
+        //         closeOnApply: true,
+        //     },
+        //     cellStyle: cellMergeStyling,
+        //     cellClass: 'hd-grid-code',
+        //     cellRenderer: (p) => p.data.position > 1 ? '' : `<a href="shopify://admin/products/${p.value}" class="link">${p.value}</a>`,
+        // },
         {
-            field: "group_id",
-            headerName: "Product ID",
-            width: 120,
-            filter: 'agTextColumnFilter',
-            filterParams: {
-                closeOnApply: true,
+            field: "product_img",
+            headerName: "Image",
+            width: 60,
+            cellStyle: cellMergeStyling,
+            cellRenderer: (p) => {
+                if (p.data.position > 1) return '';
+                return `
+                    <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
+                        <a href="shopify://admin/products/${p.data.group_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
+                            ${!!p.value ? `
+                                <img alt="${p.data.product_name}" src="${p.value}">
+                            ` : `
+                                <span class="Polaris-Icon">
+                                    <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M12.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                                        <path fill-rule="evenodd" d="M9.018 3.5h1.964c.813 0 1.469 0 2 .043.546.045 1.026.14 1.47.366a3.75 3.75 0 0 1 1.64 1.639c.226.444.32.924.365 1.47.043.531.043 1.187.043 2v1.964c0 .813 0 1.469-.043 2-.045.546-.14 1.026-.366 1.47a3.75 3.75 0 0 1-1.639 1.64c-.444.226-.924.32-1.47.365-.531.043-1.187.043-2 .043h-1.964c-.813 0-1.469 0-2-.043-.546-.045-1.026-.14-1.47-.366a3.75 3.75 0 0 1-1.64-1.639c-.226-.444-.32-.924-.365-1.47-.043-.531-.043-1.187-.043-2v-1.964c0-.813 0-1.469.043-2 .045-.546.14-1.026.366-1.47a3.75 3.75 0 0 1 1.639-1.64c.444-.226.924-.32 1.47-.365.531-.043 1.187-.043 2-.043Zm-1.877 1.538c-.454.037-.715.107-.912.207a2.25 2.25 0 0 0-.984.984c-.1.197-.17.458-.207.912-.037.462-.038 1.057-.038 1.909v1.428l.723-.867a1.75 1.75 0 0 1 2.582-.117l2.695 2.695 1.18-1.18a1.75 1.75 0 0 1 2.604.145l.216.27v-2.374c0-.852 0-1.447-.038-1.91-.037-.453-.107-.714-.207-.911a2.25 2.25 0 0 0-.984-.984c-.197-.1-.458-.17-.912-.207-.462-.037-1.056-.038-1.909-.038h-1.9c-.852 0-1.447 0-1.91.038Zm-2.103 7.821a7.12 7.12 0 0 1-.006-.08.746.746 0 0 0 .044-.049l1.8-2.159a.25.25 0 0 1 .368-.016l3.226 3.225a.75.75 0 0 0 1.06 0l1.71-1.71a.25.25 0 0 1 .372.021l1.213 1.516c-.021.06-.045.114-.07.165-.216.423-.56.767-.984.983-.197.1-.458.17-.912.207-.462.037-1.056.038-1.909.038h-1.9c-.852 0-1.447 0-1.91-.038-.453-.037-.714-.107-.911-.207a2.25 2.25 0 0 1-.984-.984c-.1-.197-.17-.458-.207-.912Z"/>
+                                    </svg>
+                                </span>
+                            `}
+                        </a>
+                    </div>
+                `;
             },
+        },
+        {
+            field: "store_link",
+            headerName: "Store",
+            width: 40,
             cellStyle: cellMergeStyling,
             cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : `<a href="shopify://admin/products/${p.value}" class="link">${p.value}</a>`,
+            cellRenderer: (p) => {
+                if (p.data.position > 1) return '';
+                return `
+                   <a href="https://${shopify.config.shop}/products/${p.data.handle || ''}" target="_blank" class="inline-block relative top-1.5">
+                        <span class="Polaris-Icon Polaris-Icon--toneSubdued Polaris-hover">
+                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M13 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
+                                <path fill-rule="evenodd" d="M10 4c-2.476 0-4.348 1.23-5.577 2.532a9.266 9.266 0 0 0-1.4 1.922 5.98 5.98 0 0 0-.37.818c-.082.227-.153.488-.153.728s.071.501.152.728c.088.246.213.524.371.818.317.587.784 1.27 1.4 1.922 1.229 1.302 3.1 2.532 5.577 2.532 2.476 0 4.348-1.23 5.577-2.532a9.265 9.265 0 0 0 1.4-1.922 5.98 5.98 0 0 0 .37-.818c.082-.227.153-.488.153-.728s-.071-.501-.152-.728a5.984 5.984 0 0 0-.371-.818 9.269 9.269 0 0 0-1.4-1.922c-1.229-1.302-3.1-2.532-5.577-2.532Zm-5.999 6.002v-.004c.004-.02.017-.09.064-.223a4.5 4.5 0 0 1 .278-.608 7.768 7.768 0 0 1 1.17-1.605c1.042-1.104 2.545-2.062 4.487-2.062 1.942 0 3.445.958 4.486 2.062a7.77 7.77 0 0 1 1.17 1.605c.13.24.221.447.279.608.047.132.06.203.064.223v.004c-.004.02-.017.09-.064.223a4.503 4.503 0 0 1-.278.608 7.768 7.768 0 0 1-1.17 1.605c-1.042 1.104-2.545 2.062-4.487 2.062-1.942 0-3.445-.958-4.486-2.062a7.766 7.766 0 0 1-1.17-1.605 4.5 4.5 0 0 1-.279-.608c-.047-.132-.06-.203-.064-.223Z"/>
+                            </svg>
+                        </span>
+                    </a>
+                `;
+            },
+            tooltipValueGetter: (p) => ' View on Online Store. ',
         },
         {
             field: "product_status",
@@ -124,21 +173,6 @@ export default function getInitialColumns(data) {
                 cellEditor: GridFieldEditor,
                 values: Object.entries(PRODUCT_STATUS).map(([ key, value ]) => ({ id: key, ...value })),
                 width: "80px",
-            },
-        },
-        {
-            field: "product_img",
-            headerName: "Image",
-            width: 60,
-            cellStyle: cellMergeStyling,
-            cellRenderer: (p) => {
-                if (p.data.position > 1) return '';
-
-                if (!!p.value) {
-                    return `<div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'><img src='${p.value}' alt='${p.data.product_name}' style='width:30px;height:30px;' /></div>`;
-                }
-
-                return '';
             },
         },
         {
