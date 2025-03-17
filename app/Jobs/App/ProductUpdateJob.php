@@ -168,7 +168,8 @@ class ProductUpdateJob implements ShouldQueue
                     'product_type' => $product['product_type'] ?? '',
                     'vendor' => $product['vendor'] ?? '',
                     'handle' => $product['handle'] ?? '',
-                    'updated_at' => now()
+                    'updated_at' => now(),
+                    'updated_by' => 'gorocket'
                 ];
             })->toArray();
 
@@ -249,7 +250,8 @@ class ProductUpdateJob implements ShouldQueue
                     'barcode' => $variant['barcode'] ?? '',
                     'weight' => $variant['weight'] ?? 0,
                     'weight_unit' => $inputUnit,
-                    'updated_at' => now()
+                    'updated_at' => now(),
+                    'updated_by' => 'gorocket'
                 ];
             }
 

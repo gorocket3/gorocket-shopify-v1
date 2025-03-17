@@ -17,6 +17,10 @@ return new class extends Migration
             BEGIN
                 DECLARE old_values JSON;
                 DECLARE new_values JSON;
+                DECLARE update_source VARCHAR(50);
+
+                SET update_source = NEW.updated_by;
+
                 SET old_values = JSON_OBJECT();
                 SET new_values = JSON_OBJECT();
 
@@ -57,8 +61,8 @@ return new class extends Migration
                 END IF;
 
                 IF JSON_LENGTH(new_values) > 0 THEN
-                    INSERT INTO change_logs (product_id, user_id, event, old_values, new_values, created_at, updated_at)
-                    VALUES (NEW.product_id, NEW.user_id, "product_update", old_values, new_values, NOW(), NOW());
+                    INSERT INTO change_logs (product_id, user_id, event, old_values, new_values, updated_by, created_at, updated_at)
+                    VALUES (NEW.product_id, NEW.user_id, "product_update", old_values, new_values, update_source, NOW(), NOW());
                 END IF;
             END;
         ');
@@ -70,6 +74,10 @@ return new class extends Migration
             BEGIN
                 DECLARE old_values JSON;
                 DECLARE new_values JSON;
+                DECLARE update_source VARCHAR(50);
+
+                SET update_source = NEW.updated_by;
+
                 SET old_values = JSON_OBJECT();
                 SET new_values = JSON_OBJECT();
 
@@ -160,7 +168,7 @@ return new class extends Migration
                 END IF;
 
                 IF JSON_LENGTH(new_values) > 0 THEN
-                    INSERT INTO change_logs (product_id, related_id, user_id, event, old_values, new_values, created_at, updated_at)
+                    INSERT INTO change_logs (product_id, related_id, user_id, event, old_values, new_values, updated_by, created_at, updated_at)
                     VALUES (
                         NEW.product_id,
                         NEW.variant_id,
@@ -168,6 +176,7 @@ return new class extends Migration
                         "product_variant_update",
                         old_values,
                         new_values,
+                        update_source,
                         NOW(),
                         NOW()
                     );

@@ -33,7 +33,8 @@ class Product extends BaseModel
         'published_at',
         'created_at',
         'updated_at',
-        'user_id'
+        'user_id',
+        'updated_by'
     ];
 
     /**

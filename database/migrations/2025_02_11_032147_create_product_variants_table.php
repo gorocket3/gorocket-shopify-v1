@@ -36,6 +36,7 @@ return new class extends Migration {
             $table->integer('old_inventory_quantity')->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
             $table->timestamps();
+            $table->string('updated_by')->default('gorocket')->index();
 
             $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
         });

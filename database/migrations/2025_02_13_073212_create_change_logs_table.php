@@ -13,13 +13,19 @@ return new class extends Migration
     {
         Schema::create('change_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id')->index();
-            $table->unsignedBigInteger('related_id')->nullable()->index();
-            $table->unsignedBigInteger('user_id')->index();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('related_id')->nullable();
             $table->string('event');
             $table->json('old_values')->nullable();
             $table->json('new_values');
             $table->timestamps();
+            $table->string('updated_by')->default('gorocket');
+
+            $table->index(['user_id', 'updated_by', 'created_at'], 'idx_user_updated_created');
+
+            $table->index('product_id');
+            $table->index('related_id');
         });
     }
 

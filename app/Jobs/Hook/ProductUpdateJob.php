@@ -78,7 +78,8 @@ class ProductUpdateJob implements ShouldQueue
                 'user_id'              => $this->data['user_id'],
                 'published_at'         => Carbon::parse($this->data['published_at'])->setTimezone('UTC'),
                 'created_at'           => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
-                'updated_at'           => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
+                'updated_at'           => Carbon::parse($this->data['updated_at'])->setTimezone('UTC'),
+                'updated_by'           => 'shopify'
             ]
         );
     }
@@ -108,7 +109,8 @@ class ProductUpdateJob implements ShouldQueue
                     'old_inventory_quantity' => $variant['old_inventory_quantity'],
                     'image_id'               => $variant['image_id'],
                     'created_at'             => Carbon::parse($this->data['created_at'])->setTimezone('UTC'),
-                    'updated_at'             => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
+                    'updated_at'             => Carbon::parse($this->data['updated_at'])->setTimezone('UTC'),
+                    'updated_by'             => 'shopify'
                 ]
             );
         }

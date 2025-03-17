@@ -26,6 +26,7 @@ return new class extends Migration {
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('user_id')->index();
+            $table->string('updated_by')->default('gorocket')->index();
 
             $table->unique(['product_id', 'user_id']);
             $table->unique(['handle', 'user_id']);
