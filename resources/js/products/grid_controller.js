@@ -309,11 +309,14 @@ async function refreshGrid(data, defaultData) {
 
             const selectedRows = event.api.getSelectedRows().map(row => row.product_id);
             const cnt = [ ...new Set(selectedRows) ].length;
-            document.getElementById('gd-checked').innerText = cnt;
+            document.getElementById('gd-checked').innerText = numberWithCommas(cnt);
         },
         onFilterChanged: (e) => {
             filterData = e.api.getFilterModel();
-            $("#" + gx.gridCurrent).text(numberWithCommas(gx.gridOptions.api.getDisplayedRowCount()));
+
+            const displayedRows = gx.gridOptions.api.getRenderedNodes().map(node => node.data.product_id);
+            const cnt = [ ...new Set(displayedRows) ].length;
+            $("#" + gx.gridCurrent).text(numberWithCommas(cnt));
         },
     });
 
