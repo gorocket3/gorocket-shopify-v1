@@ -18,4 +18,4 @@ Artisan::command('billing:check', function () {
     $billingChecker = app(BillingService::class);
     $billingChecker->checkBillingStatus();
     $this->info('Billing status check completed.');
-})->purpose('Check billing status for all shops')->dailyAt('10:00');
+})->purpose('Check billing status for all shops')->twiceDaily(0, 12);
