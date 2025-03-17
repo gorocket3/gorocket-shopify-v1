@@ -95,7 +95,10 @@ export default function getInitialColumns(data) {
             field: "group_id",
             headerName: "Product ID",
             width: 120,
-            filter: true,
+            filter: 'agTextColumnFilter',
+            filterParams: {
+                closeOnApply: true,
+            },
             cellStyle: cellMergeStyling,
             cellClass: 'hd-grid-code',
             cellRenderer: (p) => p.data.position > 1 ? '' : `<a href="shopify://admin/products/${p.value}" class="link">${p.value}</a>`,

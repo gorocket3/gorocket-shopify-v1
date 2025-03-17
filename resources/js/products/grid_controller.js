@@ -1,7 +1,7 @@
 import fetchData from "../api/fetch.js";
 import getInitialColumns from "./columns.js";
 
-let pApp, gx, gridDiv, initData, defaultData;
+let pApp, gx, gridDiv, initData, defaultData, filterData;
 
 export async function initGrid({ default_per_page }) {
     pApp = new App('', { gridId: "#div-gd" });
@@ -65,6 +65,7 @@ export function searchProducts({ per_page = 10 } = {}) {
 
         if (v.current_page === 1) {
             gx.gridOptions.api.setRowData(result);
+            gx.gridOptions.api.setFilterModel(filterData);
         } else {
             gx.gridOptions.api.applyTransaction({ add: result });
         }
@@ -310,7 +311,10 @@ async function refreshGrid(data, defaultData) {
             const cnt = [ ...new Set(selectedRows) ].length;
             document.getElementById('gd-checked').innerText = cnt;
         },
-        onCellEditingStarted: (e) => {},
+        onFilterChanged: (e) => {
+            filterData = e.api.getFilterModel();
+            $("#" + gx.gridCurrent).text(numberWithCommas(gx.gridOptions.api.getDisplayedRowCount()));
+        },
     });
 
     searchProducts(defaultData);

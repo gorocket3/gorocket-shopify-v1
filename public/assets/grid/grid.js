@@ -600,6 +600,8 @@ HDGrid.prototype._Request = function (callback, http_method) {
             _gx.loading = false;
             _gx.HideLoadingLayer();
             _gx.gridOptions.api.hideOverlay();
+
+            $("#" + _gx.gridCurrent).text(numberWithCommas(_gx.gridOptions.api.getDisplayedRowCount()));
         });
 };
 
