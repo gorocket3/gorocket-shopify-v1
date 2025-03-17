@@ -13,7 +13,7 @@ class LimitProductEditMiddleware
     /**
      * limit daily requests
      */
-    const FREE_MAX_DAILY_REQUESTS = 1000;
+    const FREE_MAX_DAILY_REQUESTS = 100;
     const BASIC_MAX_DAILY_REQUESTS = 50000;
 
     /**
@@ -26,9 +26,7 @@ class LimitProductEditMiddleware
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $activeCharge = Charge::where('user_id', $shop->id)->where('status', 'active')->first();
-        $planName = $activeCharge->name ?? 'Free';
-
+        $planName = $shop->plan->name ?? 'Free';
         $maxDailyRequests = match ($planName) {
             'Basic' => self::BASIC_MAX_DAILY_REQUESTS,
             default => self::FREE_MAX_DAILY_REQUESTS
