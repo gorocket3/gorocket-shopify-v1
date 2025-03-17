@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\CompositionController;
+use App\Http\Controllers\API\HistoryController;
 use App\Http\Controllers\API\PersonalController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\SyncController;
@@ -33,5 +34,6 @@ Route::middleware(['verify.shopify'])->group(function () {
 
     // History
     Route::get('history', [HistoryController::class, 'index'])->name('history.list');
+    Route::get('history/count', [HistoryController::class, 'count'])->name('history.count');
 });
 

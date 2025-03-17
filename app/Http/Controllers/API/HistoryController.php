@@ -40,4 +40,22 @@ class HistoryController extends Controller
 
         return response()->json($history);
     }
+
+    /**
+     * SyncController constructor.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function count(Request $request): JsonResponse
+    {
+        $shop = auth()->user();
+
+        $query = ChangeLog::where('user_id', $shop->id)
+            ->where('updated_by', 'gorocket')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->where('created_at', '<', now()->endOfDay());
+
+        return response()->json(['count' => $query->count()]);
+    }
 }
