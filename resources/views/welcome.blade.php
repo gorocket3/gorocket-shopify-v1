@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <!-- Shopify -->
-    <meta name="shopify-api-key" content="{{ env('SHOPIFY_API_KEY') }}"/>
+    <meta name="shopify-api-key" content="{{ config('services.shopify.key') }}"/>
     <script src="//cdn.shopify.com/shopifycloud/app-bridge.js"></script>
     <!-- // Shopify -->
 

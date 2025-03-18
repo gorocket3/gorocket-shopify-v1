@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    'shopify' => [
+        'key' => env('SHOPIFY_API_KEY'),
+    ],
+
+    'grid' => [
+        'license' => env('GRID_LICENSE'),
+    ],
+
+    'pusher' => [
+        'app' => [
+            'key' => env('VITE_PUSHER_APP_KEY'),
+            'cluster' => env('VITE_PUSHER_APP_CLUSTER'),
+        ]
+    ]
+
 ];

@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <!-- Shopify -->
-    <meta name="shopify-api-key" content="{{ env('SHOPIFY_API_KEY') }}"/>
+    <meta name="shopify-api-key" content="{{ config('services.shopify.key') }}"/>
     <script src="//cdn.shopify.com/shopifycloud/app-bridge.js"></script>
     <!-- // Shopify -->
 
@@ -29,7 +29,7 @@
     <script src="/assets/grid/ag-grid/dist/ag-grid-enterprise.min.js"></script>
     {{--    <script src="/assets/grid/license.js"></script>--}}
     <script>
-        agGrid.LicenseManager.setLicenseKey("{{env('GRID_LICENSE')}}");
+        agGrid.LicenseManager.setLicenseKey("{{ config('services.grid.license') }}");
     </script>
     <script src="/assets/grid/function.js?v=2025021017"></script>
     <script src="/assets/grid/init.js?v=2025021017"></script>
@@ -610,8 +610,8 @@
 
     const product_action_proxy = new Proxy({ 'progress': 0 }, product_action_handler);
 
-    const pusherKey = "{{ env('VITE_PUSHER_APP_KEY') }}";
-    const pusherCluster = "{{ env('VITE_PUSHER_APP_CLUSTER') }}";
+    const pusherKey = "{{ config('services.pusher.app.key') }}";
+    const pusherCluster = "{{ config('services.pusher.app.cluster') }}";
     let pusher = new Pusher(pusherKey, { cluster: pusherCluster });
 
     let channel = pusher.subscribe('gorocket-shop-{{ $shop_id }}');
