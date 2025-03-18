@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import Pusher from "pusher-js";
 import createApp from "@shopify/app-bridge";
@@ -13,6 +13,7 @@ import {
     CalloutCard,
     Card,
     FooterHelp,
+    Icon,
     Image,
     InlineGrid,
     InlineStack,
@@ -21,8 +22,10 @@ import {
     ProgressBar,
     Text
 } from '@shopify/polaris';
+import { XCircleIcon } from "@shopify/polaris-icons";
 import fetchData from "./api/fetch";
 import '@shopify/polaris/build/esm/styles.css';
+import { useEffectWithoutInitialState } from "./util/custom-hook.js";
 
 function App({ data }) {
     const config = {
@@ -35,22 +38,43 @@ function App({ data }) {
     const redirect = Redirect.create(app);
 
     return (
-        <MainApp data={data} redirect={redirect} />
+        <MainApp data={data} redirect={redirect}/>
     )
 }
 
 function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redirect }) {
     const navigate = (url, options = {}) => redirect.dispatch(options.external ? Redirect.Action.REMOTE : Redirect.Action.APP, url);
 
+    // Action
+    const customActionInterval = useRef();
+    const [ customActionDuration, setCustomActionDuration ] = useState(1);
+    const [ customAction, setCustomAction ] = useState({ type: '', progress: 0, in_progress: false, complete: false });
+    const startCustomAction = (type, progress = 0) => setCustomAction((action) => ({
+        ...action,
+        type,
+        progress,
+        in_progress: true
+    }));
+    const updateCustomAction = (progress) => setCustomAction((action) => ({
+        ...action,
+        progress: action.in_progress ? Math.max(action.progress, progress) : action.progress,
+    }));
+    const resetCustomAction = (complete = false) => setCustomAction((action) => ({
+        ...action,
+        progress: 0,
+        in_progress: false,
+        complete
+    }));
+
+    // Info
     const [ totalProductCount, setTotalProductCount ] = useState(total_product_count);
+
+    // UI
     const [ introCardDismissed, setIntroCardDismissed ] = useState(false);
-    const [ syncProgress, setSyncProgress ] = useState(0);
-    const [ syncLoading, setSyncLoading ] = useState(false);
-    const [ syncCompleted, setSyncCompleted ] = useState(false);
 
     async function syncProducts() {
         try {
-            setSyncLoading(true);
+            startCustomAction('connect');
             await fetchData({ method: 'POST', url: '/api/products/sync' });
         } catch (e) {
             if (e?.status === '429') {
@@ -58,7 +82,7 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
             } else {
                 alert('An error occurred while connecting products. Please try again.');
             }
-            setSyncLoading(false);
+            resetCustomAction();
         }
     }
 
@@ -76,11 +100,33 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
         setTotalProductCount(count || 0);
     }
 
+    useEffectWithoutInitialState(() => {
+        if (customAction.progress === 100) {
+            setTimeout(() => {
+                resetCustomAction(true);
+            }, 1000);
+        }
+    }, [ customAction.progress ]);
+
+    useEffectWithoutInitialState(() => {
+        if (customAction.in_progress) {
+            customActionInterval.current = setInterval(() => {
+                setCustomActionDuration((duration) => duration + 1);
+            }, 1000);
+        } else {
+            clearInterval(customActionInterval.current);
+            setCustomActionDuration(1);
+        }
+    }, [ customAction.in_progress ]);
+
+    useEffectWithoutInitialState(() => {
+        if (customAction.complete) setProductsTotalCount();
+    }, [ customAction.complete ]);
+
     useEffect(() => {
         // Sync data
         if (!!sync_data?.syncing) {
-            setSyncLoading(true);
-            setSyncProgress(sync_data.progress || 0);
+            startCustomAction('connect', sync_data.progress || 0);
         }
 
         // Pusher
@@ -88,29 +134,19 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
         const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
         const channelName = 'gorocket-shop-' + shop_id;
         const pusher = new Pusher(pusherKey, { cluster: pusherCluster });
-
         const channel = pusher.subscribe(channelName);
+
         channel.bind('product-sync', function (d) {
-            setSyncProgress(d?.data?.progress || 0);
+            updateCustomAction(d?.data?.progress || 0);
         });
 
         return () => {
-            pusher.unsubscribe(channelName);
+            channel.unbind_all();
+            channel.unsubscribe();
+
+            clearInterval(customActionInterval.current);
         };
     }, []);
-
-    useEffect(() => {
-        if (syncProgress === 100 && syncLoading) {
-            setTimeout(() => {
-                setSyncCompleted(true);
-                setSyncLoading(false);
-            }, 1000);
-        }
-    }, [ syncProgress ]);
-
-    useEffect(() => {
-        if (syncCompleted) setProductsTotalCount();
-    }, [ syncCompleted ]);
 
     return (
         <AppProvider i18n={{}}>
@@ -207,18 +243,28 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
                                 <Box padding="400">
                                     <InlineGrid columns="1fr auto" gap="200" alignItems="center">
                                         <Button onClick={() => navigate('/products')}>Manage Products</Button>
-                                        <Box width="140px">
-                                            {syncLoading ? (
-                                                <ProgressBar progress={Math.max(syncProgress, 3)} tone="success"/>
-                                            ) : (
+                                        {customAction.in_progress ? (
+                                            <InlineStack gap="100" blockAlign="center">
+                                                <Box width="140px">
+                                                    <ProgressBar progress={Math.max(customAction.progress, 3)} tone="success"/>
+                                                </Box>
+                                                {customActionDuration >= 30 && (
+                                                    <div style={{ cursor: 'pointer' }}
+                                                         onClick={() => resetCustomAction()}>
+                                                        <Icon source={XCircleIcon} tone="primary"/>
+                                                    </div>
+                                                )}
+                                            </InlineStack>
+                                        ) : (
+                                            <Box width="140px">
                                                 <Button variant="primary" tone="success" fullWidth={true}
                                                         onClick={syncProducts}
-                                                        disabled={syncCompleted}
-                                                        loading={syncLoading}>
-                                                    {syncCompleted ? 'Completed!' : 'Connect Products'}
+                                                        disabled={customAction.complete}
+                                                        loading={customAction.in_progress}>
+                                                    {customAction.complete ? 'Completed!' : 'Connect Products'}
                                                 </Button>
-                                            )}
-                                        </Box>
+                                            </Box>
+                                        )}
                                     </InlineGrid>
                                 </Box>
                                 <p>
