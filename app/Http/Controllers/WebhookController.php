@@ -67,9 +67,19 @@ class WebhookController extends Controller
             ? ProductVariant::where('inventory_item_id', $typeId)->first(['updated_at'])
             : Product::where('product_id', $typeId)->first(['updated_at']);
 
+        if ($type === 'product-delete' && !$isData) {
+            Log::info("[HOOK][".strtoupper($type)."] Webhook ignored - {$typeId}");
+            return true;
+        }
+
+        if ($type === 'product-update' && !$isData) {
+            return false;
+        }
+
         if ($isData && !empty($updatedAt) && strtotime($updatedAt) !== false) {
             $rawTimezone = Shop::where('user_id', $payload['user_id'])->value('timezone') ?? 'UTC';
             $timezone = trim(preg_replace('/^\(GMT[+-]\d{2}:\d{2}\) /', '', $rawTimezone)) ?: 'UTC';
+
             try {
                 $updatedAtUtc = Carbon::parse($updatedAt, $timezone)->setTimezone('UTC');
                 if ($updatedAtUtc->lessThanOrEqualTo($isData->updated_at)) {
@@ -78,12 +88,9 @@ class WebhookController extends Controller
                 }
             } catch (Exception $e) {
                 Log::error("[HOOK][ERROR] Invalid date format for product {$typeId}: " . $e->getMessage());
-                return false;
             }
-        } else {
-            Log::info("[HOOK][".strtoupper($type)."] Webhook ignored - {$typeId}");
-            return true;
         }
+
         return false;
     }
 
