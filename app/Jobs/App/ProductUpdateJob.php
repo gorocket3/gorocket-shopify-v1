@@ -145,7 +145,6 @@ class ProductUpdateJob implements ShouldQueue
             'product-update',
             ['progress' => $progress]
         ));
-        usleep(1000);
     }
 
     /**

@@ -73,7 +73,6 @@ class ProductDeleteJob implements ShouldQueue
                 'product-delete',
                 ['progress' => $progress]
             ));
-            usleep(1000);
 
         } catch (Exception $e) {
             Log::error("[APP][PRODUCT] Delete failed - {$shop->id}, Error: {$e->getMessage()}");

@@ -123,7 +123,7 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             'product_ids' => 'required|array|min:1',
-            'product_ids.*' => 'integer|exists:products,product_id'
+            'product_ids.*' => 'integer'
         ]);
 
         $processed = 0;
