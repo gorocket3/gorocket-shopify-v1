@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\MessageCompleted;
 use App\Jobs\Setup\ProductUpdateJob;
 use App\Models\Product;
 use App\Models\User;
@@ -41,10 +42,6 @@ class ProductUpdateListener implements ShouldQueue
                 } while ($deleted > 0);
             }
 
-            Redis::hset("shop:{$shopId}:product_sync", 'syncing', true);
-            Redis::hset("shop:{$shopId}:product_sync", 'progress', 0);
-            Redis::expire("shop:{$shopId}:product_sync", 7200);
-
             $totalProductsQuery = <<<GRAPHQL
             {
                 productsCount {
@@ -55,6 +52,18 @@ class ProductUpdateListener implements ShouldQueue
 
             $totalResponse = $shop->api()->graph($totalProductsQuery);
             $totalProducts = $totalResponse['body']['data']['productsCount']['count'] ?? 0;
+            if($totalProducts > 0) {
+                Redis::hset("shop:{$shopId}:product_sync", 'syncing', true);
+                Redis::hset("shop:{$shopId}:product_sync", 'progress', 0);
+                Redis::expire("shop:{$shopId}:product_sync", 7200);
+            } else {
+                event(new MessageCompleted(
+                    $shopId,
+                    'product-sync',
+                    ['progress' => 100]
+                ));
+            }
+
             $processedProducts = 0;
             $progress = 0;
             $batch = [];
