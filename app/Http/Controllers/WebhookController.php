@@ -80,6 +80,9 @@ class WebhookController extends Controller
                 Log::error("[HOOK][ERROR] Invalid date format for product {$typeId}: " . $e->getMessage());
                 return false;
             }
+        } else {
+            Log::info("[HOOK][".strtoupper($type)."] Webhook ignored - {$typeId}");
+            return true;
         }
         return false;
     }
