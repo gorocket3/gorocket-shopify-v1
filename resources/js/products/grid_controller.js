@@ -194,7 +194,11 @@ export async function connectProducts(errorCallback = null) {
     try {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
-        alert('An error occurred while connecting products. Please try again.');
+        if (e?.status === '429') {
+            alert('Connect request limit exceeded.');
+        } else {
+            alert('An error occurred while connecting products. Please try again.');
+        }
         if (errorCallback) errorCallback();
     }
 }

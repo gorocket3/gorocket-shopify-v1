@@ -503,6 +503,10 @@ export default function getInitialColumns(data) {
 }
 
 async function checkIsHandleDuplicate(newHandle) {
-    const { exists } = await fetchData({ method: 'GET', url: '/api/products/check-handle?handle=' + newHandle });
-    return exists; // true: duplicate, false: not duplicate
+    try {
+        const { exists } = await fetchData({ method: 'GET', url: '/api/products/check-handle?handle=' + newHandle });
+        return exists; // true: duplicate, false: not duplicate
+    } catch (e) {
+        return null;
+    }
 }

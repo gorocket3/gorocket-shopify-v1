@@ -12,12 +12,12 @@ export default async function fetchData({ url, method = 'GET', headers = {}, bod
         });
 
         if (!response.ok) {
-            throw new Error(`${response.status} Error (${method} '${url}')`);
+            throw new Error(`${response.status}||${method}||${url}`);
         }
 
         return await response.json();
     } catch (e) {
-        console.error(e.message);
-        throw { message: e.message };
+        const error = (e?.message || '').split('||');
+        throw { status: error[0] || 0, method: error[1] || '', url: error[2] || '' };
     }
 }

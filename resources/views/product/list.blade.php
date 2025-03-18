@@ -610,9 +610,9 @@
 
     const product_action_proxy = new Proxy({ 'progress': 0 }, product_action_handler);
 
-    let pusher = new Pusher("9d0419d5d7a8c8eaa4d3", {
-        cluster: "ap3"
-    });
+    const pusherKey = "{{ env('VITE_PUSHER_APP_KEY') }}";
+    const pusherCluster = "{{ env('VITE_PUSHER_APP_CLUSTER') }}";
+    let pusher = new Pusher(pusherKey, { cluster: pusherCluster });
 
     let channel = pusher.subscribe('gorocket-shop-{{ $shop_id }}');
     channel.bind('product-update', function(data) {

@@ -21,6 +21,7 @@ import {
 } from '@shopify/polaris';
 import { RedoIcon, SearchIcon, SettingsIcon, UndoIcon } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
+import { useEffectWithoutInitialState } from "../util/custom-hook.js";
 import {
     connectProducts,
     getProductsToRemove,
@@ -54,44 +55,51 @@ function App({ data }) {
 function ProductApp({ data: { shop_id }, redirect }) {
     const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
 
-    const initProductAction = { type: '', progress: 0, in_progress: false };
-    const [ productAction, setProductAction ] = useState({ ...initProductAction });
+    // Product Action
+    const [ productAction, setProductAction ] = useState({ type: '', progress: 0, in_progress: false });
+    const startProductAction = (type) => setProductAction((action) => ({ ...action, type, progress: 0, in_progress: true }));
+    const updateProductAction = (progress) => setProductAction((action) => ({
+        ...action,
+        progress: Math.max(action.progress, progress)
+    }));
+    const resetProductAction = () => setProductAction((action) => ({ ...action, progress: 0, in_progress: false }));
+
+    // Grid Custom
     const [ gridCustomPopoverActive, setGridCustomPopoverActive ] = useState(false);
+    const toggleGridCustomPopover = () => setGridCustomPopoverActive((active) => !active);
 
     // Search
     const [ searchPerPage, setSearchPerPage ] = useState(10);
     const [ searchPerPagePopoverActive, setSearchPerPagePopoverActive ] = useState(false);
+    const toggleSearchPerPagePopover = () => setSearchPerPagePopoverActive((active) => !active);
 
     // Undo/Redo
     const [ disableUndo, setDisableUndo ] = useState(false);
     const [ disableRedo, setDisableRedo ] = useState(false);
 
-    const toggleGridCustomPopover = () => setGridCustomPopoverActive((active) => !active);
-    const toggleSearchPerPagePopover = () => setSearchPerPagePopoverActive((active) => !active);
-
     const saveClick = () => {
         const rows = getProductsToUpdate();
         if (rows) {
-            setProductAction({ type: "update", progress: 0, in_progress: true });
-            saveProducts(rows, () => setProductAction({ ...initProductAction }));
+            startProductAction('update');
+            saveProducts(rows, resetProductAction);
         }
     }
 
     const deleteClick = () => {
         const rows = getProductsToRemove();
         if (rows) {
-            setProductAction({ type: "delete", progress: 0, in_progress: true });
-            removeProducts(rows, () => setProductAction({ ...initProductAction }));
+            startProductAction('delete');
+            removeProducts(rows, resetProductAction);
         }
     }
 
     const connectClick = () => {
-        setProductAction({ type: "connect", progress: 0, in_progress: true });
-        connectProducts(() => setProductAction({ ...initProductAction }));
+        startProductAction('connect');
+        connectProducts(resetProductAction);
     }
 
     const searchClick = () => {
-        searchProducts({ per_page: searchPerPage});
+        searchProducts({ per_page: searchPerPage });
     }
 
     const undoGridClick = () => {
@@ -108,14 +116,14 @@ function ProductApp({ data: { shop_id }, redirect }) {
         }
     }
 
-    useEffect(() => {
+    useEffectWithoutInitialState(() => {
         if (productAction.progress === 100) {
             setTimeout(() => {
-                setProductAction({ ...initProductAction });
+                resetProductAction();
                 searchClick();
             }, 1000);
         }
-    }, [ productAction ]);
+    }, [ productAction.progress ]);
 
     useEffect(() => {
         // Grid
@@ -123,21 +131,23 @@ function ProductApp({ data: { shop_id }, redirect }) {
 
         // Pusher
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
+        const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
         const channelName = 'gorocket-shop-' + shop_id;
-        const pusher = new Pusher(pusherKey, { cluster: "ap3" });
+        const pusher = new Pusher(pusherKey, { cluster: pusherCluster });
         const channel = pusher.subscribe(channelName);
         channel.bind('product-update', function (d) {
-            setProductAction({ type: "update", progress: d?.data?.progress || 0, in_progress: true });
+            updateProductAction(d?.data?.progress || 0);
         });
         channel.bind('product-delete', function (d) {
-            setProductAction({ type: "delete", progress: d?.data?.progress || 0, in_progress: true });
+            updateProductAction(d?.data?.progress || 0);
         });
         channel.bind('product-sync', function (d) {
-            setProductAction({ type: "connect", progress: d?.data?.progress || 0, in_progress: true });
+            updateProductAction(d?.data?.progress || 0);
         });
 
         return () => {
-            pusher.unsubscribe(channelName);
+            channel.unbind_all();
+            channel.unsubscribe();
         };
     }, []);
 
@@ -162,7 +172,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                     <InlineStack gap="200" blockAlign="center">
                         {(!!productAction.in_progress && productAction.type === 'connect') && (
                             <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success" />
+                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success"/>
                             </Box>
                         )}
                         <Button variant="secondary"
@@ -174,7 +184,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                         </Button>
                         {(!!productAction.in_progress && productAction.type === 'delete') && (
                             <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="critical" />
+                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="critical"/>
                             </Box>
                         )}
                         <Button variant="secondary"
@@ -186,7 +196,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                         </Button>
                         {(!!productAction.in_progress && productAction.type === 'update') && (
                             <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight" />
+                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight"/>
                             </Box>
                         )}
                     </InlineStack>

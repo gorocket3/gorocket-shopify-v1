@@ -51,9 +51,13 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
     async function syncProducts() {
         try {
             setSyncLoading(true);
-            const res = await fetchData({ method: 'POST', url: '/api/products/sync' });
+            await fetchData({ method: 'POST', url: '/api/products/sync' });
         } catch (e) {
-            alert('An error occurred while connecting products. Please try again.');
+            if (e?.status === '429') {
+                alert('Connect request limit exceeded.');
+            } else {
+                alert('An error occurred while connecting products. Please try again.');
+            }
             setSyncLoading(false);
         }
     }
@@ -81,8 +85,9 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
 
         // Pusher
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
+        const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
         const channelName = 'gorocket-shop-' + shop_id;
-        const pusher = new Pusher(pusherKey, { cluster: "ap3" });
+        const pusher = new Pusher(pusherKey, { cluster: pusherCluster });
 
         const channel = pusher.subscribe(channelName);
         channel.bind('product-sync', function (d) {
