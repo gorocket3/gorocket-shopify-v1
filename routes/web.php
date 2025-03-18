@@ -18,4 +18,6 @@ Route::middleware(['auth.webhook'])->group(function () {
     Route::post('handle/shop-update', [WebhookController::class, 'handleShopUpdate']);
     Route::post('handle/products-update', [WebhookController::class, 'handleProductUpdate']);
     Route::post('handle/products-delete', [WebhookController::class, 'handleProductDelete']);
+    Route::post('handle/inventory-items-update', [WebhookController::class, 'handleInventoryItemsUpdate']);
+    Route::post('handle/inventory-levels-update', [WebhookController::class, 'handleInventoryLevelsUpdate']);
 });
