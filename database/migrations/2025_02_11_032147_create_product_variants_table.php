@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->string('barcode')->nullable();
             $table->string('fulfillment_service')->nullable();
             $table->integer('grams')->nullable();
-            $table->string('inventory_management')->nullable();
+            $table->string('inventory_management')->default('shopify')->nullable();
             $table->boolean('requires_shipping')->default(true);
             $table->string('sku')->nullable();
             $table->decimal('weight', 10, 2)->nullable();
