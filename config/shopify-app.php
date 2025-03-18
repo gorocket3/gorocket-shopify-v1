@@ -1,8 +1,5 @@
 <?php
 
-use Osiset\ShopifyApp\Contracts\Objects\Values\ShopDomain as ShopDomainValue;
-use Illuminate\Support\Facades\Config;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -506,23 +503,7 @@ return [
     |
     */
 
-    'config_api_callback' => function (string $key, $shop) {
-        $fullKey = "shopify-app.{$key}";
-        if (! $shop) {
-            // No shop passed, return default
-            return Config::get($fullKey);
-        }
-
-        // Clean the shop domain
-        $shopDomain = $shop instanceof ShopDomainValue ? $shop->toNative() : $shop;
-        $shopDomain = preg_replace('/[^A-Z0-9]/', '', strtoupper(explode('.', $shopDomain)[0]));
-
-        // Try to get env defined for shop, fallback to config value
-        return env(
-            strtoupper($key)."_".$shopDomain,
-            Config::get($fullKey)
-        );
-    },
+    'config_api_callback' => 'getShopifyConfig',
 
     /*
     |--------------------------------------------------------------------------
