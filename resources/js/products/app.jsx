@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import Pusher from "pusher-js";
 import createApp from "@shopify/app-bridge";
@@ -12,6 +12,7 @@ import {
     Button,
     ButtonGroup,
     Card,
+    Icon,
     InlineGrid,
     InlineStack,
     Page,
@@ -19,7 +20,7 @@ import {
     ProgressBar,
     Text
 } from '@shopify/polaris';
-import { RedoIcon, SearchIcon, SettingsIcon, UndoIcon } from "@shopify/polaris-icons";
+import { RedoIcon, SearchIcon, SettingsIcon, UndoIcon, XCircleIcon } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
 import { useEffectWithoutInitialState } from "../util/custom-hook.js";
 import {
@@ -56,11 +57,18 @@ function ProductApp({ data: { shop_id }, redirect }) {
     const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
 
     // Product Action
+    const productActionInterval = useRef();
+    const [ productActionDuration, setProductActionDuration ] = useState(1);
     const [ productAction, setProductAction ] = useState({ type: '', progress: 0, in_progress: false });
-    const startProductAction = (type) => setProductAction((action) => ({ ...action, type, progress: 0, in_progress: true }));
+    const startProductAction = (type) => setProductAction((action) => ({
+        ...action,
+        type,
+        progress: 0,
+        in_progress: true
+    }));
     const updateProductAction = (progress) => setProductAction((action) => ({
         ...action,
-        progress: Math.max(action.progress, progress)
+        progress: action.in_progress ? Math.max(action.progress, progress) : action.progress,
     }));
     const resetProductAction = () => setProductAction((action) => ({ ...action, progress: 0, in_progress: false }));
 
@@ -125,6 +133,17 @@ function ProductApp({ data: { shop_id }, redirect }) {
         }
     }, [ productAction.progress ]);
 
+    useEffectWithoutInitialState(() => {
+        if (productAction.in_progress) {
+            productActionInterval.current = setInterval(() => {
+                setProductActionDuration((duration) => duration + 1);
+            }, 1000);
+        } else {
+            clearInterval(productActionInterval.current);
+            setProductActionDuration(1);
+        }
+    }, [ productAction.in_progress ]);
+
     useEffect(() => {
         // Grid
         initGrid({ default_per_page: searchPerPage });
@@ -135,6 +154,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
         const channelName = 'gorocket-shop-' + shop_id;
         const pusher = new Pusher(pusherKey, { cluster: pusherCluster });
         const channel = pusher.subscribe(channelName);
+
         channel.bind('product-update', function (d) {
             updateProductAction(d?.data?.progress || 0);
         });
@@ -148,6 +168,8 @@ function ProductApp({ data: { shop_id }, redirect }) {
         return () => {
             channel.unbind_all();
             channel.unsubscribe();
+
+            clearInterval(productActionInterval.current);
         };
     }, []);
 
@@ -171,9 +193,16 @@ function ProductApp({ data: { shop_id }, redirect }) {
                 secondaryActions={
                     <InlineStack gap="200" blockAlign="center">
                         {(!!productAction.in_progress && productAction.type === 'connect') && (
-                            <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success"/>
-                            </Box>
+                            <InlineStack gap="100">
+                                <Box width="60px">
+                                    <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success"/>
+                                </Box>
+                                {productActionDuration >= 30 && (
+                                    <div className="cursor-pointer" onClick={resetProductAction}>
+                                        <Icon source={XCircleIcon} tone="primary"/>
+                                    </div>
+                                )}
+                            </InlineStack>
                         )}
                         <Button variant="secondary"
                                 tone="success"
@@ -183,9 +212,16 @@ function ProductApp({ data: { shop_id }, redirect }) {
                             Connect
                         </Button>
                         {(!!productAction.in_progress && productAction.type === 'delete') && (
-                            <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="critical"/>
-                            </Box>
+                            <InlineStack gap="100">
+                                <Box width="60px">
+                                    <ProgressBar progress={Math.max(productAction.progress, 5)} tone="critical"/>
+                                </Box>
+                                {productActionDuration >= 30 && (
+                                    <div className="cursor-pointer" onClick={resetProductAction}>
+                                        <Icon source={XCircleIcon} tone="primary"/>
+                                    </div>
+                                )}
+                            </InlineStack>
                         )}
                         <Button variant="secondary"
                                 tone="critical"
@@ -195,9 +231,16 @@ function ProductApp({ data: { shop_id }, redirect }) {
                             Delete
                         </Button>
                         {(!!productAction.in_progress && productAction.type === 'update') && (
-                            <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight"/>
-                            </Box>
+                            <InlineStack gap="200">
+                                <Box width="60px">
+                                    <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight"/>
+                                </Box>
+                                {productActionDuration >= 30 && (
+                                    <div className="cursor-pointer" onClick={resetProductAction}>
+                                        <Icon source={XCircleIcon} tone="primary"/>
+                                    </div>
+                                )}
+                            </InlineStack>
                         )}
                     </InlineStack>
                 }
