@@ -37,6 +37,6 @@ class ChangeLog extends Model
      */
     public function variant(): BelongsTo
     {
-        return $this->belongsTo(ProductVariant::class, 'variant_id', 'related_id');
+        return $this->belongsTo(ProductVariant::class, 'related_id', 'variant_id');
     }
 }
