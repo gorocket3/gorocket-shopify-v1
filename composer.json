@@ -10,6 +10,7 @@
         "aws/aws-sdk-php": "^3.339",
         "kyon147/laravel-shopify": "^22.0",
         "laravel/framework": "^11.31",
+        "laravel/horizon": "^5.31",
         "laravel/sanctum": "^4.0",
         "laravel/telescope": "^5.2",
         "laravel/tinker": "^2.9",

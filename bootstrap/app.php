@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             '*'
         ]);
     })
+    ->withProviders([
+        \App\Providers\HorizonServiceProvider::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
 
     })->create();
