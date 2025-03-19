@@ -1,4 +1,4 @@
-import { DeleteIcon, EditIcon } from "@shopify/polaris-icons";
+import { DeleteIcon, EditIcon, ImageIcon, MinusIcon, PlusIcon } from "@shopify/polaris-icons";
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import createApp from "@shopify/app-bridge";
@@ -6,6 +6,7 @@ import { Redirect } from '@shopify/app-bridge/actions';
 import { NavMenu } from "@shopify/app-bridge-react";
 import {
     AppProvider,
+    Badge,
     BlockStack,
     Box,
     Card,
@@ -20,7 +21,8 @@ import {
 } from '@shopify/polaris';
 import '@shopify/polaris/build/esm/styles.css';
 import fetchData from "../api/fetch.js";
-import { formatISOStringToReadableDate } from "../util/custom-format.js";
+import productAttributes from "../api/product_attributes.json";
+import { formatISOStringToReadableDate, formatNumberWithCommas } from "../util/custom-format.js";
 
 function App() {
     const config = {
@@ -41,19 +43,45 @@ function HistoryApp({ redirect }) {
     const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
 
     // history
-    const [ productHistory, setProductHistory ] = useState([]);
+    const [ productLogs, setProductLogs ] = useState([]);
 
-    const getHistory = async () => {
+    const getProductLogs = async () => {
         try {
-            const res = await fetchData({ method: 'GET', url: '/api/history' });
-            console.log(res);
+            const params = "per_page=10";
+            return await fetchData({ method: 'GET', url: '/api/history?' + params });
         } catch (e) {
-            console.log(e);
+            console.error(e);
+            return null;
         }
     }
 
+    const formatLogs = (logs) => {
+        const groupedLogs = {};
+
+        logs.forEach(log => {
+            const dateKey = log.created_at.split('T')[0];
+            if (!groupedLogs[dateKey]) {
+                groupedLogs[dateKey] = {
+                    created_at: dateKey,
+                    logs: []
+                };
+            }
+
+            log.old_values = JSON.parse(log.old_values || '{}');
+            log.new_values = JSON.parse(log.new_values || '{}');
+            groupedLogs[dateKey].logs.push(log);
+        });
+
+        return Object.values(groupedLogs);
+    }
+
+    const initProductLogs = async () => {
+        const res = await getProductLogs();
+        setProductLogs(formatLogs(res?.data || []));
+    }
+
     useEffect(() => {
-        // getHistory();
+        initProductLogs();
     }, []);
 
     return (
@@ -71,86 +99,7 @@ function HistoryApp({ redirect }) {
                     <Box paddingBlockStart="600">
                         <ResourceList
                             resourceName={{ singular: 'log', plural: 'logs' }}
-                            items={[
-                                {
-                                    created_at: "2025-03-18T03:11:59.000000Z",
-                                    logs: [
-                                        {
-                                            id: 3,
-                                            user_id: 2,
-                                            product_id: 1236,
-                                            event: "product_delete",
-                                            updated_at: "2025-03-18T03:11:59.000000Z",
-                                            updated_by: "gorocket"
-                                        },
-                                        {
-                                            id: 3,
-                                            user_id: 2,
-                                            product_id: 1235,
-                                            event: "product_update",
-                                            old_values: "{\"tags\": \"222, 555\"}",
-                                            new_values: "{\"tags\": \"333, 555, Snowboard\"}",
-                                            updated_at: "2025-03-18T03:11:59.000000Z",
-                                            updated_by: "shopify"
-                                        },
-                                        {
-                                            id: 2,
-                                            user_id: 2,
-                                            product_id: 1235,
-                                            event: "product_update",
-                                            old_values: '{\"body_html\": \"\", \"tags\": \"\"}',
-                                            new_values: '{\"body_html\": \"<span style=\\\"color:red;\\\">test<span style=\\\"color:blue;\\\">1</span></span>\", \"tags\": \"333, 555, Snowboard\"}',
-                                            updated_at: "2025-03-18T03:11:37.000000Z",
-                                            updated_by: "gorocket"
-                                        },
-                                        {
-                                            id: 1,
-                                            user_id: 2,
-                                            product_id: 1234,
-                                            event: "product_update",
-                                            old_values: "{\"tags\": \"333, 555, Snowboard\"}",
-                                            new_values: "{\"tags\": \"222, 555\"}",
-                                            updated_at: "2025-03-18T03:11:33.000000Z",
-                                            updated_by: "gorocket"
-                                        },
-                                    ]
-                                },
-                                {
-                                    created_at: "2025-03-16T23:59:59.000000Z",
-                                    logs: [
-                                        {
-                                            id: 3,
-                                            user_id: 2,
-                                            product_id: 1235,
-                                            event: "product_update",
-                                            old_values: "{\"tags\": \"222, 555\"}",
-                                            new_values: "{\"tags\": \"333, 555, Snowboard\"}",
-                                            updated_at: "2025-03-16T23:59:59.000000Z",
-                                            updated_by: "shopify"
-                                        },
-                                        {
-                                            id: 2,
-                                            user_id: 2,
-                                            product_id: 1235,
-                                            event: "product_update",
-                                            old_values: '{\"body_html\": \"\", \"tags\": \"\"}',
-                                            new_values: '{\"body_html\": \"<span style=\\\"color:red;\\\">test<span style=\\\"color:blue;\\\">1</span></span>\", \"tags\": \"333, 555, Snowboard\"}',
-                                            updated_at: "2025-03-16T03:11:37.000000Z",
-                                            updated_by: "gorocket"
-                                        },
-                                        {
-                                            id: 1,
-                                            user_id: 2,
-                                            product_id: 1234,
-                                            event: "product_update",
-                                            old_values: "{\"tags\": \"333, 555, Snowboard\"}",
-                                            new_values: "{\"tags\": \"222, 555\"}",
-                                            updated_at: "2025-03-16T03:11:33.000000Z",
-                                            updated_by: "gorocket"
-                                        },
-                                    ]
-                                }
-                            ]}
+                            items={productLogs}
                             pagination={{
                                 hasPrevious: true,
                                 hasNext: true,
@@ -158,11 +107,9 @@ function HistoryApp({ redirect }) {
                                 },
                                 onNext: () => {
                                 },
+                                // label: "1-50 of 8,450 orders",
                             }}
                             renderItem={(item) => {
-                                const { created_at, logs } = item;
-                                // console.log(JSON.parse(logs[1]?.new_values || '{}'));
-
                                 return (
                                     <Box padding="600" paddingBlockStart="0" paddingBlock="500">
                                         <BlockStack gap="400">
@@ -171,45 +118,137 @@ function HistoryApp({ redirect }) {
                                                     <Icon source={EditIcon} tone="subdued"/>
                                                 </Box>
                                                 <Text as="p" variant="bodyMd" tone="subdued">Changes
-                                                    on <strong>{formatISOStringToReadableDate(created_at)}</strong></Text>
+                                                    on <strong>{formatISOStringToReadableDate(item.created_at)}</strong></Text>
                                             </InlineStack>
                                             <Box paddingInlineStart="200">
                                                 <InlineGrid gap="500" columns="1px auto">
                                                     <Box borderColor="border" borderWidth="025" borderRadius="025"/>
                                                     <Box paddingBlock="200">
                                                         <Card padding="0" roundedAbove="0">
-                                                            {logs.map((log, idx) => (
+                                                            {item.logs.map((log, idx) => (
                                                                 <ResourceItem
                                                                     key={idx}
                                                                     id={log.id}
-                                                                    media={<Thumbnail
-                                                                        source={log.event === 'product_update' ? "https://burst.shopifycdn.com/photos/black-leather-choker-necklace_373x@2x.jpg" : DeleteIcon}
-                                                                        size="small"
-                                                                        alt={log.product_id}
-                                                                    />}
+                                                                    // media={}
                                                                     accessibilityLabel={`View details for ${log.product_id}`}
                                                                     verticalAlignment="center"
                                                                 >
-                                                                    <Box paddingBlockEnd="100">
-                                                                        <Text as="h4" variant="bodyLg"
-                                                                              fontWeight="semibold"
-                                                                              tone={log.event === 'product_update' ? 'success' : 'critical'}>
-                                                                            {log.event === 'product_update' ? '#update' : '#delete'}
-                                                                            {' '}
-                                                                            <Text as="span" variant="bodyMd"
-                                                                                  fontWeight="bold" tone="base">
-                                                                                {log.product_id}
+                                                                    <BlockStack gap="300">
+                                                                        <InlineGrid columns={{ xs: 1, md: "1fr auto" }}
+                                                                                    alignItems="center"
+                                                                                    gap="200">
+                                                                            <InlineStack gap="200">
+                                                                                {log.product ? (
+                                                                                    <>
+                                                                                        <Thumbnail
+                                                                                            source={log.event === 'product_variant_update' ? (log.variant?.image?.src || ImageIcon) : (log.product.images?.[0]?.src || ImageIcon)}
+                                                                                            size="extraSmall"
+                                                                                            alt={log.product_id}
+                                                                                        />
+                                                                                        <Text as="h4" variant="bodyLg"
+                                                                                              fontWeight="semibold">
+                                                                                            {log.product.title} {log.variant ? `(${log.variant.title})` : ''}
+                                                                                        </Text>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <Thumbnail
+                                                                                            source={DeleteIcon}
+                                                                                            size="extraSmall"
+                                                                                            alt={log.product_id}
+                                                                                        />
+                                                                                        <Text as="h4" variant="bodyLg"
+                                                                                              fontWeight="semibold"
+                                                                                              tone="subdued"
+                                                                                              textDecorationLine="line-through">
+                                                                                            Deleted Product
+                                                                                            ({log.product_id})
+                                                                                        </Text>
+                                                                                    </>
+                                                                                )}
+                                                                                <Badge progress="complete"
+                                                                                       tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}>
+                                                                                    {log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}
+                                                                                </Badge>
+                                                                            </InlineStack>
+                                                                            <Text as="p" variant="bodySm"
+                                                                                  tone="subdued">Changed
+                                                                                at {formatISOStringToReadableDate(log.updated_at, {
+                                                                                    day: false,
+                                                                                    year: false,
+                                                                                    time: true
+                                                                                })}
                                                                             </Text>
-                                                                        </Text>
-                                                                    </Box>
-                                                                    <Text as="p" variant="bodySm" tone="subdued">
-                                                                        {log.user_id} changed
-                                                                        on {formatISOStringToReadableDate(log.updated_at, {
-                                                                        day: false,
-                                                                        year: false,
-                                                                        time: true
-                                                                    })}
-                                                                    </Text>
+                                                                        </InlineGrid>
+                                                                        <Card>
+                                                                            <BlockStack gap="400">
+                                                                                {Object.keys(log.old_values).map((key, changes_idx) => {
+                                                                                    let old_value = log.old_values[key];
+                                                                                    let new_value = log.new_values[key];
+
+                                                                                    if ([ 'price', 'weight', 'compare_at_price' ].includes(key)) {
+                                                                                        old_value = formatNumberWithCommas(old_value);
+                                                                                        new_value = formatNumberWithCommas(new_value);
+                                                                                    }
+
+                                                                                    return (
+                                                                                        <BlockStack key={changes_idx}
+                                                                                                    gap="200">
+                                                                                            <Text as="h6"
+                                                                                                  variant="bodyMd"
+                                                                                                  fontWeight="semibold">
+                                                                                                {productAttributes[key] || key}
+                                                                                            </Text>
+                                                                                            <BlockStack gap="100">
+                                                                                                <Box
+                                                                                                    paddingBlockEnd="100"
+                                                                                                    paddingBlockStart="200"
+                                                                                                    paddingInline="300"
+                                                                                                    borderColor="border"
+                                                                                                    borderWidth="025"
+                                                                                                    background="bg-surface-critical">
+                                                                                                    <InlineGrid
+                                                                                                        columns="14px auto"
+                                                                                                        gap="200"
+                                                                                                        alignItems="start">
+                                                                                                        <Box>
+                                                                                                            <Icon
+                                                                                                                source={MinusIcon}
+                                                                                                                tone="critical"/>
+                                                                                                        </Box>
+                                                                                                        <Text as="p"
+                                                                                                              variant="bodySm"
+                                                                                                              tone="base">{old_value}</Text>
+                                                                                                    </InlineGrid>
+                                                                                                </Box>
+                                                                                                <Box
+                                                                                                    paddingBlockEnd="100"
+                                                                                                    paddingBlockStart="200"
+                                                                                                    paddingInline="300"
+                                                                                                    borderColor="border"
+                                                                                                    borderWidth="025"
+                                                                                                    background="bg-surface-success">
+                                                                                                    <InlineGrid
+                                                                                                        columns="14px auto"
+                                                                                                        gap="200"
+                                                                                                        alignItems="start">
+                                                                                                        <Box>
+                                                                                                            <Icon
+                                                                                                                source={PlusIcon}
+                                                                                                                tone="success"/>
+                                                                                                        </Box>
+                                                                                                        <Text as="p"
+                                                                                                              variant="bodySm"
+                                                                                                              tone="base">{new_value}</Text>
+                                                                                                    </InlineGrid>
+                                                                                                </Box>
+                                                                                            </BlockStack>
+                                                                                        </BlockStack>
+                                                                                    )
+                                                                                })}
+                                                                            </BlockStack>
+                                                                        </Card>
+                                                                    </BlockStack>
                                                                 </ResourceItem>
                                                             ))}
                                                         </Card>

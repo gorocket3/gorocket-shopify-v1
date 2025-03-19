@@ -1,6 +1,6 @@
 export function formatISOStringToReadableDate(isoString, { day = true, year = true, time = false } = {}) {
     const date = new Date(isoString);
-    const options = { timeZone: 'UTC' };
+    const options = {}; // UTC 유지 시, timeZone: 'UTC' 설정 필요
 
     if (year) options.year = 'numeric';
     if (day) {
@@ -15,3 +15,13 @@ export function formatISOStringToReadableDate(isoString, { day = true, year = tr
 
     return new Intl.DateTimeFormat('en-US', options).format(date);
 };
+
+export function formatNumberWithCommas(value) {
+    if (typeof value === "number") {
+        return value.toLocaleString('en-US');
+    } else if (typeof value === "string" && !isNaN(value)) {
+        return Number(value).toLocaleString('en-US');
+    } else {
+        return value;
+    }
+}

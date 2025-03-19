@@ -1,0 +1,20 @@
+{
+    "status": "Product Status",
+    "title": "Product Title",
+    "variant_title": "Option Title",
+    "product_type": "Product Type",
+    "tags": "Tags",
+    "body_html": "Body HTML",
+    "vendor": "Vendor",
+    "handle": "URL Handle",
+    "price": "Price",
+    "inventory_quantity": "Inventory Quantity",
+    "inventory_policy": "Inventory Policy",
+    "compare_at_price": "Compare at price",
+    "taxable": "Taxable",
+    "barcode": "Barcode",
+    "sku": "SKU",
+    "requires_shipping": "Requires Shipping",
+    "weight": "Weight",
+    "weight_unit": "Weight Unit"
+}
