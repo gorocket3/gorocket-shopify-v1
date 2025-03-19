@@ -25,9 +25,10 @@ import productAttributes from "../api/product_attributes.json";
 import { formatISOStringToReadableDate, formatNumberWithCommas } from "../util/custom-format.js";
 
 function App() {
+    const params = new URLSearchParams(location.search);
     const config = {
         apiKey: import.meta.env.VITE_SHOPIFY_API_KEY,
-        host: new URLSearchParams(location.search).get("host"),
+        host: params.get("host"),
         forceRedirect: true
     };
 
@@ -35,19 +36,28 @@ function App() {
     const redirect = Redirect.create(app);
 
     return (
-        <HistoryApp redirect={redirect}/>
+        <HistoryApp redirect={redirect} params={{ page: params.get('page') || 1 }}/>
     )
 }
 
-function HistoryApp({ redirect }) {
+function HistoryApp({ redirect, params: { page } }) {
     const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
 
     // history
     const [ productLogs, setProductLogs ] = useState([]);
+    const [ pageInfo, setPageInfo ] = useState({
+        current_page: 1,
+        last_page: 1,
+        from: 0,
+        to: 0,
+        per_page: 10,
+        total: 0
+    });
+    const [ loading, setLoading ] = useState(true);
 
     const getProductLogs = async () => {
         try {
-            const params = "per_page=10";
+            const params = "per_page=10&page=" + page;
             return await fetchData({ method: 'GET', url: '/api/history?' + params });
         } catch (e) {
             console.error(e);
@@ -78,6 +88,15 @@ function HistoryApp({ redirect }) {
     const initProductLogs = async () => {
         const res = await getProductLogs();
         setProductLogs(formatLogs(res?.data || []));
+        setPageInfo({
+            current_page: res?.current_page || 1,
+            last_page: res?.last_page || 1,
+            from: res?.from || 0,
+            to: res?.to || 0,
+            per_page: res?.per_page || 10,
+            total: res?.total || 0
+        });
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -100,14 +119,20 @@ function HistoryApp({ redirect }) {
                         <ResourceList
                             resourceName={{ singular: 'log', plural: 'logs' }}
                             items={productLogs}
+                            emptyState={
+                                <Box padding="600" paddingBlockEnd="1000">
+                                    <InlineStack align="center">
+                                        <Text as="p" variant="bodyLg" tone="subdued">No change history exists.</Text>
+                                    </InlineStack>
+                                </Box>
+                            }
+                            loading={loading}
                             pagination={{
-                                hasPrevious: true,
-                                hasNext: true,
-                                onPrevious: () => {
-                                },
-                                onNext: () => {
-                                },
-                                // label: "1-50 of 8,450 orders",
+                                hasPrevious: pageInfo.current_page > 1,
+                                hasNext: pageInfo.current_page < pageInfo.last_page,
+                                onPrevious: () => navigate('/history?page=' + (Math.min(pageInfo.current_page - 1, pageInfo.last_page))),
+                                onNext: () => navigate('/history?page=' + (pageInfo.current_page + 1)),
+                                label: `${pageInfo.from}-${pageInfo.to} of ${formatNumberWithCommas(pageInfo.total)} history`,
                             }}
                             renderItem={(item) => {
                                 return (
