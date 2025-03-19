@@ -27,8 +27,16 @@ class ChangeLog extends Model
      * Get the shop that owns the Log
      *
      */
-    public function shop(): BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
+    }
+
+    /**
+     * Get the shop that owns the Log
+     */
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'variant_id', 'related_id');
     }
 }

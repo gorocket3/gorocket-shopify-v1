@@ -34,7 +34,7 @@ class HistoryController extends Controller
             default => 7
         };
 
-        $query = ChangeLog::where('user_id', $shop->id)->where('created_at', '>=', now()->subDays($historyDays));
+        $query = ChangeLog::with(['product', 'variant'])->where('user_id', $shop->id)->where('created_at', '>=', now()->subDays($historyDays));
         if (!empty($validated['product_id'])) {
             if (is_array($validated['product_id'])) {
                 $query->whereIn('product_id', $validated['product_id']);
