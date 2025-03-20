@@ -97,9 +97,9 @@ export function getProductsToUpdate() {
             weight_unit: data.weight_unit,
             sku: data.sku,
             inventory_policy: data.inventory_policy,
-            taxable: [true, 'true'].includes(data.taxable),
+            taxable: [ true, 'true' ].includes(data.taxable),
             barcode: data.barcode,
-            requires_shipping: [true, 'true'].includes(data.requires_shipping),
+            requires_shipping: [ true, 'true' ].includes(data.requires_shipping),
             // title: data.option_name,
         }
 
@@ -125,28 +125,21 @@ export function getProductsToUpdate() {
     return rows;
 }
 
-export async function saveProducts(rows, errorCallback = null) {
-    fetch('/api/products/edit', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ "products": rows })
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // console.log(data);
-        })
-        .catch(error => {
-            console.error(error);
-            alert('An error occurred while updating the product.');
-            if (errorCallback) errorCallback();
-        });
+export async function saveProducts(rows, limitCallback, errorCallback = null) {
+    try {
+        await fetchData({ method: 'POST', url: '/api/products/edit', body: { "products": rows } });
+    } catch (e) {
+        if (e?.status === '429') {
+            shopify.toast.show('Update request limit exceeded.', {
+                isError: true,
+                action: 'Upgrade Plan',
+                onAction: limitCallback
+            });
+        } else {
+            shopify.toast.show('An error occurred while updating the product. Please try again.', { isError: true });
+        }
+        if (errorCallback) errorCallback();
+    }
 }
 
 export function getProductsToRemove() {

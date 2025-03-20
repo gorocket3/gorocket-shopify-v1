@@ -89,7 +89,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
         const rows = getProductsToUpdate();
         if (rows) {
             startProductAction('update');
-            saveProducts(rows, resetProductAction);
+            saveProducts(rows, () => navigate('/plan'), resetProductAction);
         }
     }
 
