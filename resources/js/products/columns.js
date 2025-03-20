@@ -4,16 +4,15 @@ export default function getInitialColumns(data) {
     const { status = [], tags = [], types = [], vendor = [] } = data || {};
 
     const product_status_values = {
-        active: [ 'Active', 'Polaris-Badge--toneSuccess', '활성' ],
-        draft: [ 'Draft', 'Polaris-Badge--toneInfo', '초안' ],
-        archived: [ 'Archived', 'Polaris-Badge--toneDefault', '보관' ]
+        active: [ 'Active', 'Polaris-Badge--toneSuccess' ],
+        draft: [ 'Draft', 'Polaris-Badge--toneInfo' ],
+        archived: [ 'Archived', 'Polaris-Badge--toneDefault' ]
     };
 
     const PRODUCT_STATUS = status.reduce((acc, key) => {
         acc[key] = {
             label: product_status_values[key]?.[0] || '-',
             className: product_status_values[key]?.[1] || '',
-            koLabel: product_status_values[key]?.[2] || '-',
         }
         return acc;
     }, {});
@@ -36,14 +35,21 @@ export default function getInitialColumns(data) {
     }
 
     const changeCellState = (field, e) => {
-        if (e.oldValue === e.newValue) return;
+        const oldValue = (e.oldValue === null || e.oldValue === undefined) ? '' : e.oldValue;
+        const newValue = e.newValue === undefined ? '' : e.newValue;
 
-        e.node.setDataValue(field + '_changed', true);
-        e.api.forEachNode((node) => {
-            if (node.data.product_id === e.data.product_id) {
-                node.setSelected(true);
-            }
-        });
+        if (oldValue === newValue) return;
+
+        if (e.data.prev[field] === newValue) {
+            e.node.setDataValue(field + '_changed', false);
+        } else {
+            e.node.setDataValue(field + '_changed', true);
+            e.api.forEachNode((node) => {
+                if (node.data.product_id === e.data.product_id) {
+                    node.setSelected(true);
+                }
+            });
+        }
     }
 
     const changeCellStateIfNumber = (field, e) => {
@@ -274,7 +280,7 @@ export default function getInitialColumns(data) {
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: async (e) => {
                 const rows = getAllRowsExceptCurrent(e).map(row => row.handle);
-                if (e.data.prev_handle !== e.newValue && ([ ...new Set(rows) ].includes(e.newValue) || await checkIsHandleDuplicate(e.newValue))) {
+                if (e.data.prev.handle !== e.newValue && ([ ...new Set(rows) ].includes(e.newValue) || await checkIsHandleDuplicate(e.newValue))) {
                     shopify.toast.show('The URL handle is already in use.', { isError: true });
                     e.data[e.colDef.field] = e.oldValue;
                     e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
@@ -311,10 +317,23 @@ export default function getInitialColumns(data) {
             headerName: "Image",
             width: 60,
             cellRenderer: (p) => {
-                if (!!p.value) {
-                    return `<div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'><img src='${p.value}' alt='${p.data.product_name}' style=width:30px;height:30px;' /></div>`;
-                }
-                return '';
+                return `
+                    <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
+                        <div class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
+                            ${!!p.value ? `
+                                <img alt="${p.data.product_name}" src="${p.value}">
+                            ` : `
+                                <span class="Polaris-Icon">
+                                    <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M12.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                                        <path fill-rule="evenodd" d="M9.018 3.5h1.964c.813 0 1.469 0 2 .043.546.045 1.026.14 1.47.366a3.75 3.75 0 0 1 1.64 1.639c.226.444.32.924.365 1.47.043.531.043 1.187.043 2v1.964c0 .813 0 1.469-.043 2-.045.546-.14 1.026-.366 1.47a3.75 3.75 0 0 1-1.639 1.64c-.444.226-.924.32-1.47.365-.531.043-1.187.043-2 .043h-1.964c-.813 0-1.469 0-2-.043-.546-.045-1.026-.14-1.47-.366a3.75 3.75 0 0 1-1.64-1.639c-.226-.444-.32-.924-.365-1.47-.043-.531-.043-1.187-.043-2v-1.964c0-.813 0-1.469.043-2 .045-.546.14-1.026.366-1.47a3.75 3.75 0 0 1 1.639-1.64c.444-.226.924-.32 1.47-.365.531-.043 1.187-.043 2-.043Zm-1.877 1.538c-.454.037-.715.107-.912.207a2.25 2.25 0 0 0-.984.984c-.1.197-.17.458-.207.912-.037.462-.038 1.057-.038 1.909v1.428l.723-.867a1.75 1.75 0 0 1 2.582-.117l2.695 2.695 1.18-1.18a1.75 1.75 0 0 1 2.604.145l.216.27v-2.374c0-.852 0-1.447-.038-1.91-.037-.453-.107-.714-.207-.911a2.25 2.25 0 0 0-.984-.984c-.197-.1-.458-.17-.912-.207-.462-.037-1.056-.038-1.909-.038h-1.9c-.852 0-1.447 0-1.91.038Zm-2.103 7.821a7.12 7.12 0 0 1-.006-.08.746.746 0 0 0 .044-.049l1.8-2.159a.25.25 0 0 1 .368-.016l3.226 3.225a.75.75 0 0 0 1.06 0l1.71-1.71a.25.25 0 0 1 .372.021l1.213 1.516c-.021.06-.045.114-.07.165-.216.423-.56.767-.984.983-.197.1-.458.17-.912.207-.462.037-1.056.038-1.909.038h-1.9c-.852 0-1.447 0-1.91-.038-.453-.037-.714-.107-.911-.207a2.25 2.25 0 0 1-.984-.984c-.1-.197-.17-.458-.207-.912Z"/>
+                                    </svg>
+                                </span>
+                            `}
+                        </div>
+                    </div>
+                `;
             },
         },
         {

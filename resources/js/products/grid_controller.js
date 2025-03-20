@@ -37,7 +37,7 @@ export function searchProducts({ per_page = 10 } = {}) {
         }, []);
 
         const result = data.map((item, index) => {
-            return {
+            const cur_data = {
                 ...item,
                 group_id: item.parent.product_id,
                 product_name: item.parent.title,
@@ -55,10 +55,15 @@ export function searchProducts({ per_page = 10 } = {}) {
                 option_name: item.title,
                 option_img: item.image?.src || '',
                 inventory_management: item.inventory_management === 'shopify' ? 'true' : 'false',
-                price: item.price * 1,
-                compare_at_price: item.compare_at_price * 1,
-                weight: item.weight * 1,
+                inventory_quantity: (item.inventory_quantity * 1).toString(),
+                price: (item.price * 1).toString(),
+                compare_at_price: (item.compare_at_price * 1).toString(),
+                taxable: item.taxable ? 'true' : 'false',
+                barcode: item.barcode || '',
+                weight: (item.weight * 1).toString(),
             };
+            cur_data['prev'] = { ...cur_data };
+            return cur_data;
         });
 
         gx.gridOptions.api.clearRangeSelection();
