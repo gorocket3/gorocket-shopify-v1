@@ -53,6 +53,7 @@ import {
     undoGrid
 } from "./grid_controller.js";
 import '../../css/app.css';
+import '../../css/mobile.css';
 
 function App({ data }) {
     const config = {
