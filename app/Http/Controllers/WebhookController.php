@@ -33,15 +33,33 @@ class WebhookController extends Controller
         $updatedAt = $payload['updated_at'] ?? null;
 
         $shopDomain = $request->header('x-shopify-shop-domain');
-        $shop = Shop::where('myshopify_domain', $shopDomain)->first();
+        $shop = User::where('name', $shopDomain)->first();
         if (!$shop) {
             Log::error("[HOOK][ERROR] Shop not found - {$shopDomain}");
             return response()->json(['status' => 'error', 'message' => 'Shop not found'], 404);
         }
-        $payload['user_id'] = $shop->user_id;
+        $payload['user_id'] = $shop->id;
 
         if ($this->shouldSkipWebhook($type, $typeId, $updatedAt, $payload)) {
             return response()->json(['message' => 'Ignored webhook']);
+        }
+
+        if ($type === 'product-update' && isset($payload['id'])) {
+            $gid = "gid://shopify/Product/{$payload['id']}";
+            $query = <<<GRAPHQL
+            {
+                product(id: "{$gid}") {
+                    seo {
+                        title
+                        description
+                    }
+                }
+            }
+            GRAPHQL;
+
+            $response = $shop->api()->graph($query);
+            $seo = $response['body']['data']['product']['seo'] ?? null;
+            $payload['seo'] = $seo;
         }
 
         if (!$this->dispatchJob($type, $payload)) {
