@@ -13,7 +13,7 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/products/app.jsx'])
+    @vite(['resources/js/products/app.jsx', 'resources/css/mobile.css'])
     <!-- // Vite -->
 
     <!-- CDN -->
@@ -47,6 +47,6 @@
     <title>Products :: GoRocket</title>
 </head>
 <body>
-<div id="app" data-initial="{{ json_encode($data) }}"></div>
+<div id="app" class="main-scroll-container" data-initial="{{ json_encode($data) }}"></div>
 </body>
 </html>

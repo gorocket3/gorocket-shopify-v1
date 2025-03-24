@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import createApp from "@shopify/app-bridge";
 import { Redirect } from '@shopify/app-bridge/actions';
@@ -7,15 +6,17 @@ import {
     AppProvider,
     BlockStack,
     Card,
-    Divider,
     InlineGrid,
     Text,
     Page,
     Icon,
     Button,
-    Scrollable,
     Badge,
-    InlineStack
+    InlineStack,
+    Layout,
+    ResourceList,
+    ResourceItem,
+    Box,
 } from '@shopify/polaris';
 import { StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
@@ -31,7 +32,7 @@ function App({ data }) {
     const redirect = Redirect.create(app);
 
     return (
-        <PlanApp data={data} redirect={redirect} />
+        <PlanApp data={data} redirect={redirect}/>
     )
 }
 
@@ -48,104 +49,119 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
             <Page
                 backAction={{ content: 'Home', onAction: () => navigate('/') }}
                 title="Plan"
-                fullWidth={true}
-                // secondaryActions={[
-                //     { content: 'Print', url: '/print' },
-                //     { content: 'Unarchive' },
-                //     { content: 'Cancel order' },
-                // ]}
-                // pagination={{
-                //     hasPrevious: true,
-                //     hasNext: true,
-                // }}
             >
-                <Card>
-                    <div style={{ height: 'calc(100vh - 130px)' }}>
-                        <InlineGrid columns={3}>
-                            <Cell/>
-                            {plans.map((plan, index) => (
-                                <Cell key={index} fullWidth={true}>
-                                    <BlockStack gap="100">
-                                        <InlineStack gap="200" blockAlign="center">
-                                            <Text as="h2" variant="headingLg">
-                                                {plan.name}
-                                            </Text>
-                                            {plan.user_plan &&
-                                                <Badge tone="success">
-                                                    <Text as="span" variant="bodyXs" fontWeight="semibold">IN USE</Text>
-                                                </Badge>
-                                            }
-                                            {plan.id === 2 &&
-                                                <Badge tone="critical">
-                                                    <Text as="span" variant="bodyXs" fontWeight="semibold">RECOMMENDED</Text>
-                                                </Badge>
-                                            }
-                                        </InlineStack>
-                                        <Text as='p' variant="heading2xl">
-                                            ${plan.price}
-                                            <Text as='span' variant="bodySm">/{plan.interval}</Text>
-                                        </Text>
-                                        {!plan.user_plan && (
-                                            <Button onClick={() => navigate('/billing/' + plan.id)} variant="primary" size="large" fullWidth={true}>
-                                                Start Now for FREE
-                                            </Button>
-                                        )}
-                                    </BlockStack>
-                                </Cell>
-                            ))}
-                        </InlineGrid>
-                        <Divider/>
-                        <InlineGrid columns={3}>
-                            <Cell>
-                                <BlockStack align="center">
-                                    <Text as="h3" variant="headingMd">Overview</Text>
-                                </BlockStack>
-                            </Cell>
-                            {plans.map((plan, index) => (
-                                <Cell key={index} text={plan.terms} textCenter={true} />
-                            ))}
-                        </InlineGrid>
-                        <Divider/>
-                        <Scrollable shadow style={{ height: 'calc(100% - 200px)' }}>
-                            <InlineGrid columns={3}>
-                                <Cell text="항목1"/>
-                                <Cell><Icon source={StatusActiveIcon} tone="success"/></Cell>
-                                <Cell><Icon source={StatusActiveIcon} tone="success"/></Cell>
-                            </InlineGrid>
-                            <Divider/>
-                            <InlineGrid columns={3}>
-                                <Cell text="항목2"/>
-                                <Cell><Icon source={XCircleIcon} tone="critical"/></Cell>
-                                <Cell><Icon source={StatusActiveIcon} tone="success"/></Cell>
-                            </InlineGrid>
-                            <Divider/>
-                            <InlineGrid columns={3}>
-                                <Cell text="항목3"/>
-                                <Cell><Icon source={StatusActiveIcon} tone="success"/></Cell>
-                                <Cell><Icon source={StatusActiveIcon} tone="success"/></Cell>
-                            </InlineGrid>
-                            <Divider/>
-                        </Scrollable>
-                    </div>
-                </Card>
+                <Box paddingBlockEnd="400">
+                    <Layout>
+                        {plans.map((plan, index) => (
+                            <Layout.Section key={index} variant="oneHalf">
+                                <Card>
+                                    <Box paddingBlock="400">
+                                        <BlockStack gap="200">
+                                            <BlockStack gap="200">
+                                                <InlineStack gap="200" blockAlign="center">
+                                                    <Text as="h2" variant="headingLg">
+                                                        {plan.name}
+                                                    </Text>
+                                                    {plan.user_plan &&
+                                                        <Badge tone="success">
+                                                            <Text as="span" variant="bodyXs" fontWeight="semibold">IN
+                                                                USE</Text>
+                                                        </Badge>
+                                                    }
+                                                    {plan.id === 2 &&
+                                                        <Badge tone="critical">
+                                                            <Text as="span" variant="bodyXs"
+                                                                  fontWeight="semibold">RECOMMENDED</Text>
+                                                        </Badge>
+                                                    }
+                                                </InlineStack>
+                                                <Text as='p' variant="heading2xl">
+                                                    ${plan.price}
+                                                    <Text as='span' variant="bodySm">/{plan.interval}</Text>
+                                                </Text>
+                                                <Box minHeight="32px">
+                                                    {!plan.user_plan && (
+                                                        <Button onClick={() => navigate('/billing/' + plan.id)}
+                                                                variant="primary"
+                                                                size="large" fullWidth={true}>
+                                                            Start Now for FREE
+                                                        </Button>
+                                                    )}
+                                                </Box>
+                                            </BlockStack>
+                                            <Box>
+                                                <ResourceList
+                                                    resourceName={{ singular: 'plan', plural: 'plans' }}
+                                                    items={[
+                                                        {
+                                                            title: "Overview",
+                                                            type: "text",
+                                                            content: plan.terms,
+                                                            plan_name: plan.name,
+                                                        },
+                                                        {
+                                                            title: "항목1",
+                                                            type: "success",
+                                                            content: true,
+                                                            plan_name: plan.name,
+                                                        },
+                                                        {
+                                                            title: "항목2",
+                                                            type: "success",
+                                                            content: plan.id === 2,
+                                                            plan_name: plan.name,
+                                                        },
+                                                        {
+                                                            title: "항목3",
+                                                            type: "success",
+                                                            content: true,
+                                                            plan_name: plan.name,
+                                                        },
+                                                    ]}
+                                                    renderItem={(item, idx) => {
+                                                        const { title, type, content, plan_name } = item;
+
+                                                        return (
+                                                            <ResourceItem
+                                                                id={idx}
+                                                                accessibilityLabel={plan_name + ' ' + title}
+                                                                verticalAlignment="center">
+                                                                <InlineGrid columns={2}>
+                                                                    <Text as="h3" variant="bodyMd"
+                                                                          fontWeight="semibold">
+                                                                        {title}
+                                                                    </Text>
+                                                                    <InlineStack align="center">
+                                                                        {type === "text" && (
+                                                                            <Text as="p"
+                                                                                  variant="bodyMd">{content}</Text>
+                                                                        )}
+                                                                        {type === "success" && (
+                                                                            <Icon
+                                                                                source={content ? StatusActiveIcon : XCircleIcon}
+                                                                                tone={content ? "success" : "critical"}/>
+                                                                        )}
+                                                                    </InlineStack>
+                                                                </InlineGrid>
+                                                            </ResourceItem>
+                                                        );
+                                                    }}
+                                                />
+                                            </Box>
+                                        </BlockStack>
+                                    </Box>
+                                </Card>
+                            </Layout.Section>
+                        ))}
+                    </Layout>
+                </Box>
             </Page>
         </AppProvider>
     );
 }
 
-const Cell = ({ children, text = '', textCenter = false, fullWidth = false }) => {
-    const childrenElement = children ? children :
-        <Text as="p" variant="bodyMd" alignment={textCenter ? 'center' : 'start'}>{text}</Text>;
-
-    return (
-        <div style={{ padding: '1rem 0.5rem', display: 'flex' }}>
-            {fullWidth ? <div style={{ flex: 1 }}>{childrenElement}</div> : childrenElement}
-        </div>
-    );
-};
-
 if (document.getElementById('app')) {
     const initial_data = document.getElementById('app').dataset?.initial || '{}';
     const data = JSON.parse(initial_data);
-    ReactDOM.createRoot(document.getElementById('app')).render(<App data={data} />);
+    ReactDOM.createRoot(document.getElementById('app')).render(<App data={data}/>);
 }

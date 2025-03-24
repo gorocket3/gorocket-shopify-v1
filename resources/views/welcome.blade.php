@@ -13,7 +13,7 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/app.jsx'])
+    @vite(['resources/js/app.jsx', 'resources/css/mobile.css'])
     <!-- // Vite -->
 
     <!-- Font -->
@@ -23,6 +23,6 @@
     <title>고로켓</title>
 </head>
 <body>
-    <div id="app" data-initial="{{ json_encode($data) }}"></div>
+    <div id="app" class="main-scroll-container" data-initial="{{ json_encode($data) }}"></div>
 </body>
 </html>

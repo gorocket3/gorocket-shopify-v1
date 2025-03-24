@@ -336,7 +336,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
             >
                 <Card>
                     <BlockStack gap="200">
-                        <InlineGrid columns="1fr auto">
+                        <InlineGrid columns={{ xs: 1, md: "1fr auto" }} gap="200">
                             <InlineStack gap="200" blockAlign="center">
                                 <Text as="h2" variant="bodyLg">
                                     Showing{' '}
@@ -351,7 +351,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                     products) checked ]
                                 </Text>
                             </InlineStack>
-                            <InlineStack gap="200">
+                            <InlineStack gap="200" align="end" blockAlign="center">
                                 <ButtonGroup variant="segmented">
                                     <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
                                     <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>

@@ -13,12 +13,12 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/history/app.jsx'])
+    @vite(['resources/js/history/app.jsx', 'resources/css/mobile.css'])
     <!-- // Vite -->
 
     <title>History :: GoRocket</title>
 </head>
 <body>
-<div id="app"></div>
+    <div id="app" class="main-scroll-container"></div>
 </body>
 </html>

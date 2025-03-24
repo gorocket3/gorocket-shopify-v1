@@ -276,11 +276,13 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
                             </BlockStack>
                         </Box>
                     </Card>
-                    <BlockStack inlineAlign='end'>
-                        <Button onClick={() => open('https://support.gorocket3.ai')}>
-                            Customer Support
-                        </Button>
-                    </BlockStack>
+                    <Box paddingInline={{ xs: 200, sm: 0 }}>
+                        <BlockStack inlineAlign='end'>
+                            <Button onClick={() => open('https://support.gorocket3.ai')}>
+                                Customer Support
+                            </Button>
+                        </BlockStack>
+                    </Box>
                     <FooterHelp>
                         &copy; 2025 GoRocket. By using this app, you agree to the <Link url="#">Privacy Policy</Link>.
                     </FooterHelp>

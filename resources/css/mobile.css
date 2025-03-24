@@ -1,0 +1,7 @@
+@media (max-width: 950px) {
+    .main-scroll-container {
+        height: 100vh;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+}

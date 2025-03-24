@@ -13,12 +13,12 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/plan/app.jsx'])
+    @vite(['resources/js/plan/app.jsx', 'resources/css/mobile.css'])
     <!-- // Vite -->
 
     <title>Plan :: GoRocket</title>
 </head>
 <body>
-<div id="app" data-initial="{{ json_encode($data) }}"></div>
+<div id="app" class="main-scroll-container" data-initial="{{ json_encode($data) }}"></div>
 </body>
 </html>
