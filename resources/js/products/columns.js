@@ -1,6 +1,6 @@
 import fetchData from "../api/fetch.js";
 
-export default function getInitialColumns(data) {
+export default function getInitialColumns(data, showChangesModal) {
     const { status = [], tags = [], types = [], vendor = [] } = data || {};
 
     const product_status_values = {
@@ -24,7 +24,7 @@ export default function getInitialColumns(data) {
         return {};
     };
 
-    const getAllRowsExceptCurrent  = (gridOptions) => {
+    const getAllRowsExceptCurrent = (gridOptions) => {
         let rows = [];
         gridOptions.api.forEachNode((node) => {
             if (gridOptions.node.rowIndex !== node.rowIndex) {
@@ -159,6 +159,29 @@ export default function getInitialColumns(data) {
             tooltipValueGetter: (p) => ' View on Online Store. ',
         },
         {
+            field: "change_log",
+            headerName: "Changes",
+            width: 50,
+            cellStyle: cellMergeStyling,
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => {
+                if (p.data.position > 1) return '';
+                return `
+                   <div class="inline-block relative top-1.5 cursor-pointer">
+                        <span class="Polaris-Icon Polaris-Icon--toneSubdued Polaris-hover Polaris-Icon--toneSuccess">
+                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M7.75 12a.75.75 0 0 0-1.5 0v1.293c0 .331.132.65.366.884l.854.853a.75.75 0 0 0 1.06-1.06l-.78-.78v-1.19Z"/>
+                                <path fill-rule="evenodd" d="M14.25 17h-4.421a4.5 4.5 0 1 1-3.579-7.938v-3.312a2.75 2.75 0 0 1 2.75-2.75h3a.75.75 0 0 1 .53.22l4.25 4.25c.141.14.22.331.22.53v6.25a2.75 2.75 0 0 1-2.75 2.75Zm-6.5-11.25c0-.69.56-1.25 1.25-1.25h2.25v2.5c0 .966.784 1.75 1.75 1.75h2.5v5.5c0 .69-.56 1.25-1.25 1.25h-3.218a4.501 4.501 0 0 0-3.282-6.438v-3.312Zm6.69 1.5-1.69-1.69v1.44c0 .138.112.25.25.25h1.44Zm-7.44 9.25a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                            </svg>
+                        </span>
+                    </div>
+                `;
+            },
+            onCellClicked: (p) => p.data.position > 1 ? null : showChangesModal(p.data),
+            tooltipValueGetter: (p) => ' View on Product\'s Change History. ',
+        },
+        {
             field: "product_status",
             headerName: "Status",
             width: 75,
@@ -184,7 +207,7 @@ export default function getInitialColumns(data) {
         {
             field: "product_name",
             headerName: "Product Name",
-            width: 120,
+            width: 200,
             filter: true,
             cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
             cellClassRules: changedCellClassRules('product_name'),
@@ -426,7 +449,7 @@ export default function getInitialColumns(data) {
             filterParams: {
                 values: [ 'true', 'false' ],
             },
-            cellStyle: (p) => [true, 'true'].includes(p.value) ? { color: 'green' } : { color: '#666666' },
+            cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('taxable'),
             onCellValueChanged: (e) => changeCellState('taxable', e),
@@ -463,7 +486,7 @@ export default function getInitialColumns(data) {
             headerName: "requires_shipping",
             width: 120,
             filter: true,
-            cellStyle: (p) => [true, 'true'].includes(p.value) ? { color: 'green' } : { color: '#666666' },
+            cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('requires_shipping'),
             onCellValueChanged: (e) => changeCellState('requires_shipping', e),

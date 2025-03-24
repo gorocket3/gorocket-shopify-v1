@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom/client';
 import Pusher from "pusher-js";
 import createApp from "@shopify/app-bridge";
 import { Redirect } from '@shopify/app-bridge/actions';
-import { NavMenu } from "@shopify/app-bridge-react";
+import { NavMenu, Modal, TitleBar } from "@shopify/app-bridge-react";
 import {
     ActionList,
     AppProvider,
+    Badge,
     BlockStack,
     Box,
     Button,
@@ -18,10 +19,25 @@ import {
     Page,
     Popover,
     ProgressBar,
-    Text
+    ResourceItem,
+    ResourceList,
+    Text,
+    Thumbnail
 } from '@shopify/polaris';
-import { RedoIcon, SearchIcon, SettingsIcon, UndoIcon, XCircleIcon } from "@shopify/polaris-icons";
+import {
+    DeleteIcon,
+    EditIcon,
+    ImageIcon, MinusIcon, PlusIcon,
+    RedoIcon,
+    SearchIcon,
+    SettingsIcon,
+    UndoIcon,
+    XCircleIcon
+} from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
+import fetchData from "../api/fetch.js";
+import productAttributes from "../api/product_attributes.json";
+import { formatISOStringToReadableDate, formatNumberWithCommas } from "../util/custom-format.js";
 import { useEffectWithoutInitialState } from "../util/custom-hook.js";
 import {
     connectProducts,
@@ -85,6 +101,67 @@ function ProductApp({ data: { shop_id }, redirect }) {
     const [ disableUndo, setDisableUndo ] = useState(false);
     const [ disableRedo, setDisableRedo ] = useState(false);
 
+    // History
+    const [ productLogs, setProductLogs ] = useState([]);
+    const [ logsProductInfo, setLogsProductInfo ] = useState(null);
+    const [ logsPageInfo, setLogsPageInfo ] = useState({
+        current_page: 1,
+        last_page: 1,
+        from: 0,
+        to: 0,
+        per_page: 2,
+        total: 0
+    });
+    const [ logsLoading, setLogsLoading ] = useState(false);
+
+    const getProductLogs = async () => {
+        if (logsLoading) return;
+        if (!logsProductInfo) return;
+
+        try {
+            const loadingTimeout = setTimeout(() => setLogsLoading(true), 200);
+
+            const params = "product_id=" + logsProductInfo.product_id + "&per_page=" + logsPageInfo.per_page + "&page=" + logsPageInfo.current_page;
+            const res = await fetchData({ method: 'GET', url: '/api/history?' + params });
+            clearTimeout(loadingTimeout);
+
+            const logs = formatLogs(res?.data || []);
+
+            setProductLogs(logs);
+            setLogsPageInfo((info) => ({
+                ...info,
+                last_page: res?.last_page || 1,
+                from: res?.from || 0,
+                to: res?.to || 0,
+                total: res?.total || 0
+            }));
+            setLogsLoading(false);
+        } catch (e) {
+            console.error(e);
+            setLogsLoading(false);
+        }
+    }
+
+    const formatLogs = (logs) => {
+        const groupedLogs = {};
+
+        logs.forEach(log => {
+            const dateKey = log.created_at.split('T')[0];
+            if (!groupedLogs[dateKey]) {
+                groupedLogs[dateKey] = {
+                    created_at: dateKey,
+                    logs: []
+                };
+            }
+
+            log.old_values = JSON.parse(log.old_values || '{}');
+            log.new_values = JSON.parse(log.new_values || '{}');
+            groupedLogs[dateKey].logs.push(log);
+        });
+
+        return Object.values(groupedLogs);
+    }
+
     const saveClick = () => {
         const rows = getProductsToUpdate();
         if (rows) {
@@ -144,9 +221,21 @@ function ProductApp({ data: { shop_id }, redirect }) {
         }
     }, [ productAction.in_progress ]);
 
+    useEffectWithoutInitialState(() => {
+        if (!!logsProductInfo) {
+            getProductLogs();
+        } else {
+            setProductLogs([]);
+        }
+    }, [ logsProductInfo ]);
+
+    useEffectWithoutInitialState(() => {
+        getProductLogs();
+    }, [ logsPageInfo.current_page ]);
+
     useEffect(() => {
         // Grid
-        initGrid({ default_per_page: searchPerPage });
+        initGrid({ default_per_page: searchPerPage, show_changes: (prd) => setLogsProductInfo(prd) });
 
         // Pusher
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
@@ -323,6 +412,194 @@ function ProductApp({ data: { shop_id }, redirect }) {
                     </BlockStack>
                 </Card>
             </Page>
+            <Modal
+                variant="base"
+                open={!!logsProductInfo}
+                onHide={() => setLogsProductInfo(null)}
+            >
+                <TitleBar title={'The Snowboard' + '\'s change history'}></TitleBar>
+                <Box>
+                    <ResourceList
+                        resourceName={{ singular: 'log', plural: 'logs' }}
+                        items={productLogs}
+                        emptyState={
+                            <Box padding="600">
+                                <InlineStack align="center">
+                                    <Text as="p" variant="bodyLg" tone="subdued">No change history exists.</Text>
+                                </InlineStack>
+                            </Box>
+                        }
+                        loading={logsLoading}
+                        pagination={{
+                            hasPrevious: logsPageInfo.current_page > 1,
+                            hasNext: logsPageInfo.current_page < logsPageInfo.last_page,
+                            onPrevious: () => setLogsPageInfo((info) => ({
+                                ...info,
+                                current_page: Math.max(info.current_page - 1, 1)
+                            })),
+                            onNext: () => setLogsPageInfo((info) => ({
+                                ...info,
+                                current_page: Math.min(info.current_page + 1, info.last_page)
+                            })),
+                            label: `${logsPageInfo.from}-${logsPageInfo.to} of ${formatNumberWithCommas(logsPageInfo.total)} history`,
+                        }}
+                        renderItem={(item, index) => {
+                            return (
+                                <Box key={index} padding="600">
+                                    <BlockStack gap="400">
+                                        <InlineStack blockAlign="center" gap="200">
+                                            <Box>
+                                                <Icon source={EditIcon} tone="subdued"/>
+                                            </Box>
+                                            <Text as="p" variant="bodyMd" tone="subdued">Changes
+                                                on <strong>{formatISOStringToReadableDate(item.created_at)}</strong></Text>
+                                        </InlineStack>
+                                        <Box paddingInlineStart="200">
+                                            <InlineGrid gap="500" columns="1px auto">
+                                                <Box borderColor="border" borderWidth="025" borderRadius="025"/>
+                                                <Box paddingBlock="200">
+                                                    <Card padding="0" roundedAbove="0">
+                                                        {item.logs.map((log, idx) => (
+                                                            <ResourceItem
+                                                                key={idx}
+                                                                id={log.id}
+                                                                // media={}
+                                                                accessibilityLabel={`View details for ${log.product_id}`}
+                                                                verticalAlignment="center"
+                                                            >
+                                                                <BlockStack gap="300">
+                                                                    <InlineGrid
+                                                                        columns={{ xs: 1, md: "1fr auto" }}
+                                                                        alignItems="center"
+                                                                        gap="200">
+                                                                        <InlineStack gap="200">
+                                                                            {log.product ? (
+                                                                                <>
+                                                                                    <Thumbnail
+                                                                                        source={log.event === 'product_variant_update' ? (log.variant?.image?.src || ImageIcon) : (log.product.images?.[0]?.src || ImageIcon)}
+                                                                                        size="extraSmall"
+                                                                                        alt={log.product_id}
+                                                                                    />
+                                                                                    <Text as="h4"
+                                                                                          variant="bodyLg"
+                                                                                          fontWeight="semibold">
+                                                                                        {log.event === 'product_variant_update' ? (log.variant?.title || log.product.title) : log.product.title}
+                                                                                    </Text>
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <Thumbnail
+                                                                                        source={DeleteIcon}
+                                                                                        size="extraSmall"
+                                                                                        alt={log.product_id}
+                                                                                    />
+                                                                                    <Text as="h4"
+                                                                                          variant="bodyLg"
+                                                                                          fontWeight="semibold"
+                                                                                          tone="subdued"
+                                                                                          textDecorationLine="line-through">
+                                                                                        Deleted Product
+                                                                                        ({log.product_id})
+                                                                                    </Text>
+                                                                                </>
+                                                                            )}
+                                                                            <Badge progress="complete"
+                                                                                   tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}>
+                                                                                {log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}
+                                                                            </Badge>
+                                                                        </InlineStack>
+                                                                        <Text as="p" variant="bodySm"
+                                                                              tone="subdued">Changed
+                                                                            at {formatISOStringToReadableDate(log.updated_at, {
+                                                                                day: false,
+                                                                                year: false,
+                                                                                time: true
+                                                                            })}
+                                                                        </Text>
+                                                                    </InlineGrid>
+                                                                    <Card>
+                                                                        <BlockStack gap="400">
+                                                                            {Object.keys(log.old_values).map((key, changes_idx) => {
+                                                                                let old_value = log.old_values[key];
+                                                                                let new_value = log.new_values[key];
+
+                                                                                if ([ 'price', 'weight', 'compare_at_price' ].includes(key)) {
+                                                                                    old_value = formatNumberWithCommas(old_value);
+                                                                                    new_value = formatNumberWithCommas(new_value);
+                                                                                }
+
+                                                                                return (
+                                                                                    <BlockStack
+                                                                                        key={changes_idx}
+                                                                                        gap="200">
+                                                                                        <Text as="h6"
+                                                                                              variant="bodyMd"
+                                                                                              fontWeight="semibold">
+                                                                                            {productAttributes[key] || key}
+                                                                                        </Text>
+                                                                                        <BlockStack gap="100">
+                                                                                            <Box
+                                                                                                paddingBlockEnd="100"
+                                                                                                paddingBlockStart="200"
+                                                                                                paddingInline="300"
+                                                                                                borderColor="border"
+                                                                                                borderWidth="025"
+                                                                                                background="bg-surface-critical">
+                                                                                                <InlineGrid
+                                                                                                    columns="14px auto"
+                                                                                                    gap="200"
+                                                                                                    alignItems="start">
+                                                                                                    <Box>
+                                                                                                        <Icon
+                                                                                                            source={MinusIcon}
+                                                                                                            tone="critical"/>
+                                                                                                    </Box>
+                                                                                                    <Text as="p"
+                                                                                                          variant="bodySm"
+                                                                                                          tone="base">{old_value}</Text>
+                                                                                                </InlineGrid>
+                                                                                            </Box>
+                                                                                            <Box
+                                                                                                paddingBlockEnd="100"
+                                                                                                paddingBlockStart="200"
+                                                                                                paddingInline="300"
+                                                                                                borderColor="border"
+                                                                                                borderWidth="025"
+                                                                                                background="bg-surface-success">
+                                                                                                <InlineGrid
+                                                                                                    columns="14px auto"
+                                                                                                    gap="200"
+                                                                                                    alignItems="start">
+                                                                                                    <Box>
+                                                                                                        <Icon
+                                                                                                            source={PlusIcon}
+                                                                                                            tone="success"/>
+                                                                                                    </Box>
+                                                                                                    <Text as="p"
+                                                                                                          variant="bodySm"
+                                                                                                          tone="base">{new_value}</Text>
+                                                                                                </InlineGrid>
+                                                                                            </Box>
+                                                                                        </BlockStack>
+                                                                                    </BlockStack>
+                                                                                )
+                                                                            })}
+                                                                        </BlockStack>
+                                                                    </Card>
+                                                                </BlockStack>
+                                                            </ResourceItem>
+                                                        ))}
+                                                    </Card>
+                                                </Box>
+                                            </InlineGrid>
+                                        </Box>
+                                    </BlockStack>
+                                </Box>
+                            );
+                        }}
+                    />
+                </Box>
+            </Modal>
         </AppProvider>
     );
 }

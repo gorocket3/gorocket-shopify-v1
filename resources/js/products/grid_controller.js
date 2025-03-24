@@ -1,9 +1,9 @@
 import fetchData from "../api/fetch.js";
 import getInitialColumns from "./columns.js";
 
-let pApp, gx, gridDiv, initData, defaultData, filterData;
+let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback;
 
-export async function initGrid({ default_per_page }) {
+export async function initGrid({ default_per_page, show_changes }) {
     pApp = new App('', { gridId: "#div-gd" });
 
     pApp.ResizeGrid(170);
@@ -13,7 +13,8 @@ export async function initGrid({ default_per_page }) {
 
     initData = await getInitialData();
     defaultData = { per_page: default_per_page };
-    refreshGrid(initData, defaultData);
+    showChangesCallback = show_changes;
+    refreshGrid(initData, defaultData, showChangesCallback);
 }
 
 export function searchProducts({ per_page = 10 } = {}) {
@@ -265,7 +266,7 @@ export async function resetColumns(e) {
 
         shopify.toast.show('Column information has been reset.');
         gx.gridOptions.api.destroy();
-        refreshGrid(initData, defaultData);
+        refreshGrid(initData, defaultData, showChangesCallback);
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
@@ -275,8 +276,8 @@ export async function resetColumns(e) {
     Private Function
 */
 
-async function refreshGrid(data, defaultData) {
-    const default_columns = [ ...getInitialColumns(data) ];
+async function refreshGrid(data, defaultData, showChangesModal) {
+    const default_columns = [ ...getInitialColumns(data, showChangesModal) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
     gx = new HDGrid(gridDiv, my_columns, {
