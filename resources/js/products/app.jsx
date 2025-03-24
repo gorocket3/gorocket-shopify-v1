@@ -342,10 +342,13 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                     Showing{' '}
                                     <Text as="strong" id="gd-current" tone="success" fontWeight="bold">0</Text> of{' '}
                                     <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
-                                    Products
+                                    Product Variants
                                 </Text>
                                 <Text as="p" variant="bodySm" tone="magic">
-                                    [ <Text as="strong" id="gd-checked" fontWeight="bold">0</Text> checked ]
+                                    [{' '}
+                                    <Text as="strong" id="gd-checked" fontWeight="bold">0</Text>{' '}
+                                    (<Text as="strong" id="gd-checked-products" fontWeight="bold">0</Text>{' '}
+                                    products) checked ]
                                 </Text>
                             </InlineStack>
                             <InlineStack gap="200">
