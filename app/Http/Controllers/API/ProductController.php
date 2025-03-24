@@ -160,6 +160,9 @@ class ProductController extends Controller
         $validated = $request->validate([
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|integer',
+            'products.*.category' => 'nullable|string|max:255',
+            'products.*.seo_title' => 'nullable|string|max:255',
+            'products.*.seo_description' => 'nullable|string|max:255',
             'products.*.title' => 'sometimes|string|max:255',
             'products.*.status' => 'sometimes|string|max:100',
             'products.*.tags' => 'nullable|string',

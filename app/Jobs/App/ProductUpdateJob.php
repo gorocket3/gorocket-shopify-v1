@@ -73,6 +73,10 @@ class ProductUpdateJob implements ShouldQueue
             $mutations[] = sprintf(
                 '%s: productUpdate(input: {
             id: "gid://shopify/Product/%s",
+            seo: {
+                title: "%s",
+                description: "%s"
+            }
             title: "%s",
             status: %s,
             descriptionHtml: "%s",
@@ -98,6 +102,8 @@ class ProductUpdateJob implements ShouldQueue
         }',
                 $mutationName,
                 $product['id'],
+                addslashes($product['seo_title'] ?? ''),
+                addslashes($product['seo_description'] ?? ''),
                 addslashes($product['title'] ?? ''),
                 strtoupper($product['status']),
                 addslashes($product['body_html'] ?? ''),
@@ -110,6 +116,8 @@ class ProductUpdateJob implements ShouldQueue
             $productData[] = [
                 'shop_id' => $shop->id,
                 'product_id' => $product['id'],
+                'seo_title' => $product['seo_title'] ?? '',
+                'seo_description' => $product['seo_description'] ?? '',
                 'title' => $product['title'] ?? '',
                 'status' => $product['status'],
                 'body_html' => $product['body_html'] ?? '',
@@ -160,6 +168,8 @@ class ProductUpdateJob implements ShouldQueue
                 return [
                     'user_id' => $product['shop_id'],
                     'product_id' => $product['product_id'],
+                    'seo_title' => $product['seo_title'] ?? '',
+                    'seo_description' => $product['seo_description'] ?? '',
                     'title' => $product['title'] ?? '',
                     'status' => $product['status'],
                     'body_html' => $product['body_html'] ?? '',
