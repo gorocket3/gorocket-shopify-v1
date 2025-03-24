@@ -160,8 +160,55 @@ class ProductUpdateListener implements ShouldQueue
             if (!empty($batch)) {
                 ProductUpdateJob::dispatch($batch, $shopId, $progress);
             }
-
             Log::info("[LISTENER][PRODUCT] Queue success - {$shopId}");
+
+            $bulkQuery = <<<GRAPHQL
+            mutation {
+                bulkOperationRunQuery(
+                    query: """
+                    {
+                        products {
+                            edges {
+                                node {
+                                    id
+                                    productCategory {
+                                        productTaxonomyNode {
+                                            id
+                                            name
+                                            fullName
+                                        }
+                                    }
+                                    seo {
+                                        title
+                                        description
+                                    }
+                                    featuredMedia {
+                                        preview {
+                                            image {
+                                                src
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    """
+                ) {
+                    bulkOperation {
+                        id
+                        status
+                    }
+                    userErrors {
+                        field
+                        message
+                    }
+                }
+            }
+            GRAPHQL;
+
+            $shop->api()->graph($bulkQuery);
+
         } catch (Exception $e) {
             Log::error("[LISTENER][PRODUCT] Queue failed - {$shopId}, Error: {$e->getMessage()}");
             Redis::del("shop:{$shopId}:product_sync");

@@ -64,10 +64,16 @@ class ProductUpdateJob implements ShouldQueue
      */
     protected function updateProduct(): void
     {
+        $featuredImage = collect($this->data['media'] ?? [])
+            ->pluck('preview_image.src')
+            ->first();
+
         Product::updateOrCreate(
             ['product_id' => $this->data['id']],
             [
                 'title'                => $this->data['title'],
+                'category'             => $this->data['category'],
+                'featured_image'       => $featuredImage,
                 'handle'               => $this->data['handle'],
                 'body_html'            => $this->data['body_html'],
                 'product_type'         => $this->data['product_type'],
