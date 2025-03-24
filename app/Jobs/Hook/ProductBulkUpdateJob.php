@@ -59,8 +59,9 @@ class ProductBulkUpdateJob implements ShouldQueue
             $batch[] = [
                 'product_id'     => $productId,
                 'user_id'        => $shop_id,
-                'category'       => is_array($category) ? json_encode($category) : $category,
-                'seo'            => is_array($seo) ? json_encode($seo) : $seo,
+                'category'       => $category['name'] ?? null,
+                'seo_title'      => $seo['title'] ?? null,
+                'seo_description' => $seo['description'] ?? null,
                 'featured_image' => $featuredImage,
                 'updated_at'     => now(),
             ];
@@ -90,7 +91,7 @@ class ProductBulkUpdateJob implements ShouldQueue
         Product::upsert(
             $batch,
             ['product_id', 'user_id'],
-            ['category', 'seo', 'featured_image']
+            ['category', 'seo_title', 'seo_description', 'featured_image']
         );
     }
 }

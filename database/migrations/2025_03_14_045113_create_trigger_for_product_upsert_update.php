@@ -29,10 +29,15 @@ return new class extends Migration
                     SET old_values = JSON_SET(old_values, "$.category", OLD.category);
                     SET new_values = JSON_SET(new_values, "$.category", NEW.category);
                 END IF;
-                IF (CASE WHEN OLD.seo IS NULL THEN "" ELSE OLD.seo END)
-                   <> (CASE WHEN NEW.seo IS NULL THEN "" ELSE NEW.seo END) THEN
-                    SET old_values = JSON_SET(old_values, "$.seo", OLD.seo);
-                    SET new_values = JSON_SET(new_values, "$.seo", NEW.seo);
+                IF (CASE WHEN OLD.seo_title IS NULL THEN "" ELSE OLD.seo_title END)
+                   <> (CASE WHEN NEW.seo_title IS NULL THEN "" ELSE NEW.seo_title END) THEN
+                    SET old_values = JSON_SET(old_values, "$.seo_title", OLD.seo_title);
+                    SET new_values = JSON_SET(new_values, "$.seo_title", NEW.seo_title);
+                END IF;
+                IF (CASE WHEN OLD.seo_description IS NULL THEN "" ELSE OLD.seo_description END)
+                   <> (CASE WHEN NEW.seo_description IS NULL THEN "" ELSE NEW.seo_description END) THEN
+                    SET old_values = JSON_SET(old_values, "$.seo_description", OLD.seo_description);
+                    SET new_values = JSON_SET(new_values, "$.seo_description", NEW.seo_description);
                 END IF;
                 IF (CASE WHEN OLD.featured_image IS NULL THEN "" ELSE OLD.featured_image END)
                    <> (CASE WHEN NEW.featured_image IS NULL THEN "" ELSE NEW.featured_image END) THEN

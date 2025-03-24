@@ -23,7 +23,8 @@ class Product extends BaseModel
     protected $fillable = [
         'product_id',
         'category',
-        'seo',
+        'seo_title',
+        'seo_description',
         'featured_image',
         'title',
         'handle',
@@ -46,8 +47,6 @@ class Product extends BaseModel
      * @var array
      */
     protected $casts = [
-        'category' => 'array',
-        'seo' => 'array',
         'published_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
