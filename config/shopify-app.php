@@ -401,6 +401,10 @@ return [
             'address' => env('APP_URL') . 'handle/inventory-levels-update'
         ],
         [
+            'topic' => 'INVENTORY_ITEMS_CREATE',
+            'address' => env('APP_URL') . 'handle/inventory-items-update'
+        ],
+        [
             'topic' => 'INVENTORY_ITEMS_UPDATE',
             'address' => env('APP_URL') . 'handle/inventory-items-update'
         ],

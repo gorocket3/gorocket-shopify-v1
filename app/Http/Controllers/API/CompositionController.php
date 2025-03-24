@@ -92,12 +92,16 @@ class CompositionController extends Controller
     {
         $shop = Auth::user();
 
-        $status = Product::where('user_id', $shop->id)
+        $existingStatuses = Product::where('user_id', $shop->id)
             ->groupBy('status')
-            ->pluck('status');
+            ->pluck('status')
+            ->toArray();
+
+        $defaultStatuses = ['active', 'draft', 'archived'];
+        $statuses = array_values(array_unique(array_merge($defaultStatuses, $existingStatuses)));
 
         return response()->json([
-            'status' => $status
+            'status' => $statuses
         ]);
     }
 }
