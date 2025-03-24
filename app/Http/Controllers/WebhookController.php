@@ -6,9 +6,11 @@ use App\Jobs\Hook\InventoryItemsUpdateJob;
 use App\Jobs\Hook\ProductDeleteJob;
 use App\Jobs\Hook\ProductUpdateJob;
 use App\Jobs\Hook\ShopUpdateJob;
+use App\Jobs\Hook\ProductBulkUpdateJob;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Shop;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -182,6 +184,30 @@ class WebhookController extends Controller
      */
     public function handleBulkFinish(Request $request): JsonResponse
     {
-        return response()->json(['status' => 'not-implemented']);
+        $shopDomain = $request->header('x-shopify-shop-domain');
+        $shop = User::where('name', $shopDomain)->first();
+
+        $query = <<<GRAPHQL
+        {
+            currentBulkOperation {
+                url
+                status
+                id
+            }
+        }
+        GRAPHQL;
+
+        $response = $shop->api()->graph($query);
+        $url = $response['body']['data']['currentBulkOperation']['url'] ?? null;
+
+        if ($url) {
+            ProductBulkUpdateJob::dispatch(['shop_id' => $shop->id, 'url' => $url]);
+            return response()->json([
+                'message' => 'Job dispatched',
+                'url' => $url
+            ]);
+        }
+
+        return response()->json(['message' => 'No URL found'], 400);
     }
 }

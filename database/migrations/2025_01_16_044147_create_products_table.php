@@ -18,8 +18,8 @@ return new class extends Migration {
             $table->json('category')->nullable();
             $table->json('seo')->nullable();
             $table->string('featured_image')->nullable();
-            $table->string('title');
-            $table->string('handle');
+            $table->string('title')->nullable();;
+            $table->string('handle')->nullable();;
             $table->text('body_html')->nullable();
             $table->string('product_type')->nullable();
             $table->string('vendor')->nullable();
