@@ -741,6 +741,27 @@ HDGrid.prototype.HideLoadingLayer = function () {
     $("#is_loading_layer").remove();
 };
 
+HDGrid.prototype.ShowCustomLoadingLayer = function () {
+    if ($('#is_custom_loading_layer').length > 0) {
+        $("#is_custom_loading_layer").remove();
+    } else {
+        const loading_html = `
+            <div id="is_custom_loading_layer" style="
+                position:fixed;top:50%;left:50%;z-index:3000;width:200px;margin-left:-100px;
+                padding:15px 20px;background:#1a1a1a;border:1px solid #666;box-sizing:content-box;
+                color:#fff;text-align:center;font-size:14px;"
+            >
+                Loading open link...
+            </div>
+        `;
+        $("body").append(loading_html);
+    }
+};
+
+HDGrid.prototype.HideCustomLoadingLayer = function () {
+    $("#is_custom_loading_layer").remove();
+};
+
 /** CSV & EXCEL 다운로드
  * - options.type이 'excel'일 경우, title의 확장자를 반드시 'xlsx' 형태로 작성 (그 외에는 'csv'로 작성)
  * - level은 int 형태로 작성

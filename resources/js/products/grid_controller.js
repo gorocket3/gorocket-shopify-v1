@@ -277,7 +277,7 @@ export async function resetColumns(e) {
 */
 
 async function refreshGrid(data, defaultData, showChangesModal) {
-    const default_columns = [ ...getInitialColumns(data, showChangesModal) ];
+    const default_columns = [ ...getInitialColumns(data, showChangesModal, openOnlineStoreLink) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
     gx = new HDGrid(gridDiv, my_columns, {
@@ -340,5 +340,22 @@ async function getInitialData() {
     } catch (error) {
         console.error(error);
         return null;
+    }
+}
+
+
+async function openOnlineStoreLink(product_id) {
+    try {
+        gx.ShowCustomLoadingLayer();
+        const { preview_url } = await fetchData({
+            method: 'GET',
+            url: '/api/products/preview-url?product_id=' + product_id
+        });
+        window.open(preview_url, '_blank');
+    } catch (error) {
+        console.error(error);
+        shopify.toast.show('Incorrect product information.', { isError: true });
+    } finally {
+        gx.HideCustomLoadingLayer();
     }
 }
