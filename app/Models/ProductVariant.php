@@ -50,7 +50,7 @@ class ProductVariant extends BaseModel
         'inventory_item_id',
         'inventory_quantity',
         'old_inventory_quantity',
-        'image_id'.
+        'image_id',
         'updated_by'
     ];
 
