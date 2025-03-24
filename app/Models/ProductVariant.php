@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
 
 /**
  * @method static where(string $string, mixed $id)
  * @method static updateOrCreate(array $array, array $array1)
  * @method static upsert(mixed[] $toArray, string[] $array)
- * @method static whereNotIn(string $string, \Illuminate\Support\Collection $variantIds)
+ * @method static whereNotIn(string $string, Collection $variantIds)
  */
 class ProductVariant extends BaseModel
 {

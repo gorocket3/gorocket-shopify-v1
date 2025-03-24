@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
  * @method static where(string $string, mixed $id)
  * @method static upsert(mixed[] $toArray, string[] $array)
- * @method static whereNotIn(string $string, \Illuminate\Support\Collection $imageIds)
+ * @method static whereNotIn(string $string, Collection $imageIds)
  */
 class ProductImage extends BaseModel
 {
