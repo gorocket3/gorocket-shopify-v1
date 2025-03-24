@@ -173,4 +173,15 @@ class WebhookController extends Controller
     {
         return response()->json(['status' => 'not-implemented']);
     }
+
+    /**
+     * Handle bulk operation finish webhook.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function handleBulkFinish(Request $request): JsonResponse
+    {
+        return response()->json(['status' => 'not-implemented']);
+    }
 }

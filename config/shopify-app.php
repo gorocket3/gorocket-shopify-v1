@@ -404,11 +404,10 @@ return [
             'topic' => 'INVENTORY_ITEMS_UPDATE',
             'address' => env('APP_URL') . 'handle/inventory-items-update'
         ],
-
-
-
-
-
+        [
+            'topic' => 'BULK_OPERATIONS_FINISH',
+            'address' => env('APP_URL') . 'handle/bulk-finish'
+        ],
         [
             'topic' => 'APP_UNINSTALLED',
             'address' => env('APP_URL') . 'webhook/app-uninstalled'
