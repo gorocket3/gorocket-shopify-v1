@@ -311,14 +311,17 @@ async function refreshGrid(data, defaultData, showChangesModal) {
             }
 
             const selectedRows = event.api.getSelectedRows().map(row => row.product_id);
-            const cnt = [ ...new Set(selectedRows) ].length;
-            document.getElementById('gd-checked').innerText = numberWithCommas(cnt);
+            const productsCnt = [ ...new Set(selectedRows) ].length;
+            const variantsCnt = selectedRows.length;
+            document.getElementById('gd-checked').innerText = numberWithCommas(variantsCnt);
+            document.getElementById('gd-checked-products').innerText = numberWithCommas(productsCnt);
         },
         onFilterChanged: (e) => {
             filterData = e.api.getFilterModel();
 
             const displayedRows = gx.gridOptions.api.getRenderedNodes().map(node => node.data.product_id);
-            const cnt = [ ...new Set(displayedRows) ].length;
+            // const cnt = [ ...new Set(displayedRows) ].length;
+            const cnt = displayedRows.length;
             $("#" + gx.gridCurrent).text(numberWithCommas(cnt));
         },
     });
