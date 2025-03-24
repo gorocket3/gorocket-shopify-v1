@@ -73,10 +73,13 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         { field: "product_status_changed", hide: true },
         { field: "product_name_changed", hide: true },
         { field: "product_type_changed", hide: true },
+        { field: "product_category_changed", hide: true },
         { field: "product_tags_changed", hide: true },
         { field: "product_body_changed", hide: true },
         { field: "vendor_changed", hide: true },
         { field: "handle_changed", hide: true },
+        { field: "seo_title_changed", hide: true },
+        { field: "seo_description_changed", hide: true },
         { field: "option_name_changed", hide: true },
         { field: "price_changed", hide: true },
         { field: "inventory_quantity_changed", hide: true },
@@ -231,6 +234,21 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             editable: (p) => p.data.position < 2,
         },
         {
+            // 카테고리 리스트 조회 후 선택하는 방식으로 변경 예정
+            field: "product_category",
+            headerName: "Category",
+            width: 100,
+            filter: "agTextColumnFilter",
+            filterParams: {
+                filterOptions: [ "contains", "notContains" ],
+            },
+            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            // cellClassRules: changedCellClassRules('product_category'),
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            // onCellValueChanged: (e) => changeCellState('product_category', e),
+            // editable: (p) => p.data.position < 2,
+        },
+        {
             field: "product_tags",
             headerName: "Tags",
             width: 200,
@@ -313,6 +331,34 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                 }
                 changeCellState('handle', e);
             },
+            editable: (p) => p.data.position < 2,
+        },
+        {
+            field: "seo_title",
+            headerName: "SEO Title",
+            width: 100,
+            filter: "agTextColumnFilter",
+            filterParams: {
+                filterOptions: [ "contains", "notContains" ],
+            },
+            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellClassRules: changedCellClassRules('seo_title'),
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            onCellValueChanged: (e) => changeCellState('seo_title', e),
+            editable: (p) => p.data.position < 2,
+        },
+        {
+            field: "seo_description",
+            headerName: "SEO Description",
+            width: 100,
+            filter: "agTextColumnFilter",
+            filterParams: {
+                filterOptions: [ "contains", "notContains" ],
+            },
+            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellClassRules: changedCellClassRules('seo_description'),
+            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+            onCellValueChanged: (e) => changeCellState('seo_description', e),
             editable: (p) => p.data.position < 2,
         },
         {

@@ -43,13 +43,16 @@ export function searchProducts({ per_page = 10 } = {}) {
                 group_id: item.parent.product_id,
                 product_name: item.parent.title,
                 product_type: item.parent.product_type,
+                product_category: item.parent.category,
                 product_tags: item.parent.tags,
                 product_body: item.parent.body_html,
-                product_img: (item, item.parent.images[0]?.src || ''),
+                product_img: item.parent.featured_image || '',
                 product_status: item.parent.status,
                 vendor: item.parent.vendor,
                 handle: item.parent.handle,
                 prev_handle: item.parent.handle,
+                seo_title: item.parent.seo_title,
+                seo_description: item.parent.seo_description,
                 product_published_at: item.parent.published_at,
                 product_created_at: item.parent.created_at,
                 product_updated_at: item.parent.updated_at,
@@ -116,8 +119,11 @@ export function getProductsToUpdate() {
                 body_html: data.product_body,
                 tags: data.product_tags,
                 product_type: data.product_type,
+                category: data.product_category,
                 vendor: data.vendor,
-                handle: data.handle
+                handle: data.handle,
+                seo_title: data.seo_title,
+                seo_description: data.seo_description,
             };
 
             rows.push({ ...product, variants: [ variant ] });
