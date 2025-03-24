@@ -232,4 +232,37 @@ class ProductController extends Controller
             'exists' => $exists
         ]);
     }
+
+    /**
+     * Get the preview URL of a product
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getPreviewUrl(Request $request): JsonResponse
+    {
+        $shop = Auth::user();
+
+        $productId = $request->get('product_id');
+
+        $response = $shop->api()->graph('{
+            product(id: "gid://shopify/Product/' . $productId . '") {
+                id
+                handle
+                onlineStorePreviewUrl
+            }
+        }');
+
+        $product = $response['body']['data']['product'] ?? null;
+
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+
+        return response()->json([
+            'preview_url' => $product['onlineStorePreviewUrl'],
+            'handle' => $product['handle'],
+        ]);
+    }
+
 }
