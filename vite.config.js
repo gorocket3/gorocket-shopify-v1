@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/js/products/grid_controller.js',
                 // 'resources/js/product/app.jsx',
                 'resources/css/app.css',
+                'resources/css/mobile.css',
             ],
             refresh: true,
         }),
