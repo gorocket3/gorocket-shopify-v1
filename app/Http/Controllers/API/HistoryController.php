@@ -36,7 +36,7 @@ class HistoryController extends Controller
 
         $planName = $shop->plan->name ?? 'Free';
         $historyDays = match ($planName) {
-            'Basic' => 7,
+            'Basic' => 30,
             default => 7
         };
         $cutoffDate = now()->subDays($historyDays)->startOfDay();
@@ -58,8 +58,8 @@ class HistoryController extends Controller
 
         $history = $query->latest()->paginate($perPage);
 
-        $filteredItems = $history->getCollection()->map(function ($item) use ($cutoffDate) {
-            if ($item->created_at < $cutoffDate) {
+        $filteredItems = $history->getCollection()->map(function ($item) use ($cutoffDate, $planName) {
+            if ($item->created_at < $cutoffDate || ($item->updated_by === 'shopify' && $planName !== 'Basic')) {
                 $item->old_values = '';
                 $item->new_values = '';
             }
