@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProductBulkUpdateJob implements ShouldQueue
@@ -88,10 +89,14 @@ class ProductBulkUpdateJob implements ShouldQueue
      */
     protected function upsertProducts(array $batch): void
     {
+        DB::statement("SET @DISABLE_PRODUCT_TRIGGER = 1");
+
         Product::upsert(
             $batch,
             ['product_id', 'user_id'],
             ['category', 'seo_title', 'seo_description', 'featured_image']
         );
+
+        DB::statement("SET @DISABLE_PRODUCT_TRIGGER = NULL");
     }
 }
