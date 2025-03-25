@@ -271,15 +271,9 @@ function ProductApp({ data: { shop_id }, redirect }) {
                 <a href="/history">History</a>
             </NavMenu>
             <Page
-                backAction={{ content: 'Home', onAction: () => navigate('/') }}
+                // backAction={{ content: 'Home', onAction: () => navigate('/') }}
                 title="Products"
                 fullWidth={true}
-                primaryAction={{
-                    content: 'Save',
-                    onAction: saveClick,
-                    disabled: productAction.in_progress,
-                    loading: (productAction.type === 'update' && productAction.in_progress)
-                }}
                 secondaryActions={
                     <InlineStack gap="200" blockAlign="center">
                         {(!!productAction.in_progress && productAction.type === 'connect') && (
@@ -332,6 +326,13 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                 )}
                             </InlineStack>
                         )}
+                        <Button
+                            variant="primary"
+                            onClick={saveClick}
+                            disabled={productAction.in_progress}
+                            loading={(productAction.type === 'update' && productAction.in_progress)}>
+                            Save
+                        </Button>
                     </InlineStack>
                 }
             >

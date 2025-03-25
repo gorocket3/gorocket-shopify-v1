@@ -6,7 +6,9 @@ let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback;
 export async function initGrid({ default_per_page, show_changes }) {
     pApp = new App('', { gridId: "#div-gd" });
 
-    pApp.ResizeGrid(170);
+    const is_mobile = document.body.offsetWidth <= 1007;
+    const grid_height = is_mobile ? 192 : 170;
+    pApp.ResizeGrid(grid_height);
     pApp.BindSearchEnter('#search_product');
 
     gridDiv = document.querySelector(pApp.options.gridId);
