@@ -302,7 +302,7 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
                     </Card>
                     <Box paddingInline={{ xs: 200, sm: 0 }}>
                         <BlockStack inlineAlign='end'>
-                            <Button onClick={() => open('https://support.gorocket3.ai')}>
+                            <Button onClick={() => open('mailto:gorocket33@gmail.com')}>
                                 Customer Support
                             </Button>
                         </BlockStack>
