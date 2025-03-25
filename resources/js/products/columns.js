@@ -336,7 +336,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "seo_title",
             headerName: "SEO Title",
-            width: 100,
+            width: 200,
             filter: "agTextColumnFilter",
             filterParams: {
                 filterOptions: [ "contains", "notContains" ],
@@ -350,7 +350,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "seo_description",
             headerName: "SEO Description",
-            width: 100,
+            width: 250,
             filter: "agTextColumnFilter",
             filterParams: {
                 filterOptions: [ "contains", "notContains" ],
