@@ -217,55 +217,56 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                     }
 
                                                                                     return (
-                                                                                        <BlockStack key={changes_idx}
-                                                                                                    gap="200">
-                                                                                            <Text as="h6"
-                                                                                                  variant="bodyMd"
-                                                                                                  fontWeight="semibold">
+                                                                                        <BlockStack key={changes_idx} gap="200">
+                                                                                            <Text as="h6" variant="bodyMd" fontWeight="semibold">
                                                                                                 {productAttributes[key] || key}
                                                                                             </Text>
                                                                                             <BlockStack gap="100">
                                                                                                 <Box
-                                                                                                    paddingBlockEnd="100"
-                                                                                                    paddingBlockStart="200"
+                                                                                                    paddingBlock="200"
                                                                                                     paddingInline="300"
                                                                                                     borderColor="border"
                                                                                                     borderWidth="025"
                                                                                                     background="bg-surface-critical">
-                                                                                                    <InlineGrid
-                                                                                                        columns="14px auto"
-                                                                                                        gap="200"
-                                                                                                        alignItems="start">
+                                                                                                    <InlineStack gap="300" blockAlign="stretch">
                                                                                                         <Box>
-                                                                                                            <Icon
-                                                                                                                source={MinusIcon}
-                                                                                                                tone="critical"/>
+                                                                                                            <Icon source={MinusIcon} tone="critical"/>
                                                                                                         </Box>
-                                                                                                        <Text as="p"
-                                                                                                              variant="bodySm"
-                                                                                                              tone="base">{old_value}</Text>
-                                                                                                    </InlineGrid>
+                                                                                                        <InlineStack blockAlign="center">
+                                                                                                            {key === 'featured_image' ? (
+                                                                                                                <Thumbnail source={old_value || ImageIcon} size="large" alt="Previous Image"/>
+                                                                                                            ) : key === 'body_html' ? (
+                                                                                                                <Box paddingBlockEnd="050">
+                                                                                                                    <div dangerouslySetInnerHTML={{ __html: old_value }}></div>
+                                                                                                                </Box>
+                                                                                                            ) : (
+                                                                                                                <Text as="p" variant="bodySm" tone="base" breakWord={true}>{old_value}</Text>
+                                                                                                            )}
+                                                                                                        </InlineStack>
+                                                                                                    </InlineStack>
                                                                                                 </Box>
                                                                                                 <Box
-                                                                                                    paddingBlockEnd="100"
-                                                                                                    paddingBlockStart="200"
+                                                                                                    paddingBlock="200"
                                                                                                     paddingInline="300"
                                                                                                     borderColor="border"
                                                                                                     borderWidth="025"
                                                                                                     background="bg-surface-success">
-                                                                                                    <InlineGrid
-                                                                                                        columns="14px auto"
-                                                                                                        gap="200"
-                                                                                                        alignItems="start">
+                                                                                                    <InlineStack gap="300" blockAlign="stretch">
                                                                                                         <Box>
-                                                                                                            <Icon
-                                                                                                                source={PlusIcon}
-                                                                                                                tone="success"/>
+                                                                                                            <Icon source={PlusIcon} tone="success"/>
                                                                                                         </Box>
-                                                                                                        <Text as="p"
-                                                                                                              variant="bodySm"
-                                                                                                              tone="base">{new_value}</Text>
-                                                                                                    </InlineGrid>
+                                                                                                        <InlineStack blockAlign="center">
+                                                                                                            {key === 'featured_image' ? (
+                                                                                                                <Thumbnail source={new_value || ImageIcon} size="large" alt="New Image"/>
+                                                                                                            ) : key === 'body_html' ? (
+                                                                                                                <Box paddingBlockEnd="050">
+                                                                                                                    <div dangerouslySetInnerHTML={{ __html: new_value }}></div>
+                                                                                                                </Box>
+                                                                                                            ) : (
+                                                                                                                <Text as="p" variant="bodySm" tone="base" breakWord={true}>{new_value}</Text>
+                                                                                                            )}
+                                                                                                        </InlineStack>
+                                                                                                    </InlineStack>
                                                                                                 </Box>
                                                                                             </BlockStack>
                                                                                         </BlockStack>
