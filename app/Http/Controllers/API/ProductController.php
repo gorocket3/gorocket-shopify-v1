@@ -29,10 +29,13 @@ class ProductController extends Controller
             'per_page' => 'integer|min:1|max:1000',
             'title' => 'nullable|string|max:512',
             'content' => 'nullable|string',
-            'product_type' => 'nullable|string|max:200',
-            'vendor' => 'nullable|string|max:200',
+            'product_type' => 'nullable|string|max:255',
+            'vendor' => 'nullable|string|max:255',
             'status' => 'nullable|string',
             'tags' => 'nullable|string',
+            'category' => 'nullable|string|max:255',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string|max:255',
             'search_type' => 'nullable|in:created_at,updated_at',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -80,6 +83,32 @@ class ProductController extends Controller
     }
 
     /**
+     * Apply filters to the query
+     *
+     * @param mixed $query
+     * @param array $filters
+     */
+    private function applyFilters(mixed $query, array $filters): void
+    {
+        $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('title', 'LIKE', "%{$title}%"))
+            ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_html', 'LIKE', "%{$content}%"))
+            ->when($filters['product_type'] ?? null, fn($q, $type) => $q->where('product_type', $type))
+            ->when($filters['vendor'] ?? null, fn($q, $vendor) => $q->where('vendor', $vendor))
+            ->when($filters['status'] ?? null, fn($q, $status) => $q->where('status', $status))
+            ->when($filters['tags'] ?? null, function ($q, $tags) {
+                $tagsArray = is_array($tags) ? $tags : explode(',', $tags);
+                $q->where(function ($subQuery) use ($tagsArray) {
+                    foreach ($tagsArray as $tag) {
+                        $subQuery->orWhere('tags', $tag);
+                    }
+                });
+            })
+            ->when($filters['category'] ?? null, fn($q, $category) => $q->where('category', 'LIKE', "%{$category}%"))
+            ->when($filters['seo_title'] ?? null, fn($q, $seoTitle) => $q->where('seo_title', 'LIKE', "%{$seoTitle}%"))
+            ->when($filters['seo_description'] ?? null, fn($q, $seoDescription) => $q->where('seo_description', 'LIKE', "%{$seoDescription}%"));
+    }
+
+    /**
      * Get the count of all products
      *
      * @param Request $request
@@ -93,26 +122,6 @@ class ProductController extends Controller
         $count = $query->count();
 
         return response()->json(['count' => $count]);
-    }
-
-    /**
-     * Apply filters to the query
-     *
-     * @param mixed $query
-     * @param array $filters
-     */
-    private function applyFilters(mixed $query, array $filters): void
-    {
-        $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('title', 'LIKE', "%{$title}%"))
-            ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_html', 'LIKE', "%{$content}%"))
-            ->when($filters['product_type'] ?? null, fn($q, $type) => $q->where('product_type', $type))
-            ->when($filters['vendor'] ?? null, fn($q, $vendor) => $q->where('vendor', $vendor))
-            ->when($filters['status'] ?? null, fn($q, $status) => $q->whereIn('status', $status))
-            ->when($filters['tags'] ?? null, fn($q, $tags) => $q->where(function ($subQuery) use ($tags) {
-                foreach ($tags as $tag) {
-                    $subQuery->orWhere('tags', 'LIKE', "%$tag%");
-                }
-            }));
     }
 
     /**
