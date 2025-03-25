@@ -31,27 +31,50 @@ class ProductController extends Controller
             'content' => 'nullable|string',
             'product_type' => 'nullable|string|max:200',
             'vendor' => 'nullable|string|max:200',
-            'status' => 'nullable|array',
-            'status.*' => 'string',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string',
+            'status' => 'nullable|string',
+            'tags' => 'nullable|string',
             'search_type' => 'nullable|in:created_at,updated_at',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
+            'sort_dir' => 'nullable|in:asc,desc'
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
         $searchType = $validated['search_type'] ?? 'created_at';
+        $sortDir = $validated['sort_dir'] ?? 'desc';
 
         $startDate = isset($validated['start_date']) ? $validated['start_date'] . ' 00:00:00' : null;
         $endDate = isset($validated['end_date']) ? $validated['end_date'] . ' 23:59:59' : null;
 
-        $query = Product::with(['variants.image', 'images', 'options'])->where('user_id', $shop->id);
+        $sortableFields = [
+            'title' => 'products.title',
+            'status' => 'products.status',
+            'created_at' => 'products.created_at',
+            'updated_at' => 'products.updated_at',
+            'price' => 'product_variants.price',
+            'inventory_quantity' => 'product_variants.inventory_quantity',
+            'grams' => 'product_variants.grams'
+        ];
+
+        $query = Product::query()
+            ->select('products.*')
+            ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
+            ->with(['variants.image', 'images', 'options'])
+            ->where('products.user_id', $shop->id)
+            ->distinct('products.id');
+
         $this->applyFilters($query, $validated);
         if ($startDate && $endDate) {
-            $query->whereBetween($searchType, [$startDate, $endDate]);
+            $query->whereBetween("products.$searchType", [$startDate, $endDate]);
         }
-        $products = $query->latest()->paginate($perPage);
+
+        if (isset($validated['sort_by'], $sortableFields[$validated['sort_by']])) {
+            $query->orderBy($sortableFields[$validated['sort_by']], $sortDir);
+        } else {
+            $query->orderBy('products.created_at', 'desc');
+        }
+        $products = $query->paginate($perPage);
 
         return response()->json($products);
     }

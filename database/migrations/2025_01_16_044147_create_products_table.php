@@ -29,8 +29,14 @@ return new class extends Migration {
             $table->string('tags')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
-            $table->unsignedBigInteger('user_id')->index();
-            $table->string('updated_by')->default('gorocket')->index();
+
+            $table->unsignedBigInteger('user_id');
+            $table->string('updated_by')->default('gorocket');
+
+            $table->index('user_id');
+            $table->index('created_at');
+            $table->index('updated_at');
+            $table->index(['user_id', 'status']);
 
             $table->unique(['product_id', 'user_id']);
             $table->unique(['handle', 'user_id']);

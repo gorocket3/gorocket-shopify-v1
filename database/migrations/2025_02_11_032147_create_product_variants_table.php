@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id')->index();
-            $table->unsignedBigInteger('variant_id')->unique();
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('variant_id');
             $table->string('title')->nullable();
             $table->decimal('price', 10, 2)->nullable();
             $table->integer('position')->nullable();
@@ -31,14 +31,24 @@ return new class extends Migration {
             $table->string('sku')->nullable();
             $table->decimal('weight', 10, 2)->nullable();
             $table->string('weight_unit')->nullable();
-            $table->unsignedBigInteger('inventory_item_id')->index();
+            $table->unsignedBigInteger('inventory_item_id');
             $table->integer('inventory_quantity')->nullable();
             $table->integer('old_inventory_quantity')->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
             $table->timestamps();
-            $table->string('updated_by')->default('gorocket')->index();
+            $table->string('updated_by')->default('gorocket');
 
             $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
+
+            $table->unique('variant_id');
+
+            $table->index('product_id');
+            $table->index('inventory_item_id');
+            $table->index('price');
+            $table->index('inventory_quantity');
+            $table->index('sku');
+            $table->index('image_id');
+            $table->index('grams');
         });
     }
 
