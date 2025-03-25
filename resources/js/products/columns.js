@@ -165,7 +165,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "change_log",
             headerName: "Changes",
-            width: 50,
+            width: 70,
             cellStyle: cellMergeStyling,
             cellClass: 'hd-grid-code',
             cellRenderer: (p) => {
