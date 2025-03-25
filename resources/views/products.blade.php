@@ -32,12 +32,12 @@
     <script>
         agGrid.LicenseManager.setLicenseKey("{{ config('services.grid.license') }}");
     </script>
-    <script src="/assets/grid/function.js?v=2025021017"></script>
-    <script src="/assets/grid/init.js?v=2025021017"></script>
-    <script src="/assets/grid/grid_field_editor.js?v=2025021017"></script>
+    <script src="/assets/grid/function.js?v=2025032511"></script>
+    <script src="/assets/grid/init.js?v=2025032511"></script>
+    <script src="/assets/grid/grid_field_editor.js?v=2025032511"></script>
     {{--    <script src="/assets/grid/grid_custom_editor.js?v=2025021017"></script>--}}
-    <script src="/assets/grid/grid.js?v=2025021017"></script>
-    <link rel="stylesheet" href="/assets/grid/grid.css?v=2025021017">
+    <script src="/assets/grid/grid.js?v=2025032511"></script>
+    <link rel="stylesheet" href="/assets/grid/grid.css?v=2025032511">
     <!-- // AG-GRID -->
 
     <!-- Font -->
