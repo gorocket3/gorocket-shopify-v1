@@ -341,7 +341,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filterParams: {
                 filterOptions: [ "contains", "notContains" ],
             },
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('seo_title'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('seo_title', e),
@@ -355,7 +355,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filterParams: {
                 filterOptions: [ "contains", "notContains" ],
             },
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('seo_description'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('seo_description', e),
@@ -389,7 +389,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             cellRenderer: (p) => {
                 return `
                     <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
-                        <div class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
+                        <a href="shopify://admin/products/${p.data.group_id}/variants/${p.data.variant_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
                             ${!!p.value ? `
                                 <img alt="${p.data.product_name}" src="${p.value}">
                             ` : `
@@ -401,7 +401,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                                     </svg>
                                 </span>
                             `}
-                        </div>
+                        </a>
                     </div>
                 `;
             },
@@ -436,7 +436,6 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             },
             cellStyle: (p) => p.value === 'true' ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
-            cellRenderer: (p) => `<a href="shopify://admin/products/${p.data.group_id}" class="underline">${p.value}</a>`
         },
         {
             field: "inventory_quantity",
