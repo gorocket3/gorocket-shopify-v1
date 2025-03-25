@@ -13,7 +13,7 @@ class LimitProductEditMiddleware
     /**
      * limit daily requests
      */
-    const FREE_MAX_DAILY_REQUESTS = 100;
+    const FREE_MAX_DAILY_REQUESTS = 500;
     const BASIC_MAX_DAILY_REQUESTS = 50000;
 
     /**

@@ -36,16 +36,18 @@ class HistoryController extends Controller
 
         $planName = $shop->plan->name ?? 'Free';
         $historyDays = match ($planName) {
-            'Basic' => 30,
+            'Basic' => 7,
             default => 7
         };
+        $cutoffDate = now()->subDays($historyDays)->startOfDay();
 
         $query = ChangeLog::with([
             'product',
             'variant',
             'product.images',
             'variant.image',
-        ])->where('user_id', $shop->id)->where('created_at', '>=', now()->subDays($historyDays));
+        ])->where('user_id', $shop->id);
+
         if (!empty($validated['product_id'])) {
             if (is_array($validated['product_id'])) {
                 $query->whereIn('product_id', $validated['product_id']);
@@ -53,7 +55,18 @@ class HistoryController extends Controller
                 $query->where('product_id', $validated['product_id']);
             }
         }
+
         $history = $query->latest()->paginate($perPage);
+
+        $filteredItems = $history->getCollection()->map(function ($item) use ($cutoffDate) {
+            if ($item->created_at < $cutoffDate) {
+                $item->old_values = '';
+                $item->new_values = '';
+            }
+            return $item;
+        });
+
+        $history->setCollection($filteredItems);
 
         return response()->json($history);
     }
