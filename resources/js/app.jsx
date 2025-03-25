@@ -20,11 +20,13 @@ import {
     Link,
     Page,
     ProgressBar,
-    Text
+    Text,
+    Tooltip
 } from '@shopify/polaris';
 import { XCircleIcon } from "@shopify/polaris-icons";
 import fetchData from "./api/fetch";
 import '@shopify/polaris/build/esm/styles.css';
+import { formatNumberWithCommas } from "./util/custom-format.js";
 import { useEffectWithoutInitialState } from "./util/custom-hook.js";
 
 function App({ data }) {
@@ -68,6 +70,7 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
 
     // Info
     const [ totalProductCount, setTotalProductCount ] = useState(total_product_count);
+    const [ historyCount, setHistoryCount ] = useState({ count: 0, limit: 0 });
 
     // UI
     const [ introCardDismissed, setIntroCardDismissed ] = useState(false);
@@ -100,6 +103,15 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
         setTotalProductCount(count || 0);
     }
 
+    async function initHistoryInfo() {
+        try {
+            const { count, limit } = await fetchData({ method: 'GET', url: '/api/history/count' });
+            setHistoryCount({ count, limit });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     useEffectWithoutInitialState(() => {
         if (customAction.progress === 100) {
             setTimeout(() => {
@@ -128,6 +140,9 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
         if (!!sync_data?.syncing) {
             startCustomAction('connect', sync_data.progress || 0);
         }
+
+        // History count
+        initHistoryInfo();
 
         // Pusher
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
@@ -207,7 +222,7 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
                                         <Text as="h2" variant="headingMd">Total Product Count</Text>
                                         <Button onClick={() => navigate('/products')} accessibilityLabel="Manage">Manage</Button>
                                     </InlineGrid>
-                                    <Text as="p" variant="headingXl">{totalProductCount.toLocaleString('en-US')} <Text as="span" variant="bodySm" tone="subdued">products</Text></Text>
+                                    <Text as="p" variant="headingXl">{formatNumberWithCommas(totalProductCount)} <Text as="span" variant="bodySm" tone="subdued">products</Text></Text>
                                 </BlockStack>
                             </Card>
                             <Card>
@@ -218,12 +233,21 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
                                     </InlineGrid>
                                     <InlineStack gap="400" blockAlign="center">
                                         <div style={{ width: 70 }}>
-                                            <ProgressBar progress={40} size="small" tone={40 > 80 ? 'critical' : 'highlight'} />
+                                            <ProgressBar
+                                                size="small"
+                                                progress={historyCount.count / Math.max(historyCount.limit, 1) * 100}
+                                                tone={(historyCount.count / Math.max(historyCount.limit, 1) * 100) > 90 ? 'critical' : 'highlight'}/>
                                         </div>
-                                        <Text as="p" variant="bodyLg">
-                                            <Text as="span" fontWeight="bold">400</Text>
-                                            /1,000
-                                        </Text>
+                                        <Tooltip
+                                            active={(historyCount.count / Math.max(historyCount.limit, 1) * 100) > 90}
+                                            preferredPosition="below"
+                                            width="wide"
+                                            content="Upgrading your plan will allow you to edit more products.">
+                                            <Text as="p" variant="bodyLg">
+                                                <Text as="span" fontWeight="bold">{formatNumberWithCommas(historyCount.count)}</Text>
+                                                /{formatNumberWithCommas(historyCount.limit)}
+                                            </Text>
+                                        </Tooltip>
                                     </InlineStack>
                                 </BlockStack>
                             </Card>
