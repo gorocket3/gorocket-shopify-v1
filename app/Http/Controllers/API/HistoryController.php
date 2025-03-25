@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Redis;
 class HistoryController extends Controller
 {
     /**
+     * limit daily requests
+     */
+    const FREE_MAX_DAILY_REQUESTS = 100;
+    const BASIC_MAX_DAILY_REQUESTS = 50000;
+
+    /**
      * SyncController constructor.
      *
      * @param Request $request
@@ -66,6 +72,11 @@ class HistoryController extends Controller
             ->where('updated_by', 'gorocket')
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()]);
 
-        return response()->json(['count' => $query->count()]);
+        $limit = match ($shop->plan->name) {
+            'Basic' => self::BASIC_MAX_DAILY_REQUESTS,
+            default => self::FREE_MAX_DAILY_REQUESTS
+        };
+
+        return response()->json(['count' => $query->count(), 'limit' => $limit]);
     }
 }
