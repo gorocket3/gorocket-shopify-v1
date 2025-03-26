@@ -53,13 +53,26 @@ class WebhookController extends Controller
                         title
                         description
                     }
+                    collections(first: 10) {
+                        edges {
+                            node {
+                                id
+                                title
+                                handle
+                            }
+                        }
+                    }
                 }
             }
             GRAPHQL;
 
             $response = $shop->api()->graph($query);
+
             $seo = $response['body']['data']['product']['seo'] ?? null;
+            $collections = collect($response['body']['data']['product']['collections']['edges'] ?? [])->pluck('node.title')->toArray();
+
             $payload['seo'] = $seo;
+            $payload['collections'] = implode(', ', $collections);
         }
 
         if (!$this->dispatchJob($type, $payload)) {
