@@ -77,7 +77,7 @@ function App({ data }) {
     )
 }
 
-function ProductApp({ data: { shop_id }, redirect }) {
+function ProductApp({ data: { shop_id, plan_selected_limit }, redirect }) {
     const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
 
     // Product Action
@@ -243,7 +243,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
 
     useEffect(() => {
         // Grid
-        initGrid({ default_per_page: searchPerPage, show_changes: (prd) => setLogsProductInfo(prd) });
+        initGrid({ plan_selected_limit, default_per_page: searchPerPage, show_changes: (prd) => setLogsProductInfo(prd) });
 
         // Pusher
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
@@ -354,7 +354,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                     Product Variants
                                 </Text>
                                 <Text as="p" variant="bodySm" tone="magic">
-                                    [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text> edited ]
+                                    [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text>/{formatNumberWithCommas(plan_selected_limit)} edited ]
                                 </Text>
                             </InlineStack>
                             <InlineStack gap="200" align="end" blockAlign="center">

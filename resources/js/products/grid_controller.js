@@ -5,7 +5,7 @@ import getInitialColumns from "./columns.js";
 let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback;
 let editedCellCount = 0;
 
-export async function initGrid({ default_per_page, show_changes }) {
+export async function initGrid({ plan_selected_limit, default_per_page, show_changes }) {
     pApp = new App('', { gridId: "#div-gd" });
 
     const is_mobile = document.body.offsetWidth <= 1007;
@@ -16,7 +16,7 @@ export async function initGrid({ default_per_page, show_changes }) {
     gridDiv = document.querySelector(pApp.options.gridId);
 
     initData = await getInitialData();
-    defaultData = { per_page: default_per_page };
+    defaultData = { plan_selected_limit, per_page: default_per_page };
     showChangesCallback = show_changes;
     refreshGrid(initData, defaultData, showChangesCallback);
 }
@@ -102,6 +102,11 @@ export function getProductsToUpdate() {
     let selectedRows = gx.gridOptions.api.getSelectedRows();
     if (selectedRows.length < 1) {
         shopify.toast.show('Please select the product(s) to save.', { isError: true });
+        return null;
+    }
+
+    if (editedCellCount > defaultData.plan_selected_limit) {
+        shopify.toast.show('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')', { isError: true });
         return null;
     }
 
@@ -381,4 +386,8 @@ function addEditedCellCount(num, reset = false) {
     if (reset) editedCellCount = 0;
     else editedCellCount += num;
     document.getElementById('gd-edited').innerText = formatNumberWithCommas(editedCellCount);
+
+    if (editedCellCount > defaultData.plan_selected_limit) {
+        shopify.toast.show('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')', { isError: true });
+    }
 }
