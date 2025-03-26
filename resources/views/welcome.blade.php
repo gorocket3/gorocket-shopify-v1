@@ -26,7 +26,10 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', "{{ config('services.gtag.id') }}");
+        gtag('config', "{{ config('services.gtag.id') }}", {
+            'cookie_flags': 'SameSite=None; Secure',
+            'transport_type': 'xhr'
+        });
     </script>
     <!-- // Google tag (gtag.js) -->
 
