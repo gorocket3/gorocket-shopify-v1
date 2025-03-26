@@ -16,22 +16,29 @@ import {
     Icon,
     InlineGrid,
     InlineStack,
+    Link,
     Page,
     Popover,
     ProgressBar,
     ResourceItem,
     ResourceList,
     Text,
-    Thumbnail
+    Thumbnail,
+    Tooltip
 } from '@shopify/polaris';
 import {
+    AlertTriangleIcon,
     DeleteIcon,
     EditIcon,
-    ImageIcon, MinusIcon, PlusIcon,
+    ImageIcon,
+    MinusIcon,
+    PlusIcon,
+    ProductIcon,
     RedoIcon,
     SearchIcon,
     SettingsIcon,
     UndoIcon,
+    VariantIcon,
     XCircleIcon
 } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
@@ -418,7 +425,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                 </Card>
             </Page>
             <Modal
-                variant="base"
+                variant="large"
                 open={!!logsProductInfo}
                 onHide={() => setLogsProductInfo(null)}
             >
@@ -471,126 +478,138 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                                                 // media={}
                                                                 accessibilityLabel={`View details for ${log.product_id}`}
                                                                 verticalAlignment="center"
+                                                                disabled={true}
                                                             >
                                                                 <BlockStack gap="300">
-                                                                    <InlineGrid
-                                                                        columns={{ xs: 1, md: "1fr auto" }}
-                                                                        alignItems="center"
-                                                                        gap="200">
+                                                                    <InlineGrid columns={{ xs: 1, md: "1fr auto" }} alignItems="center" gap="200">
                                                                         <InlineStack gap="200">
-                                                                            {log.product ? (
-                                                                                <>
-                                                                                    <Thumbnail
-                                                                                        source={log.event === 'product_variant_update' ? (log.variant?.image?.src || ImageIcon) : (log.product.images?.[0]?.src || ImageIcon)}
-                                                                                        size="extraSmall"
-                                                                                        alt={log.product_id}
+                                                                            <Thumbnail
+                                                                                source={log.event === 'product_variant_update' ? (log.variant?.image?.src || ImageIcon) : (log.product?.images?.[0]?.src || ImageIcon)}
+                                                                                size="extraSmall"
+                                                                                alt={log.product_id}
+                                                                            />
+                                                                            <Text as="h4" variant="bodyLg"
+                                                                                  fontWeight="semibold"
+                                                                                  tone={log.product ? 'base' : 'subdued'}
+                                                                                  textDecorationLine={log.product ? false : 'line-through'}>
+                                                                                {log.product ? (log.event === 'product_variant_update' ? (log.variant?.title || log.product.title) : log.product.title) : 'Deleted Product'}
+                                                                            </Text>
+                                                                            <Tooltip content={log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}>
+                                                                                <Link url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
+                                                                                    <Icon source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
+                                                                                          tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
                                                                                     />
-                                                                                    <Text as="h4"
-                                                                                          variant="bodyLg"
-                                                                                          fontWeight="semibold">
-                                                                                        {log.event === 'product_variant_update' ? (log.variant?.title || log.product.title) : log.product.title}
-                                                                                    </Text>
-                                                                                </>
-                                                                            ) : (
-                                                                                <>
-                                                                                    <Thumbnail
-                                                                                        source={DeleteIcon}
-                                                                                        size="extraSmall"
-                                                                                        alt={log.product_id}
-                                                                                    />
-                                                                                    <Text as="h4"
-                                                                                          variant="bodyLg"
-                                                                                          fontWeight="semibold"
-                                                                                          tone="subdued"
-                                                                                          textDecorationLine="line-through">
-                                                                                        Deleted Product
-                                                                                        ({log.product_id})
-                                                                                    </Text>
-                                                                                </>
-                                                                            )}
-                                                                            <Badge progress="complete"
-                                                                                   tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}>
-                                                                                {log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}
-                                                                            </Badge>
+                                                                                </Link>
+                                                                            </Tooltip>
                                                                         </InlineStack>
-                                                                        <Text as="p" variant="bodySm"
-                                                                              tone="subdued">Changed
-                                                                            at {formatISOStringToReadableDate(log.updated_at, {
-                                                                                day: false,
-                                                                                year: false,
-                                                                                time: true
-                                                                            })}
-                                                                        </Text>
+                                                                        <InlineStack gap="200">
+                                                                            <Badge progress="complete" tone={log.updated_by === 'gorocket' ? 'magic' : 'success'}>
+                                                                                {log.updated_by}
+                                                                            </Badge>
+                                                                            <Text as="p" variant="bodySm" tone="subdued">Changed
+                                                                                at {formatISOStringToReadableDate(log.updated_at, {
+                                                                                    day: false,
+                                                                                    year: false,
+                                                                                    time: true
+                                                                                })}
+                                                                            </Text>
+                                                                        </InlineStack>
                                                                     </InlineGrid>
-                                                                    <Card>
-                                                                        <BlockStack gap="400">
-                                                                            {Object.keys(log.old_values).map((key, changes_idx) => {
-                                                                                let old_value = log.old_values[key];
-                                                                                let new_value = log.new_values[key];
+                                                                    {(Object.keys(log.old_values).length + Object.keys(log.new_values).length) > 0 ? (
+                                                                        <Card>
+                                                                            <BlockStack gap="400">
+                                                                                {Object.keys(log.old_values).map((key, changes_idx) => {
+                                                                                    let old_value = log.old_values[key];
+                                                                                    let new_value = log.new_values[key];
 
-                                                                                if ([ 'price', 'weight', 'compare_at_price' ].includes(key)) {
-                                                                                    old_value = formatNumberWithCommas(old_value);
-                                                                                    new_value = formatNumberWithCommas(new_value);
-                                                                                }
+                                                                                    if ([ 'price', 'weight', 'compare_at_price' ].includes(key)) {
+                                                                                        old_value = formatNumberWithCommas(old_value);
+                                                                                        new_value = formatNumberWithCommas(new_value);
+                                                                                    }
 
-                                                                                return (
-                                                                                    <BlockStack
-                                                                                        key={changes_idx}
-                                                                                        gap="200">
-                                                                                        <Text as="h6"
-                                                                                              variant="bodyMd"
-                                                                                              fontWeight="semibold">
-                                                                                            {productAttributes[key] || key}
-                                                                                        </Text>
-                                                                                        <BlockStack gap="100">
-                                                                                            <Box
-                                                                                                paddingBlockEnd="100"
-                                                                                                paddingBlockStart="200"
-                                                                                                paddingInline="300"
-                                                                                                borderColor="border"
-                                                                                                borderWidth="025"
-                                                                                                background="bg-surface-critical">
-                                                                                                <InlineGrid
-                                                                                                    columns="14px auto"
-                                                                                                    gap="200"
-                                                                                                    alignItems="start">
-                                                                                                    <Box>
-                                                                                                        <Icon
-                                                                                                            source={MinusIcon}
-                                                                                                            tone="critical"/>
-                                                                                                    </Box>
-                                                                                                    <Text as="p"
-                                                                                                          variant="bodySm"
-                                                                                                          tone="base">{old_value}</Text>
-                                                                                                </InlineGrid>
-                                                                                            </Box>
-                                                                                            <Box
-                                                                                                paddingBlockEnd="100"
-                                                                                                paddingBlockStart="200"
-                                                                                                paddingInline="300"
-                                                                                                borderColor="border"
-                                                                                                borderWidth="025"
-                                                                                                background="bg-surface-success">
-                                                                                                <InlineGrid
-                                                                                                    columns="14px auto"
-                                                                                                    gap="200"
-                                                                                                    alignItems="start">
-                                                                                                    <Box>
-                                                                                                        <Icon
-                                                                                                            source={PlusIcon}
-                                                                                                            tone="success"/>
-                                                                                                    </Box>
-                                                                                                    <Text as="p"
-                                                                                                          variant="bodySm"
-                                                                                                          tone="base">{new_value}</Text>
-                                                                                                </InlineGrid>
-                                                                                            </Box>
+                                                                                    return (
+                                                                                        <BlockStack key={changes_idx} gap="200">
+                                                                                            <Text as="h6" variant="bodyMd" fontWeight="semibold">
+                                                                                                {productAttributes[key] || key}
+                                                                                            </Text>
+                                                                                            <BlockStack gap="100">
+                                                                                                <Box
+                                                                                                    paddingBlock="200"
+                                                                                                    paddingInline="300"
+                                                                                                    borderColor="border"
+                                                                                                    borderWidth="025"
+                                                                                                    background="bg-surface-critical">
+                                                                                                    <InlineGrid gap="200" columns="14px auto">
+                                                                                                        <Box>
+                                                                                                            <Icon source={MinusIcon} tone="critical"/>
+                                                                                                        </Box>
+                                                                                                        <InlineStack blockAlign="center">
+                                                                                                            {key === 'featured_image' ? (
+                                                                                                                <Thumbnail
+                                                                                                                    source={old_value || ImageIcon}
+                                                                                                                    size="large"
+                                                                                                                    alt="Previous Image"/>
+                                                                                                            ) : key === 'body_html' ? (
+                                                                                                                <Box paddingBlockEnd="050">
+                                                                                                                    <div dangerouslySetInnerHTML={{ __html: old_value }}></div>
+                                                                                                                </Box>
+                                                                                                            ) : (
+                                                                                                                <Text as="p" variant="bodySm" tone="base" breakWord={true}>{old_value}</Text>
+                                                                                                            )}
+                                                                                                        </InlineStack>
+                                                                                                    </InlineGrid>
+                                                                                                </Box>
+                                                                                                <Box
+                                                                                                    paddingBlock="200"
+                                                                                                    paddingInline="300"
+                                                                                                    borderColor="border"
+                                                                                                    borderWidth="025"
+                                                                                                    background="bg-surface-success">
+                                                                                                    <InlineGrid gap="200" columns="14px auto">
+                                                                                                        <Box>
+                                                                                                            <Icon source={PlusIcon} tone="success"/>
+                                                                                                        </Box>
+                                                                                                        <InlineStack blockAlign="center">
+                                                                                                            {key === 'featured_image' ? (
+                                                                                                                <Thumbnail
+                                                                                                                    source={new_value || ImageIcon}
+                                                                                                                    size="large"
+                                                                                                                    alt="New Image"/>
+                                                                                                            ) : key === 'body_html' ? (
+                                                                                                                <Box paddingBlockEnd="050">
+                                                                                                                    <div dangerouslySetInnerHTML={{ __html: new_value }}></div>
+                                                                                                                </Box>
+                                                                                                            ) : (
+                                                                                                                <Text as="p" variant="bodySm" tone="base" breakWord={true}>{new_value}</Text>
+                                                                                                            )}
+                                                                                                        </InlineStack>
+                                                                                                    </InlineGrid>
+                                                                                                </Box>
+                                                                                            </BlockStack>
                                                                                         </BlockStack>
-                                                                                    </BlockStack>
-                                                                                )
-                                                                            })}
-                                                                        </BlockStack>
-                                                                    </Card>
+                                                                                    )
+                                                                                })}
+                                                                            </BlockStack>
+                                                                        </Card>
+                                                                    ) : (
+                                                                        <Box
+                                                                            paddingBlock="200"
+                                                                            paddingInline="300"
+                                                                            borderColor="border"
+                                                                            borderWidth="025"
+                                                                            background="bg-surface-warning">
+                                                                            <InlineStack gap="300" blockAlign="stretch">
+                                                                                <Box>
+                                                                                    <Icon source={AlertTriangleIcon} tone="warning"/>
+                                                                                </Box>
+                                                                                <InlineStack blockAlign="center">
+                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>
+                                                                                        Your plan does not allow you to view that information. <Link monochrome onClick={() => navigate('/plan')}>Check plan</Link>
+                                                                                    </Text>
+                                                                                </InlineStack>
+                                                                            </InlineStack>
+                                                                        </Box>
+                                                                    )}
                                                                 </BlockStack>
                                                             </ResourceItem>
                                                         ))}

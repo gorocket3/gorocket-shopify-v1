@@ -185,7 +185,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                     {log.product ? `${log.product.title} ${log.variant ? `(${log.variant.title})` : ''}` : 'Deleted Product'}
                                                                                 </Text>
                                                                                 <Tooltip content={log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}>
-                                                                                    <Link url={`shopify://admin/products/${log.product_id}`}>
+                                                                                    <Link url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
                                                                                         <Icon source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
                                                                                             tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
                                                                                         />
@@ -294,7 +294,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                     </Box>
                                                                                     <InlineStack blockAlign="center">
                                                                                         <Text as="p" variant="bodySm" tone="base" breakWord={true}>
-                                                                                            Your plan does not allow you to view that information. <Link monochrome onClick={() => navigate('/billing/2')}>Upgrade plan</Link>
+                                                                                            Your plan does not allow you to view that information. <Link monochrome onClick={() => navigate('/plan')}>Check plan</Link>
                                                                                         </Text>
                                                                                     </InlineStack>
                                                                                 </InlineStack>

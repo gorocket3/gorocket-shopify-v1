@@ -51,117 +51,115 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                 title="Plan"
             >
                 <Box paddingBlockEnd="400">
-                    <Layout>
+                    <InlineGrid columns={{ xs: 1, lg: 2 }} gap="400">
                         {plans.map((plan, index) => (
-                            <Layout.Section key={index} variant="oneHalf">
-                                <Card>
-                                    <Box paddingBlock="400">
+                            <Card key={index}>
+                                <Box paddingBlock="400">
+                                    <BlockStack gap="200">
                                         <BlockStack gap="200">
-                                            <BlockStack gap="200">
-                                                <InlineStack gap="200" blockAlign="center">
-                                                    <Text as="h2" variant="headingLg">
-                                                        {plan.name}
-                                                    </Text>
-                                                    {plan.user_plan &&
-                                                        <Badge tone="success">
-                                                            <Text as="span" variant="bodyXs" fontWeight="semibold">IN
-                                                                USE</Text>
-                                                        </Badge>
-                                                    }
-                                                    {plan.id === 2 &&
-                                                        <Badge tone="critical">
-                                                            <Text as="span" variant="bodyXs"
-                                                                  fontWeight="semibold">RECOMMENDED</Text>
-                                                        </Badge>
-                                                    }
-                                                </InlineStack>
-                                                <Text as='p' variant="heading2xl">
-                                                    ${plan.price}
-                                                    <Text as='span' variant="bodySm">/{plan.interval}</Text>
+                                            <InlineStack gap="200" blockAlign="center">
+                                                <Text as="h2" variant="headingLg">
+                                                    {plan.name}
                                                 </Text>
-                                                <Box minHeight="32px">
-                                                    {(plan.id === 2 && !plan.user_plan) && (
-                                                        <Button onClick={() => navigate('/billing/' + plan.id)}
-                                                                variant="primary"
-                                                                size="large" fullWidth={true}>
-                                                            Start Now for FREE
-                                                        </Button>
-                                                    )}
-                                                </Box>
-                                            </BlockStack>
-                                            <Box>
-                                                <ResourceList
-                                                    resourceName={{ singular: 'plan', plural: 'plans' }}
-                                                    items={[
-                                                        {
-                                                            title: "Overview",
-                                                            type: "text",
-                                                            content: plan.terms,
-                                                            plan_name: plan.name,
-                                                        },
-                                                        {
-                                                            title: "Edit count",
-                                                            type: "text",
-                                                            content: (plan.id === 1 ? '500' : '50,000') + ' times per day',
-                                                            plan_name: plan.name,
-                                                        },
-                                                        {
-                                                            title: "History viewing period",
-                                                            type: "text",
-                                                            content: plan.id === 1 ? '7 days' : '30 days',
-                                                            plan_name: plan.name,
-                                                        },
-                                                        {
-                                                            title: "Shopify's history viewing",
-                                                            type: "success",
-                                                            content: plan.id !== 1,
-                                                            plan_name: plan.name,
-                                                        },
-                                                    ]}
-                                                    renderItem={(item, idx) => {
-                                                        const { title, type, content, plan_name } = item;
-
-                                                        if (type === 'success' && !content) return null;
-
-                                                        return (
-                                                            <ResourceItem
-                                                                id={idx}
-                                                                accessibilityLabel={plan_name + ' ' + title}
-                                                                verticalAlignment="center">
-                                                                <InlineGrid columns={2}>
-                                                                    <InlineStack gap="100" blockAlign="center">
-                                                                        {title !== 'Overview' && (
-                                                                            <Box>
-                                                                                <Icon source={CheckIcon} tone="success"/>
-                                                                            </Box>
-                                                                        )}
-                                                                        <Text as="h3" variant="bodyMd" fontWeight="semibold">
-                                                                            {title}
-                                                                        </Text>
-                                                                    </InlineStack>
-                                                                    <InlineStack align="center">
-                                                                        {type === "text" && (
-                                                                            <Text as="p"
-                                                                                  variant="bodyMd">{content}</Text>
-                                                                        )}
-                                                                        {type === "success" && (
-                                                                            <Icon
-                                                                                source={content ? StatusActiveIcon : XCircleIcon}
-                                                                                tone={content ? "success" : "critical"}/>
-                                                                        )}
-                                                                    </InlineStack>
-                                                                </InlineGrid>
-                                                            </ResourceItem>
-                                                        );
-                                                    }}
-                                                />
+                                                {plan.user_plan &&
+                                                    <Badge tone="success">
+                                                        <Text as="span" variant="bodyXs" fontWeight="semibold">IN
+                                                            USE</Text>
+                                                    </Badge>
+                                                }
+                                                {plan.id === 2 &&
+                                                    <Badge tone="critical">
+                                                        <Text as="span" variant="bodyXs"
+                                                              fontWeight="semibold">RECOMMENDED</Text>
+                                                    </Badge>
+                                                }
+                                            </InlineStack>
+                                            <Text as='p' variant="heading2xl">
+                                                ${plan.price}
+                                                <Text as='span' variant="bodySm">/{plan.interval}</Text>
+                                            </Text>
+                                            <Box minHeight="32px">
+                                                {(plan.id === 2 && !plan.user_plan) && (
+                                                    <Button onClick={() => navigate('/billing/' + plan.id)}
+                                                            variant="primary"
+                                                            size="large" fullWidth={true}>
+                                                        Start Now for FREE
+                                                    </Button>
+                                                )}
                                             </Box>
                                         </BlockStack>
-                                    </Box>
-                                </Card>
-                            </Layout.Section>
+                                        <Box>
+                                            <ResourceList
+                                                resourceName={{ singular: 'plan', plural: 'plans' }}
+                                                items={[
+                                                    {
+                                                        title: "Overview",
+                                                        type: "text",
+                                                        content: plan.terms,
+                                                        plan_name: plan.name,
+                                                    },
+                                                    {
+                                                        title: "Edit count",
+                                                        type: "text",
+                                                        content: (plan.id === 1 ? '500' : '50,000') + ' times per day',
+                                                        plan_name: plan.name,
+                                                    },
+                                                    {
+                                                        title: "History viewing period",
+                                                        type: "text",
+                                                        content: plan.id === 1 ? '7 days' : '30 days',
+                                                        plan_name: plan.name,
+                                                    },
+                                                    {
+                                                        title: "Shopify's history viewing",
+                                                        type: "success",
+                                                        content: plan.id !== 1,
+                                                        plan_name: plan.name,
+                                                    },
+                                                ]}
+                                                renderItem={(item, idx) => {
+                                                    const { title, type, content, plan_name } = item;
+
+                                                    if (type === 'success' && !content) return null;
+
+                                                    return (
+                                                        <ResourceItem
+                                                            id={idx}
+                                                            accessibilityLabel={plan_name + ' ' + title}
+                                                            verticalAlignment="center">
+                                                            <InlineGrid columns={2}>
+                                                                <InlineStack gap="100" blockAlign="center" wrap={false}>
+                                                                    {title !== 'Overview' && (
+                                                                        <Box>
+                                                                            <Icon source={CheckIcon} tone="success"/>
+                                                                        </Box>
+                                                                    )}
+                                                                    <Text as="h3" variant="bodyMd" fontWeight="semibold">
+                                                                        {title}
+                                                                    </Text>
+                                                                </InlineStack>
+                                                                <InlineStack align="center">
+                                                                    {type === "text" && (
+                                                                        <Text as="p"
+                                                                              variant="bodyMd">{content}</Text>
+                                                                    )}
+                                                                    {type === "success" && (
+                                                                        <Icon
+                                                                            source={content ? StatusActiveIcon : XCircleIcon}
+                                                                            tone={content ? "success" : "critical"}/>
+                                                                    )}
+                                                                </InlineStack>
+                                                            </InlineGrid>
+                                                        </ResourceItem>
+                                                    );
+                                                }}
+                                            />
+                                        </Box>
+                                    </BlockStack>
+                                </Box>
+                            </Card>
                         ))}
-                    </Layout>
+                    </InlineGrid>
                 </Box>
             </Page>
         </AppProvider>
