@@ -189,6 +189,15 @@ class ProductUpdateListener implements ShouldQueue
                                             }
                                         }
                                     }
+                                    collections(first: 10) {
+                                        edges {
+                                            node {
+                                                id
+                                                title
+                                                handle
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

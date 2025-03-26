@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->string('vendor')->nullable();
             $table->string('status')->default('active');
             $table->string('published_scope')->nullable();
-            $table->string('tags')->nullable();
+            $table->text('tags')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
 

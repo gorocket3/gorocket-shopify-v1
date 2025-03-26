@@ -41,8 +41,10 @@ class ProductBulkUpdateJob implements ShouldQueue
         $shop_id = $this->container['shop_id'];
         $url = $this->container['url'];
 
-        $batch = [];
-        $chunkSize = 1000;
+        $chunkSize = 500;
+        $products = [];
+        $collectionsMap = [];
+
         $stream = fopen($url, 'r');
 
         while (!feof($stream)) {
@@ -50,22 +52,40 @@ class ProductBulkUpdateJob implements ShouldQueue
             if (!$line) continue;
 
             $data = json_decode($line, true);
-            $productId = (int) str_replace('gid://shopify/Product/', '', $data['id'] ?? '');
-            if (!$productId) continue;
 
-            $category = $data['productCategory']['productTaxonomyNode'] ?? null;
-            $seo = $data['seo'] ?? null;
-            $featuredImage = $data['featuredMedia']['preview']['image']['src'] ?? null;
+            if (str_starts_with($data['id'] ?? '', 'gid://shopify/Product/')) {
+                $productId = (int) str_replace('gid://shopify/Product/', '', $data['id']);
+                if (!$productId) continue;
 
-            $batch[] = [
-                'product_id'     => $productId,
-                'user_id'        => $shop_id,
-                'category'       => $category['name'] ?? null,
-                'seo_title'      => $seo['title'] ?? null,
-                'seo_description' => $seo['description'] ?? null,
-                'featured_image' => $featuredImage,
-                'updated_at'     => now(),
-            ];
+                $category = $data['productCategory']['productTaxonomyNode'] ?? null;
+                $seo = $data['seo'] ?? null;
+                $featuredImage = $data['featuredMedia']['preview']['image']['src'] ?? null;
+
+                $products[$productId] = [
+                    'product_id'      => $productId,
+                    'user_id'         => $shop_id,
+                    'category'        => $category['name'] ?? null,
+                    'seo_title'       => $seo['title'] ?? null,
+                    'seo_description' => $seo['description'] ?? null,
+                    'featured_image'  => $featuredImage
+                ];
+            }
+
+            elseif (str_starts_with($data['id'] ?? '', 'gid://shopify/Collection/')) {
+                $parentId = (int) str_replace('gid://shopify/Product/', '', $data['__parentId'] ?? '');
+                $title = $data['title'] ?? null;
+                if ($parentId && $title) {
+                    $collectionsMap[$parentId][] = $title;
+                }
+            }
+        }
+
+        fclose($stream);
+
+        $batch = [];
+        foreach ($products as $productId => $item) {
+            $item['collections'] = implode(', ', $collectionsMap[$productId] ?? []);
+            $batch[] = $item;
 
             if (count($batch) >= $chunkSize) {
                 $this->upsertProducts($batch);
@@ -77,7 +97,6 @@ class ProductBulkUpdateJob implements ShouldQueue
             $this->upsertProducts($batch);
         }
 
-        fclose($stream);
         Log::info("[BULK] Product updates completed - shop: {$shop_id}");
     }
 
@@ -94,7 +113,7 @@ class ProductBulkUpdateJob implements ShouldQueue
         Product::upsert(
             $batch,
             ['product_id', 'user_id'],
-            ['category', 'seo_title', 'seo_description', 'featured_image']
+            ['category', 'seo_title', 'seo_description', 'featured_image', 'collections']
         );
 
         DB::statement("SET @DISABLE_PRODUCT_TRIGGER = NULL");
