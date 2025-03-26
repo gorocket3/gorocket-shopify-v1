@@ -1,7 +1,7 @@
 import fetchData from "../api/fetch.js";
 import { formatISOStringToReadableDate } from "../util/custom-format.js";
 
-export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback) {
+export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback, editedCellCallback) {
     const { status = [], tags = [], types = [], vendor = [] } = data || {};
 
     const product_status_values = {
@@ -77,29 +77,35 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         };
     };
 
+    const onCellValueChangedForEditedField = (p) => {
+        if (p.oldValue !== p.newValue) {
+            editedCellCallback(p.newValue ? 1 : -1);
+        }
+    }
+
     const initial_columns = [
         { field: "group_id", hide: true },
-        { field: "product_status_changed", hide: true },
-        { field: "product_name_changed", hide: true },
-        { field: "product_type_changed", hide: true },
-        { field: "product_category_changed", hide: true },
-        { field: "product_tags_changed", hide: true },
-        { field: "product_body_changed", hide: true },
-        { field: "vendor_changed", hide: true },
-        { field: "handle_changed", hide: true },
-        { field: "seo_title_changed", hide: true },
-        { field: "seo_description_changed", hide: true },
-        { field: "option_name_changed", hide: true },
-        { field: "price_changed", hide: true },
-        { field: "inventory_quantity_changed", hide: true },
-        { field: "inventory_policy_changed", hide: true },
-        { field: "compare_at_price_changed", hide: true },
-        { field: "taxable_changed", hide: true },
-        { field: "barcode_changed", hide: true },
-        { field: "sku_changed", hide: true },
-        { field: "requires_shipping_changed", hide: true },
-        { field: "weight_changed", hide: true },
-        { field: "weight_unit_changed", hide: true },
+        { field: "product_status_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "product_name_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "product_type_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "product_category_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "product_tags_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "product_body_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "vendor_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "handle_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "seo_title_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "seo_description_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "option_name_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "price_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "inventory_quantity_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "inventory_policy_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "compare_at_price_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "taxable_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "barcode_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "sku_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "requires_shipping_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "weight_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
+        { field: "weight_unit_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
         {
             field: "chk",
             headerName: '',
@@ -445,6 +451,17 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             editable: true,
         },
         {
+            field: "compare_at_price",
+            headerName: "Compare At Price($)",
+            type: 'currencyType',
+            width: 135,
+            filter: "agNumberColumnFilter",
+            cellClassRules: changedCellClassRules('compare_at_price'),
+            cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
+            onCellValueChanged: (e) => changeCellStateIfNumber('compare_at_price', e),
+            editable: true,
+        },
+        {
             field: "inventory_management",
             headerName: "Inventory Management",
             width: 150,
@@ -493,17 +510,6 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             // cellEditorParams: {
             //     values: [ 'continue', 'deny' ],
             // },
-        },
-        {
-            field: "compare_at_price",
-            headerName: "Compare At Price",
-            type: 'currencyType',
-            width: 130,
-            filter: "agNumberColumnFilter",
-            cellClassRules: changedCellClassRules('compare_at_price'),
-            cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
-            onCellValueChanged: (e) => changeCellStateIfNumber('compare_at_price', e),
-            editable: true,
         },
         {
             field: "taxable",

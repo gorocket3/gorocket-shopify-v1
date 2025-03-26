@@ -101,7 +101,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
     const toggleGridCustomPopover = () => setGridCustomPopoverActive((active) => !active);
 
     // Search
-    const [ searchPerPage, setSearchPerPage ] = useState(10);
+    const [ searchPerPage, setSearchPerPage ] = useState(25);
     const [ searchPerPagePopoverActive, setSearchPerPagePopoverActive ] = useState(false);
     const toggleSearchPerPagePopover = () => setSearchPerPagePopoverActive((active) => !active);
 
@@ -354,10 +354,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                     Product Variants
                                 </Text>
                                 <Text as="p" variant="bodySm" tone="magic">
-                                    [{' '}
-                                    <Text as="strong" id="gd-checked" fontWeight="bold">0</Text>{' '}
-                                    (<Text as="strong" id="gd-checked-products" fontWeight="bold">0</Text>{' '}
-                                    products) checked ]
+                                    [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text> edited ]
                                 </Text>
                             </InlineStack>
                             <InlineStack gap="200" align="end" blockAlign="center">
@@ -377,7 +374,7 @@ function ProductApp({ data: { shop_id }, redirect }) {
                                     <ActionList
                                         actionRole="menuitem"
                                         onActionAnyItem={toggleSearchPerPagePopover}
-                                        items={[ 10, 20, 50, 100, 200, 500 ].map((item) => ({
+                                        items={[ 25, 50, 100, 200, 500 ].map((item) => ({
                                             content: item,
                                             onAction: () => setSearchPerPage(item),
                                             active: searchPerPage === item

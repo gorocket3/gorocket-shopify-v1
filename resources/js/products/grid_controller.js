@@ -1,7 +1,9 @@
 import fetchData from "../api/fetch.js";
+import { formatNumberWithCommas } from "../util/custom-format.js";
 import getInitialColumns from "./columns.js";
 
 let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback;
+let editedCellCount = 0;
 
 export async function initGrid({ default_per_page, show_changes }) {
     pApp = new App('', { gridId: "#div-gd" });
@@ -19,7 +21,7 @@ export async function initGrid({ default_per_page, show_changes }) {
     refreshGrid(initData, defaultData, showChangesCallback);
 }
 
-export function searchProducts({ per_page = 10 } = {}) {
+export function searchProducts({ per_page = 25 } = {}) {
     // let params = $('form[name="search"]').serialize();
     let params = 'per_page=' + per_page;
 
@@ -77,6 +79,8 @@ export function searchProducts({ per_page = 10 } = {}) {
         if (v.current_page === 1) {
             gx.gridOptions.api.setRowData(result);
             gx.gridOptions.api.setFilterModel(filterData);
+
+            addEditedCellCount(0, true);
         } else {
             gx.gridOptions.api.applyTransaction({ add: result });
         }
@@ -285,7 +289,7 @@ export async function resetColumns(e) {
 */
 
 async function refreshGrid(data, defaultData, showChangesModal) {
-    const default_columns = [ ...getInitialColumns(data, showChangesModal, openOnlineStoreLink) ];
+    const default_columns = [ ...getInitialColumns(data, showChangesModal, openOnlineStoreLink, addEditedCellCount) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
     gx = new HDGrid(gridDiv, my_columns, {
@@ -317,12 +321,6 @@ async function refreshGrid(data, defaultData, showChangesModal) {
                     }
                 });
             }
-
-            const selectedRows = event.api.getSelectedRows().map(row => row.product_id);
-            const productsCnt = [ ...new Set(selectedRows) ].length;
-            const variantsCnt = selectedRows.length;
-            document.getElementById('gd-checked').innerText = numberWithCommas(variantsCnt);
-            document.getElementById('gd-checked-products').innerText = numberWithCommas(productsCnt);
         },
         onFilterChanged: (e) => {
             filterData = e.api.getFilterModel();
@@ -366,4 +364,10 @@ async function openOnlineStoreLink(product_id) {
     } finally {
         gx.HideCustomLoadingLayer();
     }
+}
+
+function addEditedCellCount(num, reset = false) {
+    if (reset) editedCellCount = 0;
+    else editedCellCount += num;
+    document.getElementById('gd-edited').innerText = formatNumberWithCommas(editedCellCount);
 }
