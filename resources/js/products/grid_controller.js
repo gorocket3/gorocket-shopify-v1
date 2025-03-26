@@ -27,6 +27,17 @@ export function searchProducts({ per_page = 25 } = {}) {
 
     gx.Request('/api/products', params, 1, function (v) {
         const data = v.data.reduce((a, c, i) => {
+            if (c.variants.length < 1) {
+                return a.concat({
+                    parent_index: i,
+                    parent: {
+                        ...c,
+                        variants_cnt: 1,
+                        images: c.images?.sort((x, y) => x.position - y.position) || []
+                    }
+                });
+            }
+
             return a.concat(c.variants.map((item, index) => {
                 const { variants, ...parent } = c;
                 return {
@@ -63,12 +74,12 @@ export function searchProducts({ per_page = 25 } = {}) {
                 option_name: item.title,
                 option_img: item.image?.src || '',
                 inventory_management: item.inventory_management === 'shopify' ? 'true' : 'false',
-                inventory_quantity: (item.inventory_quantity * 1).toString(),
-                price: (item.price * 1).toString(),
-                compare_at_price: (item.compare_at_price * 1).toString(),
+                inventory_quantity: ((item.inventory_quantity || 0) * 1).toString(),
+                price: ((item.price || 0) * 1).toString(),
+                compare_at_price: ((item.compare_at_price || 0) * 1).toString(),
                 taxable: item.taxable ? 'true' : 'false',
                 barcode: item.barcode || '',
-                weight: (item.weight * 1).toString(),
+                weight: ((item.weight || 0) * 1).toString(),
             };
             cur_data['prev'] = { ...cur_data };
             return cur_data;
