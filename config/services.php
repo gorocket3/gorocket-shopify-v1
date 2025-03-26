@@ -48,6 +48,10 @@ return [
             'key' => env('VITE_PUSHER_APP_KEY'),
             'cluster' => env('VITE_PUSHER_APP_CLUSTER'),
         ]
+    ],
+
+    'gtag' => [
+        'id' => env('GTAG_ID'),
     ]
 
 ];

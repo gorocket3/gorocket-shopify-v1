@@ -16,6 +16,16 @@
     @vite(['resources/js/history/app.jsx', 'resources/css/mobile.css'])
     <!-- // Vite -->
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.gtag.id') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', "{{ config('services.gtag.id') }}");
+    </script>
+    <!-- // Google tag (gtag.js) -->
+
     <title>History :: GoRocket</title>
 </head>
 <body>

@@ -1,6 +1,13 @@
-export function formatISOStringToReadableDate(isoString, { day = true, year = true, time = false } = {}) {
+export function formatISOStringToReadableDate(isoString, {
+    local = 'en-US',
+    day = true,
+    year = true,
+    time = false
+} = {}) {
     const date = new Date(isoString);
-    const options = {}; // UTC 유지 시, timeZone: 'UTC' 설정 필요
+    const options = {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
 
     if (year) options.year = 'numeric';
     if (day) {
@@ -13,7 +20,7 @@ export function formatISOStringToReadableDate(isoString, { day = true, year = tr
         options.hour12 = true;
     }
 
-    return new Intl.DateTimeFormat('en-US', options).format(date);
+    return new Intl.DateTimeFormat(local, options).format(date);
 };
 
 export function formatNumberWithCommas(value) {

@@ -15,6 +15,7 @@ export default defineConfig({
                 // 'resources/js/product/app.jsx',
                 'resources/css/app.css',
                 'resources/css/mobile.css',
+                'resources/css/custom-polaris.css',
             ],
             refresh: true,
         }),

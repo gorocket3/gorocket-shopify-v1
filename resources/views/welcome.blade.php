@@ -20,6 +20,16 @@
     <link href="//fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <!-- // Font -->
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.gtag.id') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', "{{ config('services.gtag.id') }}");
+    </script>
+    <!-- // Google tag (gtag.js) -->
+
     <title>고로켓</title>
 </head>
 <body>

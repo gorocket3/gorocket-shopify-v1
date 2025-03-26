@@ -33,6 +33,7 @@ import '@shopify/polaris/build/esm/styles.css';
 import fetchData from "../api/fetch.js";
 import productAttributes from "../api/product_attributes.json";
 import { formatISOStringToReadableDate, formatNumberWithCommas } from "../util/custom-format.js";
+import '../../css/custom-polaris.css';
 
 function App() {
     const params = new URLSearchParams(location.search);
@@ -204,7 +205,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                 </Text>
                                                                             </InlineStack>
                                                                         </InlineGrid>
-                                                                        {(log.updated_by === 'gorocket') && ((Object.keys(log.old_values).length + Object.keys(log.new_values).length) > 0) ? (
+                                                                        {(Object.keys(log.old_values).length + Object.keys(log.new_values).length) > 0 ? (
                                                                             <Card>
                                                                                 <BlockStack gap="400">
                                                                                     {Object.keys(log.old_values).map((key, changes_idx) => {
@@ -228,7 +229,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                                         borderColor="border"
                                                                                                         borderWidth="025"
                                                                                                         background="bg-surface-critical">
-                                                                                                        <InlineStack gap="300" blockAlign="stretch">
+                                                                                                        <InlineGrid gap="200" columns="14px auto">
                                                                                                             <Box>
                                                                                                                 <Icon source={MinusIcon} tone="critical"/>
                                                                                                             </Box>
@@ -246,7 +247,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                                                     <Text as="p" variant="bodySm" tone="base" breakWord={true}>{old_value}</Text>
                                                                                                                 )}
                                                                                                             </InlineStack>
-                                                                                                        </InlineStack>
+                                                                                                        </InlineGrid>
                                                                                                     </Box>
                                                                                                     <Box
                                                                                                         paddingBlock="200"
@@ -254,7 +255,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                                         borderColor="border"
                                                                                                         borderWidth="025"
                                                                                                         background="bg-surface-success">
-                                                                                                        <InlineStack gap="300" blockAlign="stretch">
+                                                                                                        <InlineGrid gap="200" columns="14px auto">
                                                                                                             <Box>
                                                                                                                 <Icon source={PlusIcon} tone="success"/>
                                                                                                             </Box>
@@ -272,7 +273,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                                                     <Text as="p" variant="bodySm" tone="base" breakWord={true}>{new_value}</Text>
                                                                                                                 )}
                                                                                                             </InlineStack>
-                                                                                                        </InlineStack>
+                                                                                                        </InlineGrid>
                                                                                                     </Box>
                                                                                                 </BlockStack>
                                                                                             </BlockStack>
