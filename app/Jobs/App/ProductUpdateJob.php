@@ -76,13 +76,13 @@ class ProductUpdateJob implements ShouldQueue
             seo: {
                 title: "%s",
                 description: "%s"
-            }
+            },
             title: "%s",
             status: %s,
             descriptionHtml: "%s",
-            tags: "%s"
-            productType: "%s"
-            vendor: "%s"
+            tags: "%s",
+            productType: "%s",
+            vendor: "%s",
             handle: "%s"
         }) {
             product {
