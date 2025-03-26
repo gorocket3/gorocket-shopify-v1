@@ -18,7 +18,7 @@ import {
     ResourceItem,
     Box,
 } from '@shopify/polaris';
-import { StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
+import { CheckIcon, StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
 import '@shopify/polaris/build/esm/styles.css';
 
 function App({ data }) {
@@ -80,7 +80,7 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                                                     <Text as='span' variant="bodySm">/{plan.interval}</Text>
                                                 </Text>
                                                 <Box minHeight="32px">
-                                                    {!plan.user_plan && (
+                                                    {(plan.id === 2 && !plan.user_plan) && (
                                                         <Button onClick={() => navigate('/billing/' + plan.id)}
                                                                 variant="primary"
                                                                 size="large" fullWidth={true}>
@@ -100,26 +100,28 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                                                             plan_name: plan.name,
                                                         },
                                                         {
-                                                            title: "항목1",
-                                                            type: "success",
-                                                            content: true,
+                                                            title: "Edit count",
+                                                            type: "text",
+                                                            content: (plan.id === 1 ? '500' : '50,000') + ' times per day',
                                                             plan_name: plan.name,
                                                         },
                                                         {
-                                                            title: "항목2",
-                                                            type: "success",
-                                                            content: plan.id === 2,
+                                                            title: "History viewing period",
+                                                            type: "text",
+                                                            content: plan.id === 1 ? '7 days' : '30 days',
                                                             plan_name: plan.name,
                                                         },
                                                         {
-                                                            title: "항목3",
+                                                            title: "Shopify's history viewing",
                                                             type: "success",
-                                                            content: true,
+                                                            content: plan.id !== 1,
                                                             plan_name: plan.name,
                                                         },
                                                     ]}
                                                     renderItem={(item, idx) => {
                                                         const { title, type, content, plan_name } = item;
+
+                                                        if (type === 'success' && !content) return null;
 
                                                         return (
                                                             <ResourceItem
@@ -127,10 +129,16 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                                                                 accessibilityLabel={plan_name + ' ' + title}
                                                                 verticalAlignment="center">
                                                                 <InlineGrid columns={2}>
-                                                                    <Text as="h3" variant="bodyMd"
-                                                                          fontWeight="semibold">
-                                                                        {title}
-                                                                    </Text>
+                                                                    <InlineStack gap="100" blockAlign="center">
+                                                                        {title !== 'Overview' && (
+                                                                            <Box>
+                                                                                <Icon source={CheckIcon} tone="success"/>
+                                                                            </Box>
+                                                                        )}
+                                                                        <Text as="h3" variant="bodyMd" fontWeight="semibold">
+                                                                            {title}
+                                                                        </Text>
+                                                                    </InlineStack>
                                                                     <InlineStack align="center">
                                                                         {type === "text" && (
                                                                             <Text as="p"

@@ -195,7 +195,9 @@ function MainApp({ data: { shop_id, plan, total_product_count, sync_data }, redi
                                 <BlockStack gap="400">
                                     <InlineGrid columns="1fr auto">
                                         <Text as="h2" variant="headingMd">Active plan</Text>
-                                        <Button onClick={() => navigate('/plan')} variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
+                                        {plan.id === 1 && (
+                                            <Button onClick={() => navigate('/plan')} variant="plain" accessibilityLabel="Upgrade">Upgrade</Button>
+                                        )}
                                     </InlineGrid>
                                     <InlineStack gap="200" blockAlign="center">
                                         <Text as="p" variant="headingXl">{plan.name}</Text>
