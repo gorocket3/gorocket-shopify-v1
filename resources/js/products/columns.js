@@ -1,4 +1,5 @@
 import fetchData from "../api/fetch.js";
+import { formatISOStringToReadableDate } from "../util/custom-format.js";
 
 export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback) {
     const { status = [], tags = [], types = [], vendor = [] } = data || {};
@@ -17,11 +18,19 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         return acc;
     }, {});
 
-    const cellMergeStyling = (p) => {
+    const cellMergeStyling = (p, { breakLine = false } = {}) => {
+        const result = {};
+
         if (p.data.position !== (p.data.parent?.variants_cnt || 1)) {
-            return { borderBottomWidth: '0px' };
+            result['borderBottomWidth'] = '0px';
         }
-        return {};
+
+        if (breakLine) {
+            result['whiteSpace'] = 'normal';
+            result['lineHeight'] = '2';
+        }
+
+        return result;
     };
 
     const getAllRowsExceptCurrent = (gridOptions) => {
@@ -213,7 +222,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Product Name",
             width: 200,
             filter: true,
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('product_name'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('product_name', e),
@@ -227,7 +236,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filterParams: {
                 values: types,
             },
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('product_type'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('product_type', e),
@@ -242,7 +251,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filterParams: {
                 filterOptions: [ "contains", "notContains" ],
             },
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellStyle: cellMergeStyling,
             // cellClassRules: changedCellClassRules('product_category'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             // onCellValueChanged: (e) => changeCellState('product_category', e),
@@ -277,10 +286,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             field: "product_body",
             headerName: "Product Body HTML",
             width: 300,
-            cellStyle: (p) => ({
-                ...cellMergeStyling(p),
-                whiteSpace: 'normal'
-            }),
+            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('product_body'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('product_body', e),
@@ -299,7 +305,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filterParams: {
                 values: vendor,
             },
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('vendor'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('vendor', e),
@@ -317,7 +323,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "URL Handle",
             width: 130,
             filter: true,
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
+            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('handle'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: async (e) => {
@@ -364,23 +370,35 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "product_published_at",
             headerName: "Published At",
-            type: "CustomDateTimeType",
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
-            cellRenderer: (p) => p.data.position > 1 ? '' : formatDate(p.value || ''),
+            width: 130,
+            cellStyle: cellMergeStyling,
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
+                month_numeric: true,
+                time: true
+            }),
         },
         {
             field: "product_created_at",
             headerName: "Created At",
-            type: "CustomDateTimeType",
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
-            cellRenderer: (p) => p.data.position > 1 ? '' : formatDate(p.value || ''),
+            width: 130,
+            cellStyle: cellMergeStyling,
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
+                month_numeric: true,
+                time: true
+            }),
         },
         {
             field: "product_updated_at",
             headerName: "Updated At",
-            type: "CustomDateTimeType",
-            cellStyle: (p) => ({ ...cellMergeStyling(p), whiteSpace: 'normal' }),
-            cellRenderer: (p) => p.data.position > 1 ? '' : formatDate(p.value || ''),
+            width: 130,
+            cellStyle: cellMergeStyling,
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
+                month_numeric: true,
+                time: true
+            }),
         },
         {
             field: "option_img",
@@ -578,12 +596,22 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "created_at",
             headerName: "Variant Created At",
-            type: "CustomDateTimeType"
+            width: 130,
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
+                month_numeric: true,
+                time: true
+            }),
         },
         {
             field: "updated_at",
             headerName: "Variant Updated At",
-            type: "CustomDateTimeType"
+            width: 130,
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
+                month_numeric: true,
+                time: true
+            }),
         }
     ];
 

@@ -1,9 +1,11 @@
 export function formatISOStringToReadableDate(isoString, {
-    local = 'en-US',
     day = true,
+    month_numeric = false,
     year = true,
     time = false
 } = {}) {
+    if (!isoString) return '';
+
     const date = new Date(isoString);
     const options = {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -11,7 +13,7 @@ export function formatISOStringToReadableDate(isoString, {
 
     if (year) options.year = 'numeric';
     if (day) {
-        options.month = 'long';
+        options.month = month_numeric ? 'numeric' : 'long';
         options.day = 'numeric';
     }
     if (time) {
@@ -20,7 +22,8 @@ export function formatISOStringToReadableDate(isoString, {
         options.hour12 = true;
     }
 
-    return new Intl.DateTimeFormat(local, options).format(date);
+    const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+    return new Intl.DateTimeFormat(locale, options).format(date);
 };
 
 export function formatNumberWithCommas(value) {
