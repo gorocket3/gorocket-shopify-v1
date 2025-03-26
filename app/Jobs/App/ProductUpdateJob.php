@@ -102,15 +102,15 @@ class ProductUpdateJob implements ShouldQueue
         }',
                 $mutationName,
                 $product['id'],
-                addslashes($product['seo_title'] ?? ''),
-                addslashes($product['seo_description'] ?? ''),
-                addslashes($product['title'] ?? ''),
+                gql_escape($product['seo_title'] ?? ''),
+                gql_escape($product['seo_description'] ?? ''),
+                gql_escape($product['title'] ?? ''),
                 strtoupper($product['status']),
-                addslashes($product['body_html'] ?? ''),
-                addslashes($product['tags'] ?? ''),
-                addslashes($product['product_type'] ?? ''),
-                addslashes($product['vendor'] ?? ''),
-                addslashes($product['handle'] ?? '')
+                gql_escape($product['body_html'] ?? ''),
+                gql_escape($product['tags'] ?? ''),
+                gql_escape($product['product_type'] ?? ''),
+                gql_escape($product['vendor'] ?? ''),
+                gql_escape($product['handle'] ?? '')
             );
 
             $productData[] = [
@@ -235,10 +235,10 @@ class ProductUpdateJob implements ShouldQueue
                     $variant['id'],
                     $variant['price'] ?? '0.00',
                     $variant['compare_at_price'] ?? '0.00',
-                    addslashes($variant['barcode'] ?? ''),
+                    gql_escape($variant['barcode'] ?? ''),
                     $variant['taxable'] ? 'true' : 'false',
                     strtoupper($variant['inventory_policy'] ?? 'DENY'),
-                    addslashes($variant['sku'] ?? ''),
+                    gql_escape($variant['sku'] ?? ''),
                     $variant['requires_shipping'] ? 'true' : 'false',
                     isset($variant['weight']) ? (float)$variant['weight'] : 0.0,
                     $weightUnit
