@@ -73,8 +73,8 @@ class ProductUpdateJob implements ShouldQueue
             [
                 'title'                => $this->data['title'],
                 'category'             => $this->data['category']['name'] ?? null,
-                'seo_title'            => $this->data['seo']['container']['title'] ?? null,
-                'seo_description'      => $this->data['seo']['container']['description'] ?? null,
+                'seo_title'            => $this->data['seo']['title'] ?? null,
+                'seo_description'      => $this->data['seo']['description'] ?? null,
                 'featured_image'       => $featuredImage,
                 'collections'          => $this->data['collections'] ?? null,
                 'handle'               => $this->data['handle'],
