@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Osiset\ShopifyApp\Storage\Models\Plan;
 
 class PlanController extends Controller
 {
@@ -17,21 +18,27 @@ class PlanController extends Controller
     {
         $shop = Auth::user();
 
-        /* Plans List */
-        $sql = "
-            SELECT `id`
-                 , `name`
-                 , `price`
-                 , `interval`
-                 , `terms`
-                 , ((SELECT `plan_id` FROM users WHERE `id` = (SELECT `user_id` FROM shops WHERE `id` = :shop_id)) = `id`) AS `user_plan`
-            FROM plans
-        ";
-        $plans = DB::select($sql, [ 'shop_id' => $shop->id ?? '' ]);
-        $plans = array_map(fn($row) => array_merge((array) $row, [
-            'interval'  => str_replace('_', ' ', $row->interval),
-            'user_plan' => (bool) $row->user_plan
-        ]), $plans);
+        $currentPlanId = $shop->plan_id;
+
+        $plans = Plan::select('id', 'name', 'price', 'interval', 'terms')
+            ->get()
+            ->map(function ($plan) use ($currentPlanId) {
+                $planName = $plan->name;
+
+                return [
+                    'id'         => $plan->id,
+                    'name'       => $plan->name,
+                    'price'      => $plan->price,
+                    'interval'   => str_replace('_', ' ', $plan->interval),
+                    'terms'      => $plan->terms,
+                    'user_plan'  => $plan->id == $currentPlanId,
+                    'limits'     => [
+                        'edit_limit'        => config("plans.edit_limits.{$planName}"),
+                        'history_days'      => config("plans.history_days.{$planName}"),
+                        'max_selected_rows' => config("plans.max_selected_rows.{$planName}")
+                    ]
+                ];
+            });
 
         $values = [
             'plans'     => $plans,

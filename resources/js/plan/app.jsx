@@ -101,13 +101,13 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                                                     {
                                                         title: "Edit count",
                                                         type: "text",
-                                                        content: (plan.id === 1 ? '500' : '50,000') + ' times per day',
+                                                        content: plan.limits.edit_limit + ' times per day',
                                                         plan_name: plan.name,
                                                     },
                                                     {
                                                         title: "History viewing period",
                                                         type: "text",
-                                                        content: plan.id === 1 ? '7 days' : '30 days',
+                                                        content: plan.limits.history_days + ' days',
                                                         plan_name: plan.name,
                                                     },
                                                     {
