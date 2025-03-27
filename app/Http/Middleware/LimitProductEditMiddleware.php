@@ -11,12 +11,6 @@ use Osiset\ShopifyApp\Storage\Models\Charge;
 class LimitProductEditMiddleware
 {
     /**
-     * limit daily requests
-     */
-    const FREE_MAX_DAILY_REQUESTS = 500;
-    const BASIC_MAX_DAILY_REQUESTS = 50000;
-
-    /**
      * Handle an incoming request.
      */
     public function handle(Request $request, Closure $next): JsonResponse
@@ -27,17 +21,14 @@ class LimitProductEditMiddleware
         }
 
         $planName = $shop->plan->name ?? 'Free';
-        $maxDailyRequests = match ($planName) {
-            'Basic' => self::BASIC_MAX_DAILY_REQUESTS,
-            default => self::FREE_MAX_DAILY_REQUESTS
-        };
+        $maxDailyRequests = config("plans.edit_limits.{$planName}", config('plans.edit_limits.Free'));
 
-        $count = ChangeLog::where('user_id', $shop->id)
+        $editCount = ChangeLog::where('user_id', $shop->id)
             ->where('updated_by', 'gorocket')
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->count();
 
-        if ($maxDailyRequests !== null && $count >= $maxDailyRequests) {
+        if ($editCount >= $maxDailyRequests) {
             return response()->json([
                 'message' => "Daily limit exceeded: {$maxDailyRequests}"
             ], 429);

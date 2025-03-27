@@ -11,12 +11,6 @@ use Osiset\ShopifyApp\Services\ChargeHelper;
 class ProductController extends Controller
 {
     /**
-     * limit daily requests
-     */
-    const FREE_MAX_SELECTED_ROWS = 10000; // 추후 수정 (10)
-    const BASIC_MAX_SELECTED_ROWS = 100000; // 추후 수정 (100)
-
-    /**
      * Product List View
      *
      * @param Request $request
@@ -24,19 +18,17 @@ class ProductController extends Controller
      */
     public function index(Request $request): View
     {
-        $shop_id    = Auth::user()->id ?? '';
-        $plan_id    = DB::table('users')->where('id', $shop_id)->value('plan_id');
-        $plan_limit = match ($plan_id) {
-            2 => self::BASIC_MAX_SELECTED_ROWS,
-            default => self::FREE_MAX_SELECTED_ROWS
-        };
+        $shop = Auth::user();
+
+        $planName = $shop->plan->name ?? 'Free';
+        $planLimit = config("plans.max_selected_rows.{$planName}", config("plans.max_selected_rows.Free"));
 
         $values = [
-            'shop_id'               => $shop_id,
-            'plan_id'               => $plan_id,
-            'plan_selected_limit'   => $plan_limit
+            'shop_id'             => $shop->id,
+            'plan_id'             => $shop->plan_id,
+            'plan_selected_limit' => $planLimit,
         ];
 
-        return view('products', [ 'data' => $values ]);
+        return view('products', ['data' => $values]);
     }
 }

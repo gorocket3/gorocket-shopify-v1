@@ -12,12 +12,6 @@ use Illuminate\Support\Facades\Redis;
 class HistoryController extends Controller
 {
     /**
-     * limit daily requests
-     */
-    const FREE_MAX_DAILY_REQUESTS = 500;
-    const BASIC_MAX_DAILY_REQUESTS = 50000;
-
-    /**
      * SyncController constructor.
      *
      * @param Request $request
@@ -33,13 +27,10 @@ class HistoryController extends Controller
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
+        $planName  = $shop->plan->name ?? 'Free';
+        $daysLimit = config("plans.history_days.{$planName}", config("plans.history_days.Free"));
 
-        $planName = $shop->plan->name ?? 'Free';
-        $historyDays = match ($planName) {
-            'Basic' => 30,
-            default => 7
-        };
-        $cutoffDate = now()->subDays($historyDays)->startOfDay();
+        $cutoffDate = now()->subDays($daysLimit)->startOfDay();
 
         $query = ChangeLog::with([
             'product',
@@ -59,7 +50,7 @@ class HistoryController extends Controller
         $history = $query->latest()->paginate($perPage);
 
         $filteredItems = $history->getCollection()->map(function ($item) use ($cutoffDate, $planName) {
-            if ($item->created_at < $cutoffDate || ($item->updated_by === 'shopify' && $planName !== 'Basic')) {
+            if ($item->created_at < $cutoffDate || ($item->updated_by === 'shopify' && $planName === 'Free')) {
                 $item->old_values = '';
                 $item->new_values = '';
             }
@@ -85,10 +76,8 @@ class HistoryController extends Controller
             ->where('updated_by', 'gorocket')
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()]);
 
-        $limit = match ($shop->plan->name) {
-            'Basic' => self::BASIC_MAX_DAILY_REQUESTS,
-            default => self::FREE_MAX_DAILY_REQUESTS
-        };
+        $planName = $shop->plan->name ?? 'Free';
+        $limit = config("plans.edit_limits.{$planName}", config("plans.edit_limits.Free"));
 
         return response()->json(['count' => $query->count(), 'limit' => $limit]);
     }
