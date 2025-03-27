@@ -22,14 +22,23 @@ class PlanController extends Controller
 
         $plans = Plan::select('id', 'name', 'price', 'interval', 'terms')
             ->get()
-            ->map(fn($plan) => [
-                'id'         => $plan->id,
-                'name'       => $plan->name,
-                'price'      => $plan->price,
-                'interval'   => str_replace('_', ' ', $plan->interval),
-                'terms'      => $plan->terms,
-                'user_plan'  => $plan->id == $currentPlanId
-            ]);
+            ->map(function ($plan) use ($currentPlanId) {
+                $planName = $plan->name;
+
+                return [
+                    'id'         => $plan->id,
+                    'name'       => $plan->name,
+                    'price'      => $plan->price,
+                    'interval'   => str_replace('_', ' ', $plan->interval),
+                    'terms'      => $plan->terms,
+                    'user_plan'  => $plan->id == $currentPlanId,
+                    'limits'     => [
+                        'edit_limit'        => config("plans.edit_limits.{$planName}"),
+                        'history_days'      => config("plans.history_days.{$planName}"),
+                        'max_selected_rows' => config("plans.max_selected_rows.{$planName}")
+                    ]
+                ];
+            });
 
         return response()->json([
             'plans'   => $plans,

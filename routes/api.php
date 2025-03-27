@@ -10,7 +10,7 @@ use App\Http\Controllers\API\PlanController;
 use App\Http\Middleware\LimitProductEditMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['verify.shopify'])->group(function () {
+//Route::middleware(['verify.shopify'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -62,7 +62,5 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('history', [HistoryController::class, 'index'])->name('history.list');
     Route::get('history/count', [HistoryController::class, 'count'])->name('history.count');
 
-
-
-});
+//});
 
