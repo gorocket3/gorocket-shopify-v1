@@ -44,6 +44,7 @@ Route::middleware(['verify.shopify'])->group(function () {
 
     // Plans
     Route::get('plans', [PlanController::class, 'index'])->name('plans.list');
+    Route::get('plans/info', [PlanController::class, 'info'])->name('plans.info');
 
 });
 
