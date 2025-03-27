@@ -353,7 +353,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filterParams: {
                 filterOptions: [ "contains", "notContains" ],
             },
-            cellStyle: cellMergeStyling,
+            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('seo_title'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('seo_title', e),
@@ -367,7 +367,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filterParams: {
                 filterOptions: [ "contains", "notContains" ],
             },
-            cellStyle: cellMergeStyling,
+            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('seo_description'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('seo_description', e),
