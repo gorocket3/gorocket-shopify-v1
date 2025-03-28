@@ -1,7 +1,6 @@
 <?php
 
 use App\Services\BillingService;
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
 /**
@@ -20,3 +19,10 @@ Artisan::command('backup:database', function () {
     Artisan::call('backup:run --only-db');
     $this->info('Database backup completed.');
 })->purpose('Backup the database daily')->dailyAt('02:00');
+
+/**
+ * Horizon metrics snapshot every minute (required for dashboard metrics).
+ */
+Artisan::command('horizon:snapshot', function () {
+    Artisan::call('horizon:snapshot');
+})->purpose('Take Horizon snapshot')->everyMinute();
