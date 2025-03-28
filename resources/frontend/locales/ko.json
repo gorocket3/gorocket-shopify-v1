@@ -1,0 +1,11 @@
+{
+    "NavigationMenu": {
+        "home": "홈 화면",
+        "products": "상품관리",
+        "plan": "요금제",
+        "history": "변경내역"
+    },
+    "HomePage": {
+        "title": "Gorocket Editor"
+    }
+}

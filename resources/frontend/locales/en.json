@@ -1,0 +1,11 @@
+{
+    "NavigationMenu": {
+        "home": "Home",
+        "products": "Products",
+        "plan": "Plan",
+        "history": "History"
+    },
+    "HomePage": {
+        "title": "Gorocket Editor"
+    }
+}

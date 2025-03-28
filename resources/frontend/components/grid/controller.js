@@ -1,5 +1,5 @@
-import fetchData from "../api/fetch.js";
-import { formatNumberWithCommas } from "../util/custom-format.js";
+import fetchData from "../../utils/fetch";
+import { formatNumberWithCommas } from "../../utils/formats";
 import getInitialColumns from "./columns.js";
 
 let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback;

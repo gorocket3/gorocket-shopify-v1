@@ -1,29 +1,27 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import react from '@vitejs/plugin-react';
+import { defineConfig, loadEnv } from "vite";
+import laravel from "laravel-vite-plugin";
+import react from "@vitejs/plugin-react";
 
-export default defineConfig({
-    plugins: [
-        laravel({
-            input: [
-                'resources/js/app.jsx',
-                'resources/js/history/app.jsx',
-                'resources/js/plan/app.jsx',
-                'resources/js/products/app.jsx',
-                'resources/js/products/columns.js',
-                'resources/js/products/grid_controller.js',
-                // 'resources/js/product/app.jsx',
-                'resources/css/app.css',
-                'resources/css/mobile.css',
-                'resources/css/custom-polaris.css',
-            ],
-            refresh: true,
-        }),
-        react(),
-    ],
-    server: {
-        https: false,
-        host: 'localhost',
-        port: 5173,
-    },
+export default defineConfig(function ({ mode }) {
+    process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+
+    return {
+        plugins: [
+            laravel({ input: [ "resources/js/app.js", "resources/css/app.css", "resources/css/mobile.css", "resources/css/custom-polaris.css" ], refresh: true }),
+            react(),
+        ],
+        define: {
+            "process.env.SHOPIFY_API_KEY": JSON.stringify(
+                process.env.VITE_SHOPIFY_API_KEY
+            ),
+        },
+        resolve: {
+            preserveSymlinks: true,
+        },
+        server: {
+            host: "localhost",
+            port: 5173,
+            https: false,
+        },
+    };
 });
