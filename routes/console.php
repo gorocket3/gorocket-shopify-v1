@@ -20,9 +20,4 @@ Artisan::command('backup:database', function () {
     $this->info('Database backup completed.');
 })->purpose('Backup the database daily')->dailyAt('02:00');
 
-/**
- * Horizon metrics snapshot every minute (required for dashboard metrics).
- */
-Artisan::command('horizon:snapshot', function () {
-    Artisan::call('horizon:snapshot');
-})->purpose('Take Horizon snapshot')->everyMinute();
+
