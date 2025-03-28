@@ -2,6 +2,7 @@
 
 use App\Services\BillingService;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 /**
  * Daily billing status check at 12 AM and 12 PM.
@@ -19,5 +20,10 @@ Artisan::command('backup:database', function () {
     Artisan::call('backup:run --only-db');
     $this->info('Database backup completed.');
 })->purpose('Backup the database daily')->dailyAt('02:00');
+
+/**
+ * Horizon metrics snapshot every minute
+ */
+Schedule::command('horizon:snapshot')->everyFiveMinutes();
 
 

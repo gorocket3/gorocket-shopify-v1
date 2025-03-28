@@ -28,11 +28,11 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewHorizon', function ($user = null) {
-	    $clientIP = request()->header('CF-Connecting-IP', request()->ip());
+            $clientIP = request()->header('CF-Connecting-IP', request()->ip());
 
-	    $allowedIPs = [
+            $allowedIPs = [
                 '121.67.5.167'
-	    ];
+            ];
 
             return in_array($clientIP, $allowedIPs);
         });
