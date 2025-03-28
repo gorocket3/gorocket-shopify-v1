@@ -300,7 +300,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             cellEditor: 'agLargeTextCellEditor',
             cellEditorPopup: true,
             cellEditorParams: {
-                maxLength: 100
+                maxLength: 25000
             },
         },
         {
