@@ -32,7 +32,7 @@ class PlansTableSeeder extends Seeder
             [
                 'type' => 'RECURRING',
                 'name' => 'Basic',
-                'price' => '7.00',
+                'price' => '7.99',
                 'interval' => 'EVERY_30_DAYS',
                 'capped_amount' => '0.00',
                 'terms' => 'Access to Basic features.',
