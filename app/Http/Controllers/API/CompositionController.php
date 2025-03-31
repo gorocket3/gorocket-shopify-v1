@@ -10,6 +10,21 @@ use Illuminate\Support\Facades\Auth;
 class CompositionController extends Controller
 {
     /**
+     * Initialize the composition settings
+     *
+     * @return JsonResponse
+     */
+    public function init(): JsonResponse
+    {
+        return response()->json([
+            'product_type' => $this->product_type()->getData(true),
+            'tags'         => $this->tags()->getData(true),
+            'status'       => $this->status()->getData(true),
+            'vendor'       => $this->vendor()->getData(true)
+        ]);
+    }
+
+    /**
      * Get all product_types
      *
      * @return JsonResponse
