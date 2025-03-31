@@ -1,5 +1,5 @@
-import fetchData from "../api/fetch.js";
-import { formatISOStringToReadableDate } from "../util/custom-format.js";
+import fetchData from "../../utils/fetch";
+import { formatISOStringToReadableDate } from "../../utils/formats";
 
 export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback, editedCellCallback) {
     const { status = [], tags = [], types = [], vendor = [] } = data || {};

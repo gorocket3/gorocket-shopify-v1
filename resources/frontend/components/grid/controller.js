@@ -1,15 +1,15 @@
-import fetchData from "../api/fetch.js";
-import { formatNumberWithCommas } from "../util/custom-format.js";
+import fetchData from "../../utils/fetch";
+import { formatNumberWithCommas } from "../../utils/formats";
 import getInitialColumns from "./columns.js";
 
-let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback;
+let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback;
 let editedCellCount = 0;
 
-export async function initGrid({ plan_selected_limit, default_per_page, show_changes }) {
+export async function initGrid({ plan_selected_limit, default_per_page, show_changes, start_grid }) {
     pApp = new App('', { gridId: "#div-gd" });
 
-    const is_mobile = document.body.offsetWidth <= 1007;
-    const grid_height = is_mobile ? 192 : 170;
+    // const is_mobile = document.body.offsetWidth <= 1007;
+    const grid_height = 170;
     pApp.ResizeGrid(grid_height);
     pApp.BindSearchEnter('#search_product');
 
@@ -18,7 +18,8 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
     initData = await getInitialData();
     defaultData = { plan_selected_limit, per_page: default_per_page };
     showChangesCallback = show_changes;
-    refreshGrid(initData, defaultData, showChangesCallback);
+    startGridCallback = start_grid;
+    refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
 }
 
 export function searchProducts({ per_page = 25 } = {}) {
@@ -222,7 +223,7 @@ export async function connectProducts(errorCallback = null) {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
         if (e?.status === '429') {
-            shopify.toast.show('Connect request limit exceeded. (Once every 5 hours)', { isError: true });
+            shopify.toast.show('Connect request limit exceeded. (Once every 5 minutes)', { isError: true });
         } else {
             shopify.toast.show('An error occurred while connecting products. Please try again.', { isError: true });
         }
@@ -294,7 +295,7 @@ export async function resetColumns(e) {
 
         shopify.toast.show('Column information has been reset.');
         gx.gridOptions.api.destroy();
-        refreshGrid(initData, defaultData, showChangesCallback);
+        refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
@@ -304,7 +305,7 @@ export async function resetColumns(e) {
     Private Function
 */
 
-async function refreshGrid(data, defaultData, showChangesModal) {
+async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
     const default_columns = [ ...getInitialColumns(data, showChangesModal, openOnlineStoreLink, addEditedCellCount) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
@@ -346,6 +347,9 @@ async function refreshGrid(data, defaultData, showChangesModal) {
             const cnt = displayedRows.length;
             $("#" + gx.gridCurrent).text(numberWithCommas(cnt));
         },
+        onGridReady: (e) => {
+            startGrid();
+        }
     });
 
     searchProducts(defaultData);
@@ -386,6 +390,10 @@ function addEditedCellCount(num, reset = false) {
     if (reset) editedCellCount = 0;
     else editedCellCount += num;
     document.getElementById('gd-edited').innerText = formatNumberWithCommas(editedCellCount);
+
+    if (editedCellCount > 0) {
+        shopify.saveBar.show('products-save-bar');
+    }
 
     if (editedCellCount > defaultData.plan_selected_limit) {
         shopify.toast.show('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')', { isError: true });

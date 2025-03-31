@@ -1,10 +1,6 @@
-import { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom/client';
-import createApp from "@shopify/app-bridge";
-import { Redirect } from '@shopify/app-bridge/actions';
-import { NavMenu } from "@shopify/app-bridge-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-    AppProvider,
     Badge,
     BlockStack,
     Box,
@@ -12,14 +8,14 @@ import {
     Icon,
     InlineGrid,
     InlineStack,
-    Link,
+    Link as PolarisLink,
     Page,
     ResourceItem,
-    ResourceList,
+    ResourceList, SkeletonBodyText, SkeletonDisplayText,
     Text,
     Thumbnail,
-    Tooltip
-} from '@shopify/polaris';
+    Tooltip,
+} from "@shopify/polaris";
 import {
     AlertTriangleIcon,
     DeleteIcon,
@@ -27,56 +23,37 @@ import {
     ImageIcon,
     MinusIcon,
     PlusIcon,
-    ProductIcon, VariantIcon
+    ProductIcon,
+    VariantIcon,
 } from "@shopify/polaris-icons";
-import '@shopify/polaris/build/esm/styles.css';
-import fetchData from "../api/fetch.js";
-import productAttributes from "../api/product_attributes.json";
-import { formatISOStringToReadableDate, formatNumberWithCommas } from "../util/custom-format.js";
-import '../../css/custom-polaris.css';
+import productAttributes from "../components/grid/attributes.json";
+import { formatNumberWithCommas, formatISOStringToReadableDate } from "../utils/formats";
+import { getHistoryData } from "../utils/api";
 
-function App() {
-    const params = new URLSearchParams(location.search);
-    const config = {
-        apiKey: import.meta.env.VITE_SHOPIFY_API_KEY,
-        host: params.get("host"),
-        forceRedirect: true
-    };
+export default function HistoryPage() {
+    const navigate = useNavigate();
 
-    const app = createApp(config);
-    const redirect = Redirect.create(app);
-
-    return (
-        <HistoryApp redirect={redirect} params={{ page: params.get('page') || 1 }}/>
-    )
-}
-
-function HistoryApp({ redirect, params: { page } }) {
-    const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
-
-    // history
-    const [ productLogs, setProductLogs ] = useState([]);
-    const [ pageInfo, setPageInfo ] = useState({
-        current_page: 1,
-        last_page: 1,
+    const [ info, setInfo ] = useState({
+        shopId: null,
+        page: 1,
+        lastPage: 1,
         from: 0,
         to: 0,
-        per_page: 10,
-        total: 0
+        perPage: 10,
+        total: 0,
+        loading: true,
+        firstLoading: true,
     });
-    const [ loading, setLoading ] = useState(true);
+    const [ histories, setHistories ] = useState([]);
 
-    const getProductLogs = async () => {
-        try {
-            const params = "per_page=10&page=" + page;
-            return await fetchData({ method: 'GET', url: '/api/history?' + params });
-        } catch (e) {
-            console.error(e);
-            return null;
-        }
+    async function setHistoryData() {
+        const { data, page: resPage, ...pageInfo } = await getHistoryData({ page: info.page, perPage: info.perPage }); // data, page, lastPage, from, to, perPage, total
+
+        setHistories(formatHistories(data || []));
+        setInfo((info) => ({ ...info, ...(pageInfo || {}), loading: false, firstLoading: false }));
     }
 
-    const formatLogs = (logs) => {
+    function formatHistories(logs) {
         const groupedLogs = {};
 
         logs.forEach(log => {
@@ -96,40 +73,51 @@ function HistoryApp({ redirect, params: { page } }) {
         return Object.values(groupedLogs);
     }
 
-    const initProductLogs = async () => {
-        const res = await getProductLogs();
-        setProductLogs(formatLogs(res?.data || []));
-        setPageInfo({
-            current_page: res?.current_page || 1,
-            last_page: res?.last_page || 1,
-            from: res?.from || 0,
-            to: res?.to || 0,
-            per_page: res?.per_page || 10,
-            total: res?.total || 0
-        });
-        setLoading(false);
-    }
-
     useEffect(() => {
-        initProductLogs();
-    }, []);
+        setHistoryData();
+    }, [ info.page ]);
 
     return (
-        <AppProvider i18n={{}}>
-            <NavMenu>
-                <a href="/products">Products</a>
-                <a href="/plan">Plan</a>
-                <a href="/history">History</a>
-            </NavMenu>
-            <Page
-                backAction={{ content: 'Home', onAction: () => navigate('/') }}
-                title="History"
-            >
+        <Page
+            title="History"
+            backAction={{ onAction: () => navigate(-1) }}
+        >
+            {info.firstLoading ? (
+                <Card padding="600">
+                    <BlockStack gap="800">
+                        <Box paddingBlock="400">
+                            <BlockStack gap="400">
+                                <SkeletonDisplayText size="small"/>
+                                <SkeletonBodyText lines={3}/>
+                            </BlockStack>
+                        </Box>
+                        <Box paddingBlock="400">
+                            <BlockStack gap="400">
+                                <SkeletonDisplayText size="small"/>
+                                <SkeletonBodyText lines={3}/>
+                            </BlockStack>
+                        </Box>
+                        <Box paddingBlock="400">
+                            <BlockStack gap="400">
+                                <SkeletonDisplayText size="small"/>
+                                <SkeletonBodyText lines={3}/>
+                            </BlockStack>
+                        </Box>
+                        <Box paddingBlock="400">
+                            <BlockStack gap="400">
+                                <SkeletonDisplayText size="small"/>
+                                <SkeletonBodyText lines={3}/>
+                            </BlockStack>
+                        </Box>
+                    </BlockStack>
+                </Card>
+            ) : (
                 <Card padding="0">
                     <Box paddingBlockStart="600">
                         <ResourceList
                             resourceName={{ singular: 'log', plural: 'logs' }}
-                            items={productLogs}
+                            items={histories}
+                            loading={info.loading}
                             emptyState={
                                 <Box padding="600" paddingBlockEnd="1000">
                                     <InlineStack align="center">
@@ -137,13 +125,12 @@ function HistoryApp({ redirect, params: { page } }) {
                                     </InlineStack>
                                 </Box>
                             }
-                            loading={loading}
                             pagination={{
-                                hasPrevious: pageInfo.current_page > 1,
-                                hasNext: pageInfo.current_page < pageInfo.last_page,
-                                onPrevious: () => navigate('/history?page=' + (Math.min(pageInfo.current_page - 1, pageInfo.last_page))),
-                                onNext: () => navigate('/history?page=' + (pageInfo.current_page + 1)),
-                                label: `${pageInfo.from}-${pageInfo.to} of ${formatNumberWithCommas(pageInfo.total)} history`,
+                                hasPrevious: info.page > 1,
+                                hasNext: info.page < info.lastPage,
+                                onPrevious: () => setInfo((info) => ({ ...info, page: Math.max(info.page - 1, 1), loading: true })),
+                                onNext: () => setInfo((info) => ({ ...info, page: Math.min(info.page + 1, info.lastPage), loading: true })),
+                                label: `${info.from}-${info.to} of ${formatNumberWithCommas(info.total)} history`,
                             }}
                             renderItem={(item) => {
                                 return (
@@ -185,11 +172,11 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                     {log.product ? `${log.product.title} ${log.variant ? `(${log.variant.title})` : ''}` : 'Deleted Product'}
                                                                                 </Text>
                                                                                 <Tooltip content={log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}>
-                                                                                    <Link url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
+                                                                                    <PolarisLink url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
                                                                                         <Icon source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
-                                                                                            tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
+                                                                                              tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
                                                                                         />
-                                                                                    </Link>
+                                                                                    </PolarisLink>
                                                                                 </Tooltip>
                                                                             </InlineStack>
                                                                             <InlineStack gap="200">
@@ -294,7 +281,7 @@ function HistoryApp({ redirect, params: { page } }) {
                                                                                     </Box>
                                                                                     <InlineStack blockAlign="center">
                                                                                         <Text as="p" variant="bodySm" tone="base" breakWord={true}>
-                                                                                            Your plan does not allow you to view that information. <Link monochrome onClick={() => navigate('/plan')}>Check plan</Link>
+                                                                                            Your plan does not allow you to view that information. <PolarisLink monochrome onClick={() => navigate('/plan')}>Check plan</PolarisLink>
                                                                                         </Text>
                                                                                     </InlineStack>
                                                                                 </InlineStack>
@@ -314,9 +301,7 @@ function HistoryApp({ redirect, params: { page } }) {
                         />
                     </Box>
                 </Card>
-            </Page>
-        </AppProvider>
+            )}
+        </Page>
     );
 }
-
-ReactDOM.createRoot(document.getElementById('app')).render(<App/>);

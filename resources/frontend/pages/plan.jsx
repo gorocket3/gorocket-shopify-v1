@@ -1,58 +1,66 @@
-import ReactDOM from 'react-dom/client';
-import createApp from "@shopify/app-bridge";
-import { Redirect } from '@shopify/app-bridge/actions';
-import { NavMenu } from "@shopify/app-bridge-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-    AppProvider,
-    BlockStack,
-    Card,
-    InlineGrid,
-    Text,
-    Page,
-    Icon,
-    Button,
     Badge,
-    InlineStack,
-    Layout,
-    ResourceList,
-    ResourceItem,
+    BlockStack,
     Box,
-} from '@shopify/polaris';
+    Button,
+    Card,
+    Icon,
+    InlineGrid,
+    InlineStack,
+    Page,
+    ResourceItem,
+    ResourceList, SkeletonBodyText, SkeletonDisplayText,
+    Text,
+} from "@shopify/polaris";
 import { CheckIcon, StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
-import '@shopify/polaris/build/esm/styles.css';
+import { getPlanData } from "../utils/api";
+import { goToChargesPage } from "../utils/hooks";
 
-function App({ data }) {
-    const config = {
-        apiKey: import.meta.env.VITE_SHOPIFY_API_KEY,
-        host: new URLSearchParams(location.search).get("host"),
-        forceRedirect: true
-    };
+export default function PlanPage() {
+    const navigate = useNavigate();
 
-    const app = createApp(config);
-    const redirect = Redirect.create(app);
+    const [ info, setInfo ] = useState({ shopId: null, plan: null });
 
-    return (
-        <PlanApp data={data} redirect={redirect}/>
-    )
-}
+    async function initPlan() {
+        const planData = await getPlanData(); // shopId, plans
 
-function PlanApp({ data: { plans = [], shop_id }, redirect }) {
-    const navigate = (url) => redirect.dispatch(Redirect.Action.APP, url);
+        setInfo((info) => ({ ...info, ...(planData || {}) }));
+    }
+
+    useEffect(() => {
+        initPlan();
+    }, []);
 
     return (
-        <AppProvider i18n={{}}>
-            <NavMenu>
-                <a href="/products">Products</a>
-                <a href="/plan">Plan</a>
-                <a href="/history">History</a>
-            </NavMenu>
-            <Page
-                backAction={{ content: 'Home', onAction: () => navigate('/') }}
-                title="Plan"
-            >
-                <Box paddingBlockEnd="400">
+        <Page
+            title="Plan"
+            backAction={{ onAction: () => navigate(-1) }}
+        >
+            <Box paddingBlockEnd="400">
+                {!info.plans ? (
                     <InlineGrid columns={{ xs: 1, lg: 2 }} gap="400">
-                        {plans.map((plan, index) => (
+                        <Card>
+                            <Box paddingBlock="400">
+                                <BlockStack gap="300">
+                                    <SkeletonDisplayText size="small"/>
+                                    <SkeletonBodyText lines={2}/>
+                                </BlockStack>
+                            </Box>
+                        </Card>
+                        <Card>
+                            <Box paddingBlock="400">
+                                <BlockStack gap="300">
+                                    <SkeletonDisplayText size="small"/>
+                                    <SkeletonBodyText lines={2}/>
+                                </BlockStack>
+                            </Box>
+                        </Card>
+                    </InlineGrid>
+                ) : (
+                    <InlineGrid columns={{ xs: 1, lg: 2 }} gap="400">
+                        {info.plans.map((plan, index) => (
                             <Card key={index}>
                                 <Box paddingBlock="400">
                                     <BlockStack gap="200">
@@ -80,7 +88,7 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                                             </Text>
                                             <Box minHeight="32px">
                                                 {(plan.id === 2 && !plan.user_plan) && (
-                                                    <Button onClick={() => navigate('/billing/' + plan.id)}
+                                                    <Button onClick={() => goToChargesPage()}
                                                             variant="primary"
                                                             size="large" fullWidth={true}>
                                                         Start Now for FREE
@@ -134,7 +142,8 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                                                                             <Icon source={CheckIcon} tone="success"/>
                                                                         </Box>
                                                                     )}
-                                                                    <Text as="h3" variant="bodyMd" fontWeight="semibold">
+                                                                    <Text as="h3" variant="bodyMd"
+                                                                          fontWeight="semibold">
                                                                         {title}
                                                                     </Text>
                                                                 </InlineStack>
@@ -160,14 +169,8 @@ function PlanApp({ data: { plans = [], shop_id }, redirect }) {
                             </Card>
                         ))}
                     </InlineGrid>
-                </Box>
-            </Page>
-        </AppProvider>
+                )}
+            </Box>
+        </Page>
     );
-}
-
-if (document.getElementById('app')) {
-    const initial_data = document.getElementById('app').dataset?.initial || '{}';
-    const data = JSON.parse(initial_data);
-    ReactDOM.createRoot(document.getElementById('app')).render(<App data={data}/>);
 }

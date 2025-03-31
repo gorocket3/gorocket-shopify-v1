@@ -11,3 +11,7 @@ export function useEffectWithoutInitialState(callback, state) {
         }
     }, state);
 }
+
+export function goToChargesPage(planId = 2) {
+    window.open(`/apps/${import.meta.env.VITE_APP_NAME}/billing/${planId}`, "_top");
+}

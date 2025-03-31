@@ -1,8 +1,5 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PlanController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,8 +13,8 @@ Route::middleware(['auth.webhook'])->group(function () {
 });
 
 Route::middleware(['verify.shopify', 'verify.scopes', 'billable'])->group(function () {
-    Route::get('', [DashboardController::class, 'index'])->name('home');
-    Route::get('products', [ProductController::class, 'index'])->name('products');
-    Route::get('plan',  [PlanController::class, 'index'])->name('plan');
-    Route::get('history', fn() => view('history'))->name('history');
+    Route::view('', 'index')->name('home');
+    Route::view('products', 'index')->name('products');
+    Route::view('plan', 'index')->name('plan');
+    Route::view('history', 'index')->name('history');
 });
