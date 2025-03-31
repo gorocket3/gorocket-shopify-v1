@@ -149,7 +149,7 @@ class ProductUpdateListener implements ShouldQueue
 
                     $batch[] = $data;
                     $progress = intval((++$processedProducts / $totalProducts) * 100);
-                    if (count($batch) >= 100) {
+                    if (count($batch) >= $chunk) {
                         ProductUpdateJob::dispatch($batch, $shopId, $progress);
                         $batch = [];
                     }
