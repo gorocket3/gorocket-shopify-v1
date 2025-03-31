@@ -2,10 +2,10 @@ import fetchData from "../../utils/fetch";
 import { formatNumberWithCommas } from "../../utils/formats";
 import getInitialColumns from "./columns.js";
 
-let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback;
+let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback;
 let editedCellCount = 0;
 
-export async function initGrid({ plan_selected_limit, default_per_page, show_changes }) {
+export async function initGrid({ plan_selected_limit, default_per_page, show_changes, start_grid }) {
     pApp = new App('', { gridId: "#div-gd" });
 
     const is_mobile = document.body.offsetWidth <= 1007;
@@ -18,7 +18,8 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
     initData = await getInitialData();
     defaultData = { plan_selected_limit, per_page: default_per_page };
     showChangesCallback = show_changes;
-    refreshGrid(initData, defaultData, showChangesCallback);
+    startGridCallback = start_grid;
+    refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
 }
 
 export function searchProducts({ per_page = 25 } = {}) {
@@ -294,7 +295,7 @@ export async function resetColumns(e) {
 
         shopify.toast.show('Column information has been reset.');
         gx.gridOptions.api.destroy();
-        refreshGrid(initData, defaultData, showChangesCallback);
+        refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
@@ -304,7 +305,7 @@ export async function resetColumns(e) {
     Private Function
 */
 
-async function refreshGrid(data, defaultData, showChangesModal) {
+async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
     const default_columns = [ ...getInitialColumns(data, showChangesModal, openOnlineStoreLink, addEditedCellCount) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
@@ -346,6 +347,9 @@ async function refreshGrid(data, defaultData, showChangesModal) {
             const cnt = displayedRows.length;
             $("#" + gx.gridCurrent).text(numberWithCommas(cnt));
         },
+        onGridReady: (e) => {
+            startGrid();
+        }
     });
 
     searchProducts(defaultData);

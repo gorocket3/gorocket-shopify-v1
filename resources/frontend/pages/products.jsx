@@ -10,16 +10,19 @@ import {
     Button,
     ButtonGroup,
     Card,
+    Divider,
     Icon,
     InlineGrid,
     InlineStack,
     Link as PolarisLink,
-    Page, Popover,
+    Page,
+    Popover,
     ProgressBar,
     ResourceItem,
     ResourceList,
     SkeletonBodyText,
     SkeletonDisplayText,
+    SkeletonTabs,
     Text,
     Thumbnail,
     Tooltip
@@ -75,6 +78,7 @@ export default function ProductsPage() {
     const resetProductAction = () => setProductAction((action) => ({ ...action, progress: 0, inProgress: false }));
 
     // Grid Custom
+    const [ isGridSetUp, setGridSetUp ] = useState(false);
     const [ gridCustomPopoverActive, setGridCustomPopoverActive ] = useState(false);
     const toggleGridCustomPopover = () => setGridCustomPopoverActive((active) => !active);
 
@@ -181,7 +185,8 @@ export default function ProductsPage() {
         initGrid({
             plan_selected_limit: info.planSelectedLimit,
             default_per_page: searchPerPage,
-            show_changes: (prd) => setHistoryInfo((info) => ({ ...info, product: prd, loading: true, firstLoading: true }))
+            show_changes: (prd) => setHistoryInfo((info) => ({ ...info, product: prd, loading: true, firstLoading: true })),
+            start_grid: () => setGridSetUp(true),
         });
 
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
@@ -310,83 +315,105 @@ export default function ProductsPage() {
                 </InlineStack>
             }
         >
-            <Card>
-                <BlockStack gap="200">
-                    <InlineGrid columns={{ xs: 1, md: "1fr auto" }} gap="200">
-                        <InlineStack gap="200" blockAlign="center">
-                            <Text as="h2" variant="bodyLg">
-                                Showing{' '}
-                                <Text as="strong" id="gd-current" tone="success" fontWeight="bold">0</Text> of{' '}
-                                <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
-                                Product Variants
-                            </Text>
-                            <Text as="p" variant="bodySm" tone="magic">
-                                [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text>/{formatNumberWithCommas(info.planSelectedLimit)} edited ]
-                            </Text>
-                        </InlineStack>
-                        <InlineStack gap="200" align="end" blockAlign="center">
-                            <ButtonGroup variant="segmented">
-                                <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
-                                <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
-                            </ButtonGroup>
-                            <Popover
-                                active={searchPerPagePopoverActive}
-                                activator={
-                                    <Button onClick={toggleSearchPerPagePopover} disclosure>
-                                        <Text as="span" fontWeight="regular">view</Text> {searchPerPage}
-                                    </Button>
-                                }
-                                onClose={toggleSearchPerPagePopover}
-                            >
-                                <ActionList
-                                    actionRole="menuitem"
-                                    onActionAnyItem={toggleSearchPerPagePopover}
-                                    items={[ 25, 50, 100, 200, 500 ].map((item) => ({
-                                        content: item,
-                                        onAction: () => setSearchPerPage(item),
-                                        active: searchPerPage === item
-                                    }))}
-                                />
-                            </Popover>
-                            <Popover
-                                active={gridCustomPopoverActive}
-                                activator={<Button icon={SettingsIcon}
-                                                   onClick={toggleGridCustomPopover}
-                                                   disclosure></Button>}
-                                onClose={toggleGridCustomPopover}
-                            >
-                                <ActionList
-                                    actionRole="menuitem"
-                                    onActionAnyItem={toggleGridCustomPopover}
-                                    items={[
-                                        {
-                                            content: 'Save Columns',
-                                            onAction: saveColumns,
-                                            disabled: productAction.inProgress
-                                        },
-                                        {
-                                            content: 'Reset Columns',
-                                            onAction: resetColumns,
-                                            disabled: productAction.inProgress
-                                        }
-                                    ]}
-                                />
-                            </Popover>
-                            <Button id="search_product"
-                                    variant="secondary"
-                                    icon={SearchIcon}
-                                    accessibilityLabel="Search"
-                                    disabled={productAction.inProgress}
-                                    onClick={searchClick}>
-                                Search
-                            </Button>
-                        </InlineStack>
-                    </InlineGrid>
-                    <div className="table-responsive">
-                        <div id="div-gd" className="ag-theme-balham"></div>
-                    </div>
-                </BlockStack>
-            </Card>
+            <div className={!isGridSetUp ? '' : 'hidden'}>
+                <Card>
+                    <BlockStack gap="300">
+                        <Box paddingBlock="400">
+                            <SkeletonBodyText lines={1}/>
+                        </Box>
+                        <Divider/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                        <SkeletonTabs count={12} fitted/>
+                    </BlockStack>
+                </Card>
+            </div>
+            <div className={isGridSetUp ? '' : 'hidden'}>
+                <Card>
+                    <BlockStack gap="200">
+                        <InlineGrid columns={{ xs: 1, md: "1fr auto" }} gap="200">
+                            <InlineStack gap="200" blockAlign="center">
+                                <Text as="h2" variant="bodyLg">
+                                    Showing{' '}
+                                    <Text as="strong" id="gd-current" tone="success" fontWeight="bold">0</Text> of{' '}
+                                    <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
+                                    Product Variants
+                                </Text>
+                                <Text as="p" variant="bodySm" tone="magic">
+                                    [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text>/{formatNumberWithCommas(info.planSelectedLimit)} edited ]
+                                </Text>
+                            </InlineStack>
+                            <InlineStack gap="200" align="end" blockAlign="center">
+                                <ButtonGroup variant="segmented">
+                                    <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
+                                    <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
+                                </ButtonGroup>
+                                <Popover
+                                    active={searchPerPagePopoverActive}
+                                    activator={
+                                        <Button onClick={toggleSearchPerPagePopover} disclosure>
+                                            <Text as="span" fontWeight="regular">view</Text> {searchPerPage}
+                                        </Button>
+                                    }
+                                    onClose={toggleSearchPerPagePopover}
+                                >
+                                    <ActionList
+                                        actionRole="menuitem"
+                                        onActionAnyItem={toggleSearchPerPagePopover}
+                                        items={[ 25, 50, 100, 200, 500 ].map((item) => ({
+                                            content: item,
+                                            onAction: () => setSearchPerPage(item),
+                                            active: searchPerPage === item
+                                        }))}
+                                    />
+                                </Popover>
+                                <Popover
+                                    active={gridCustomPopoverActive}
+                                    activator={<Button icon={SettingsIcon}
+                                                       onClick={toggleGridCustomPopover}
+                                                       disclosure></Button>}
+                                    onClose={toggleGridCustomPopover}
+                                >
+                                    <ActionList
+                                        actionRole="menuitem"
+                                        onActionAnyItem={toggleGridCustomPopover}
+                                        items={[
+                                            {
+                                                content: 'Save Columns',
+                                                onAction: saveColumns,
+                                                disabled: productAction.inProgress
+                                            },
+                                            {
+                                                content: 'Reset Columns',
+                                                onAction: resetColumns,
+                                                disabled: productAction.inProgress
+                                            }
+                                        ]}
+                                    />
+                                </Popover>
+                                <Button id="search_product"
+                                        variant="secondary"
+                                        icon={SearchIcon}
+                                        accessibilityLabel="Search"
+                                        disabled={productAction.inProgress}
+                                        onClick={searchClick}>
+                                    Search
+                                </Button>
+                            </InlineStack>
+                        </InlineGrid>
+                        <div className="table-responsive">
+                            <div id="div-gd" className="ag-theme-balham"></div>
+                        </div>
+                    </BlockStack>
+                </Card>
+            </div>
             <Modal
                 variant="large"
                 open={!!historyInfo.product}

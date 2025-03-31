@@ -595,7 +595,7 @@ HDGrid.prototype._Request = function (callback, http_method) {
             if (_gx.callback) _gx.callback(data);
         }).catch(error => {
             console.error(error.message);
-            alert('조회 시 오류가 발생했습니다.\n다시 시도해 주세요.');
+            // alert('조회 시 오류가 발생했습니다.\n다시 시도해 주세요.');
         }).finally(() => {
             _gx.loading = false;
             _gx.HideLoadingLayer();
