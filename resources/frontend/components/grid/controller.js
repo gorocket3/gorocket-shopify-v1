@@ -1,6 +1,7 @@
+import { getCompositionData } from "../../utils/api";
 import fetchData from "../../utils/fetch";
 import { formatNumberWithCommas } from "../../utils/formats";
-import getInitialColumns from "./columns.js";
+import getInitialColumns from "./columns";
 
 let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback;
 let editedCellCount = 0;
@@ -223,7 +224,7 @@ export async function connectProducts(errorCallback = null) {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
         if (e?.status === '429') {
-            shopify.toast.show('Connect request limit exceeded. (Once every 5 minutes)', { isError: true });
+            shopify.toast.show('Connect request limit exceeded. (Once every 30 minutes)', { isError: true });
         } else {
             shopify.toast.show('An error occurred while connecting products. Please try again.', { isError: true });
         }
@@ -356,17 +357,7 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
 }
 
 async function getInitialData() {
-    try {
-        const { product_types } = await fetchData({ method: 'GET', url: '/api/composition/product-type' });
-        const { tags } = await fetchData({ method: 'GET', url: '/api/composition/tags' });
-        const { status } = await fetchData({ method: 'GET', url: '/api/composition/status' });
-        const { vendor } = await fetchData({ method: 'GET', url: '/api/composition/vendor' });
-
-        return { types: product_types, tags, status, vendor };
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
+    return await getCompositionData();
 }
 
 

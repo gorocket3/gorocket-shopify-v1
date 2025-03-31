@@ -14,16 +14,6 @@ export async function getDashboardData() {
     }
 }
 
-export async function getTotalProductCount() {
-    try {
-        const { count } = await fetchData({ method: 'GET', url: '/api/products/count' });
-        return count;
-    } catch (e) {
-        console.error(e);
-        return null;
-    }
-}
-
 export async function getPlanData() {
     try {
         const { shop_id, plans } = await fetchData({
@@ -88,13 +78,23 @@ export async function getHistoryCountData() {
     }
 }
 
+export async function getTotalProductCount() {
+    try {
+        const { count } = await fetchData({ method: 'GET', url: '/api/products/count' });
+        return count;
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
 export async function syncProducts() {
     try {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
         console.error(e);
         if (e?.status === '429') {
-            showError('Connect request limit exceeded. (Once every 5 minutes)');
+            showError('Connect request limit exceeded. (Once every 30 minutes)');
         } else {
             showError('An error occurred while connecting products. Please try again.');
         }
@@ -102,3 +102,17 @@ export async function syncProducts() {
     }
 }
 
+export async function getCompositionData() {
+    try {
+        const {
+            product_type: { product_types },
+            tags: { tags },
+            status: { status },
+            vendor: { vendor }
+        } = await fetchData({ method: 'GET', url: '/api/composition/init' });
+        return { types: product_types, tags, status, vendor };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
