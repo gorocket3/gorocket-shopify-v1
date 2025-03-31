@@ -33,7 +33,8 @@ export function getUserLocale() {
         return _userLocale;
     }
     const url = new URL(window.location.href);
-    const locale = url.searchParams.get("locale") || DEFAULT_APP_LOCALE;
+    // const locale = url.searchParams.get("locale") || DEFAULT_APP_LOCALE;
+    const locale = DEFAULT_APP_LOCALE; // 글로벌 적용 시 위 코드로 변경 필요합니다.
     _userLocale = match([ locale ], SUPPORTED_APP_LOCALES, DEFAULT_APP_LOCALE);
     return _userLocale;
 }
@@ -84,26 +85,26 @@ async function loadIntlPolyfills() {
  * A subset of the available plural rules locales that match available Shopify Admin languages
  */
 const PLURAL_RULES_LOCALE_DATA = {
-    cs: () => import("@formatjs/intl-pluralrules/locale-data/cs"),
-    da: () => import("@formatjs/intl-pluralrules/locale-data/da"),
-    de: () => import("@formatjs/intl-pluralrules/locale-data/de"),
+    // cs: () => import("@formatjs/intl-pluralrules/locale-data/cs"),
+    // da: () => import("@formatjs/intl-pluralrules/locale-data/da"),
+    // de: () => import("@formatjs/intl-pluralrules/locale-data/de"),
     en: () => import("@formatjs/intl-pluralrules/locale-data/en"),
-    es: () => import("@formatjs/intl-pluralrules/locale-data/es"),
-    fi: () => import("@formatjs/intl-pluralrules/locale-data/fi"),
-    fr: () => import("@formatjs/intl-pluralrules/locale-data/fr"),
-    it: () => import("@formatjs/intl-pluralrules/locale-data/it"),
-    ja: () => import("@formatjs/intl-pluralrules/locale-data/ja"),
+    // es: () => import("@formatjs/intl-pluralrules/locale-data/es"),
+    // fi: () => import("@formatjs/intl-pluralrules/locale-data/fi"),
+    // fr: () => import("@formatjs/intl-pluralrules/locale-data/fr"),
+    // it: () => import("@formatjs/intl-pluralrules/locale-data/it"),
+    // ja: () => import("@formatjs/intl-pluralrules/locale-data/ja"),
     ko: () => import("@formatjs/intl-pluralrules/locale-data/ko"),
-    nb: () => import("@formatjs/intl-pluralrules/locale-data/nb"),
-    nl: () => import("@formatjs/intl-pluralrules/locale-data/nl"),
-    pl: () => import("@formatjs/intl-pluralrules/locale-data/pl"),
-    pt: () => import("@formatjs/intl-pluralrules/locale-data/pt"),
-    "pt-PT": () => import("@formatjs/intl-pluralrules/locale-data/pt-PT"),
-    sv: () => import("@formatjs/intl-pluralrules/locale-data/sv"),
-    th: () => import("@formatjs/intl-pluralrules/locale-data/th"),
-    tr: () => import("@formatjs/intl-pluralrules/locale-data/tr"),
-    vi: () => import("@formatjs/intl-pluralrules/locale-data/vi"),
-    zh: () => import("@formatjs/intl-pluralrules/locale-data/zh"),
+    // nb: () => import("@formatjs/intl-pluralrules/locale-data/nb"),
+    // nl: () => import("@formatjs/intl-pluralrules/locale-data/nl"),
+    // pl: () => import("@formatjs/intl-pluralrules/locale-data/pl"),
+    // pt: () => import("@formatjs/intl-pluralrules/locale-data/pt"),
+    // "pt-PT": () => import("@formatjs/intl-pluralrules/locale-data/pt-PT"),
+    // sv: () => import("@formatjs/intl-pluralrules/locale-data/sv"),
+    // th: () => import("@formatjs/intl-pluralrules/locale-data/th"),
+    // tr: () => import("@formatjs/intl-pluralrules/locale-data/tr"),
+    // vi: () => import("@formatjs/intl-pluralrules/locale-data/vi"),
+    // zh: () => import("@formatjs/intl-pluralrules/locale-data/zh"),
 };
 
 async function loadIntlPluralRulesLocaleData(locale) {
@@ -178,27 +179,27 @@ async function fetchPolarisTranslations() {
  * for files with relative paths, not packages.
  */
 const POLARIS_LOCALE_DATA = {
-    cs: () => import("@shopify/polaris/locales/cs.json"),
-    da: () => import("@shopify/polaris/locales/da.json"),
-    de: () => import("@shopify/polaris/locales/de.json"),
+    // cs: () => import("@shopify/polaris/locales/cs.json"),
+    // da: () => import("@shopify/polaris/locales/da.json"),
+    // de: () => import("@shopify/polaris/locales/de.json"),
     en: () => import("@shopify/polaris/locales/en.json"),
-    es: () => import("@shopify/polaris/locales/es.json"),
-    fi: () => import("@shopify/polaris/locales/fi.json"),
-    fr: () => import("@shopify/polaris/locales/fr.json"),
-    it: () => import("@shopify/polaris/locales/it.json"),
-    ja: () => import("@shopify/polaris/locales/ja.json"),
+    // es: () => import("@shopify/polaris/locales/es.json"),
+    // fi: () => import("@shopify/polaris/locales/fi.json"),
+    // fr: () => import("@shopify/polaris/locales/fr.json"),
+    // it: () => import("@shopify/polaris/locales/it.json"),
+    // ja: () => import("@shopify/polaris/locales/ja.json"),
     ko: () => import("@shopify/polaris/locales/ko.json"),
-    nb: () => import("@shopify/polaris/locales/nb.json"),
-    nl: () => import("@shopify/polaris/locales/nl.json"),
-    pl: () => import("@shopify/polaris/locales/pl.json"),
-    "pt-BR": () => import("@shopify/polaris/locales/pt-BR.json"),
-    "pt-PT": () => import("@shopify/polaris/locales/pt-PT.json"),
-    sv: () => import("@shopify/polaris/locales/sv.json"),
-    th: () => import("@shopify/polaris/locales/th.json"),
-    tr: () => import("@shopify/polaris/locales/tr.json"),
-    vi: () => import("@shopify/polaris/locales/vi.json"),
-    "zh-CN": () => import("@shopify/polaris/locales/zh-CN.json"),
-    "zh-TW": () => import("@shopify/polaris/locales/zh-TW.json"),
+    // nb: () => import("@shopify/polaris/locales/nb.json"),
+    // nl: () => import("@shopify/polaris/locales/nl.json"),
+    // pl: () => import("@shopify/polaris/locales/pl.json"),
+    // "pt-BR": () => import("@shopify/polaris/locales/pt-BR.json"),
+    // "pt-PT": () => import("@shopify/polaris/locales/pt-PT.json"),
+    // sv: () => import("@shopify/polaris/locales/sv.json"),
+    // th: () => import("@shopify/polaris/locales/th.json"),
+    // tr: () => import("@shopify/polaris/locales/tr.json"),
+    // vi: () => import("@shopify/polaris/locales/vi.json"),
+    // "zh-CN": () => import("@shopify/polaris/locales/zh-CN.json"),
+    // "zh-TW": () => import("@shopify/polaris/locales/zh-TW.json"),
 };
 
 async function loadPolarisTranslations(locale) {

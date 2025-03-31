@@ -23,7 +23,7 @@ function AppBridgeLink({ url, children, external, ...rest }) {
     );
 }
 
-export function PolarisProvider({ children }) {
+export default function PolarisProvider({ children }) {
     const translations = getPolarisTranslations();
 
     return (

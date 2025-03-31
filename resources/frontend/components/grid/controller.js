@@ -8,8 +8,8 @@ let editedCellCount = 0;
 export async function initGrid({ plan_selected_limit, default_per_page, show_changes, start_grid }) {
     pApp = new App('', { gridId: "#div-gd" });
 
-    const is_mobile = document.body.offsetWidth <= 1007;
-    const grid_height = is_mobile ? 192 : 170;
+    // const is_mobile = document.body.offsetWidth <= 1007;
+    const grid_height = 170;
     pApp.ResizeGrid(grid_height);
     pApp.BindSearchEnter('#search_product');
 

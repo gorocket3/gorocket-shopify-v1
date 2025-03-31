@@ -1,8 +1,5 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PlanController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 

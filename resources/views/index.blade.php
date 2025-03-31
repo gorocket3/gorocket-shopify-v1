@@ -32,7 +32,7 @@
 
     <!-- Vite -->
     @viteReactRefresh
-    @vite(['resources/js/app.js', 'resources/css/app.css', 'resources/css/mobile.css', 'resources/css/custom-polaris.css'])
+    @vite(['resources/js/app.js'])
     <!-- // Vite -->
 
     <!-- Google tag (gtag.js) -->
@@ -55,6 +55,6 @@
     <title>Gorocket Excel Product Edit</title>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app" class="main-scroll-container"></div>
 </body>
 </html>

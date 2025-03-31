@@ -7,7 +7,7 @@ export default defineConfig(function ({ mode }) {
 
     return {
         plugins: [
-            laravel({ input: [ "resources/js/app.js", "resources/css/app.css", "resources/css/mobile.css", "resources/css/custom-polaris.css" ], refresh: true }),
+            laravel({ input: [ "resources/js/app.js" ], refresh: true }),
             react(),
         ],
         define: {

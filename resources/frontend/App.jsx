@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { NavMenu } from "@shopify/app-bridge-react";
-import { PolarisProvider } from "./components/providers";
+import PolarisProvider from "./components/providers/PolarisProvider";
 import HomePage from "./pages";
 import HistoryPage from "./pages/history";
 import PlanPage from "./pages/plan";

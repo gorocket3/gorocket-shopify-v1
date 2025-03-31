@@ -26,8 +26,8 @@ import {
     ProductIcon,
     VariantIcon,
 } from "@shopify/polaris-icons";
-import productAttributes from "../../js/api/product_attributes.json";
-import { formatISOStringToReadableDate, formatNumberWithCommas } from "../../js/util/custom-format.js";
+import productAttributes from "../components/grid/attributes.json";
+import { formatNumberWithCommas, formatISOStringToReadableDate } from "../utils/formats";
 import { getHistoryData } from "../utils/api";
 
 export default function HistoryPage() {
