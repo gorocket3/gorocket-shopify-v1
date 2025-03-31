@@ -168,7 +168,7 @@ class ProductController extends Controller
 
             ProductDeleteJob::dispatch([
                 'shop' => $shop,
-                'product_ids' => $validated['product_ids'],
+                'product_ids' => $chunks,
                 'progress' => $progress
             ]);
         }
