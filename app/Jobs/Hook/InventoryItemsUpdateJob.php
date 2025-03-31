@@ -45,7 +45,7 @@ class InventoryItemsUpdateJob implements ShouldQueue
 
             if (!$variant) {
                 if ($this->attempts() < 3) {
-                    Log::info("[HOOK][INVENTORY] Variant not found - ({$this->attempts()}) - {$this->data['id']}");
+                    Log::info("[HOOK][INVENTORY] Variant not found - {$this->attempts()} - {$this->data['id']}");
                     $this->release(5);
                 } else {
                     Log::warning("[HOOK][INVENTORY] Variant not found after retries - {$this->data['id']}");
