@@ -1,21 +1,27 @@
 #!/bin/bash
 
+set -e
+
+echo "📦 Pulling latest code..."
 git pull origin main
 
+echo "📦 Installing PHP deps..."
 composer install --no-dev --optimize-autoloader
 
-npm ci
-npm run build
+echo "🛠️ Building frontend (Vite)..."
+npm ci && npm run build
 
+echo "🧱 Running migrations..."
 php artisan migrate --force
 
-php artisan optimize:clear
+echo "🧹 Caching config/routes/views..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 
-sudo supervisorctl restart all
+echo "🔁 Restarting queue workers..."
+php artisan horizon:terminate
 
-echo "✅ Deploy success!"
+echo "🎉 Deploy complete!"
 
