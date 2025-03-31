@@ -19,6 +19,7 @@ Route::middleware(['verify.shopify'])->group(function () {
     */
 
     // Composition
+    Route::get('composition/init', [CompositionController::class, 'init'])->name('composition.init');
     Route::get('composition/product-type', [CompositionController::class, 'product_type'])->name('composition.product-type.list');
     Route::get('composition/vendor', [CompositionController::class, 'vendor'])->name('composition.vendor.list');
     Route::get('composition/collection', [CompositionController::class, 'collection'])->name('composition.collection.list');
