@@ -168,7 +168,7 @@ class ProductController extends Controller
 
             ProductDeleteJob::dispatch([
                 'shop' => $shop,
-                'product_ids' => $chunks,
+                'product_ids' => $chunk,
                 'progress' => $progress
             ]);
         }
