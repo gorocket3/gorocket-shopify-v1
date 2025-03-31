@@ -38,6 +38,8 @@ return new class extends Migration {
             $table->index('created_at');
             $table->index('updated_at');
             $table->index(['user_id', 'status']);
+            $table->index(['user_id', 'vendor']);
+            $table->index(['user_id', 'product_type']);
 
             $table->unique(['product_id', 'user_id']);
             $table->unique(['handle', 'user_id']);
