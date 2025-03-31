@@ -41,13 +41,25 @@ class InventoryItemsUpdateJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            ProductVariant::where('inventory_item_id', $this->data['id'])->update([
+            $variant = ProductVariant::where('inventory_item_id', $this->data['id'])->first();
+
+            if (!$variant) {
+                if ($this->attempts() < 3) {
+                    Log::info("[HOOK][INVENTORY] Variant not found - {$this->attempts()} - {$this->data['id']}");
+                    $this->release(5);
+                } else {
+                    Log::warning("[HOOK][INVENTORY] Variant not found after retries - {$this->data['id']}");
+                }
+                return;
+            }
+
+            $variant->update([
                 'sku'                   => $this->data['sku'],
                 'requires_shipping'     => $this->data['requires_shipping'],
                 'inventory_management'  => $this->data['tracked'] === true ? 'shopify' : null,
                 'weight'                => $this->data['weight_value'],
                 'weight_unit'           => $this->data['weight_unit'],
-                'updated_at'            => Carbon::parse($this->data['updated_at'])->setTimezone('UTC'),
+                'updated_at'            => Carbon::parse($this->data['updated_at'])->setTimezone('UTC')
             ]);
 
             Log::info("[HOOK][INVENTORY] Update success - {$this->data['id']}");
