@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('image_id')->index();
             $table->text('alt')->nullable();
             $table->integer('position')->nullable();
-            $table->string('src');
+            $table->text('src');
             $table->integer('width')->nullable();
             $table->integer('height')->nullable();
             $table->string('admin_graphql_api_id')->nullable();
