@@ -133,6 +133,7 @@ export default function PlanPage() {
                                                     return (
                                                         <ResourceItem
                                                             id={idx}
+                                                            disabled={true}
                                                             accessibilityLabel={plan_name + ' ' + title}
                                                             verticalAlignment="center">
                                                             <InlineGrid columns={2}>

@@ -14,16 +14,6 @@ export async function getDashboardData() {
     }
 }
 
-export async function getHistoryCountData() {
-    try {
-        const { count, limit } = await fetchData({ method: 'GET', url: '/api/history/count' });
-        return { count, limit };
-    } catch (e) {
-        console.error(e);
-        return null;
-    }
-}
-
 export async function getTotalProductCount() {
     try {
         const { count } = await fetchData({ method: 'GET', url: '/api/products/count' });
@@ -60,6 +50,20 @@ export async function getMyPlanData() {
     }
 }
 
+export async function getPlanConfirmationUrl({ planId, host }) {
+    try {
+        const { confirmation_url: url } = await fetchData({
+            method: 'POST',
+            url: '/api/plans/confirm',
+            body: { plan_id: planId, host }
+        });
+        return { url };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
 export async function getHistoryData({ productId = '', page, perPage }) {
     try {
         const params = `per_page=${perPage}&page=${page}&product_id=${productId}`;
@@ -68,6 +72,16 @@ export async function getHistoryData({ productId = '', page, perPage }) {
             url: '/api/history?' + params
         });
         return { data, page: current_page, lastPage: last_page, from, to, perPage: per_page, total };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
+export async function getHistoryCountData() {
+    try {
+        const { count, limit } = await fetchData({ method: 'GET', url: '/api/history/count' });
+        return { count, limit };
     } catch (e) {
         console.error(e);
         return null;
