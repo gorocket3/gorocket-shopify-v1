@@ -17,6 +17,8 @@ public_html/hot
 
 storage/*.key
 shopify.app.toml
+/extensions
+
 .env
 Homestead.yaml
 Homestead.json
