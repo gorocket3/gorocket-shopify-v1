@@ -391,6 +391,10 @@ function addEditedCellCount(num, reset = false) {
     else editedCellCount += num;
     document.getElementById('gd-edited').innerText = formatNumberWithCommas(editedCellCount);
 
+    if (editedCellCount > 0) {
+        shopify.saveBar.show('products-save-bar');
+    }
+
     if (editedCellCount > defaultData.plan_selected_limit) {
         shopify.toast.show('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')', { isError: true });
     }

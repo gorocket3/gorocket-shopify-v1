@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Pusher from "pusher-js";
-import { Modal, TitleBar } from "@shopify/app-bridge-react";
+import { Modal, SaveBar, TitleBar } from "@shopify/app-bridge-react";
 import {
     ActionList,
     Badge,
@@ -98,7 +98,7 @@ export default function ProductsPage() {
         lastPage: 1,
         from: 0,
         to: 0,
-        perPage: 10,
+        perPage: 2,
         total: 0,
         loading: false,
         firstLoading: false,
@@ -145,6 +145,11 @@ export default function ProductsPage() {
 
     const searchClick = () => {
         searchProducts({ per_page: searchPerPage });
+        hideSaveBar();
+    }
+
+    const hideSaveBar = () => {
+        shopify.saveBar.hide('products-save-bar');
     }
 
     const undoGridClick = () => {
@@ -218,6 +223,7 @@ export default function ProductsPage() {
             setTimeout(() => {
                 resetProductAction();
                 searchClick();
+                shopify.toast.show('The operation completed successfully.');
             }, 1000);
         }
     }, [ productAction.progress ]);
@@ -227,9 +233,13 @@ export default function ProductsPage() {
             productActionInterval.current = setInterval(() => {
                 setProductActionDuration((duration) => duration + 1);
             }, 1000);
+            setDisableUndo(true);
+            setDisableRedo(true);
         } else {
             clearInterval(productActionInterval.current);
             setProductActionDuration(1);
+            setDisableUndo(false);
+            setDisableRedo(false);
         }
     }, [ productAction.inProgress ]);
 
@@ -242,7 +252,7 @@ export default function ProductsPage() {
     }, [ historyInfo.product ]);
 
     useEffectWithoutInitialState(() => {
-        setHistories();
+        setHistoryData();
     }, [ historyInfo.page ]);
 
     useEffect(() => {
@@ -255,25 +265,25 @@ export default function ProductsPage() {
             fullWidth={true}
             secondaryActions={
                 <InlineStack gap="200" blockAlign="center">
-                    {(!!productAction.inProgress && productAction.type === 'connect') && (
-                        <InlineStack gap="100">
-                            <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success"/>
-                            </Box>
-                            {productActionDuration >= 30 && (
-                                <div className="cursor-pointer" onClick={resetProductAction}>
-                                    <Icon source={XCircleIcon} tone="primary"/>
-                                </div>
-                            )}
-                        </InlineStack>
-                    )}
-                    <Button variant="secondary"
-                            tone="success"
-                            onClick={connectClick}
-                            disabled={productAction.inProgress}
-                            loading={(productAction.type === 'connect' && productAction.inProgress)}>
-                        Connect
-                    </Button>
+                    {/*{(!!productAction.inProgress && productAction.type === 'connect') && (*/}
+                    {/*    <InlineStack gap="100">*/}
+                    {/*        <Box width="60px">*/}
+                    {/*            <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success"/>*/}
+                    {/*        </Box>*/}
+                    {/*        {productActionDuration >= 30 && (*/}
+                    {/*            <div className="cursor-pointer" onClick={resetProductAction}>*/}
+                    {/*                <Icon source={XCircleIcon} tone="primary"/>*/}
+                    {/*            </div>*/}
+                    {/*        )}*/}
+                    {/*    </InlineStack>*/}
+                    {/*)}*/}
+                    {/*<Button variant="secondary"*/}
+                    {/*        tone="success"*/}
+                    {/*        onClick={connectClick}*/}
+                    {/*        disabled={productAction.inProgress}*/}
+                    {/*        loading={(productAction.type === 'connect' && productAction.inProgress)}>*/}
+                    {/*    Connect*/}
+                    {/*</Button>*/}
                     {(!!productAction.inProgress && productAction.type === 'delete') && (
                         <InlineStack gap="100">
                             <Box width="60px">
@@ -293,45 +303,51 @@ export default function ProductsPage() {
                             loading={(productAction.type === 'delete' && productAction.inProgress)}>
                         Delete
                     </Button>
-                    {(!!productAction.inProgress && productAction.type === 'update') && (
-                        <InlineStack gap="200">
-                            <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight"/>
-                            </Box>
-                            {productActionDuration >= 30 && (
-                                <div className="cursor-pointer" onClick={resetProductAction}>
-                                    <Icon source={XCircleIcon} tone="primary"/>
-                                </div>
-                            )}
-                        </InlineStack>
-                    )}
-                    <Button
-                        variant="primary"
-                        onClick={saveClick}
-                        disabled={productAction.inProgress}
-                        loading={(productAction.type === 'update' && productAction.inProgress)}>
-                        Save
-                    </Button>
+                    {/*{(!!productAction.inProgress && productAction.type === 'update') && (*/}
+                    {/*    <InlineStack gap="200">*/}
+                    {/*        <Box width="60px">*/}
+                    {/*            <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight"/>*/}
+                    {/*        </Box>*/}
+                    {/*        {productActionDuration >= 30 && (*/}
+                    {/*            <div className="cursor-pointer" onClick={resetProductAction}>*/}
+                    {/*                <Icon source={XCircleIcon} tone="primary"/>*/}
+                    {/*            </div>*/}
+                    {/*        )}*/}
+                    {/*    </InlineStack>*/}
+                    {/*)}*/}
+                    {/*<Button*/}
+                    {/*    variant="primary"*/}
+                    {/*    onClick={saveClick}*/}
+                    {/*    disabled={productAction.inProgress}*/}
+                    {/*    loading={(productAction.type === 'update' && productAction.inProgress)}>*/}
+                    {/*    Save*/}
+                    {/*</Button>*/}
                 </InlineStack>
             }
         >
+            <SaveBar id="products-save-bar">
+                <button variant="primary" onClick={saveClick} {...((productAction.inProgress && productAction.type === 'update') && { loading: '' })}></button>
+                <button onClick={searchClick} disabled={productAction.inProgress && productAction.type === 'update'}></button>
+            </SaveBar>
             <div className={!isGridSetUp ? '' : 'hidden'}>
                 <Card>
                     <BlockStack gap="300">
-                        <Box paddingBlock="400">
+                        <Box paddingBlock="200">
                             <SkeletonBodyText lines={1}/>
                         </Box>
                         <Divider/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
-                        <SkeletonTabs count={12} fitted/>
+                        <Box padding="200" borderWidth="050" borderColor="border">
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                            <SkeletonTabs count={12} fitted/>
+                        </Box>
                     </BlockStack>
                 </Card>
             </div>
@@ -347,7 +363,7 @@ export default function ProductsPage() {
                                     Product Variants
                                 </Text>
                                 <Text as="p" variant="bodySm" tone="magic">
-                                    [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text>/{formatNumberWithCommas(info.planSelectedLimit)} edited ]
+                                    [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text>/{formatNumberWithCommas(info.planSelectedLimit || 0)} edited ]
                                 </Text>
                             </InlineStack>
                             <InlineStack gap="200" align="end" blockAlign="center">
@@ -452,9 +468,9 @@ export default function ProductsPage() {
                             loading={historyInfo.loading}
                             pagination={{
                                 hasPrevious: historyInfo.page > 1,
-                                hasNext: historyInfo.page < historyInfo.last_page,
-                                onPrevious: () => setHistoryInfo((info) => ({ ...info, page: Math.max(info.page - 1, 1), loading: true })),
-                                onNext: () => setHistoryInfo((info) => ({ ...info, page: Math.min(info.page + 1, info.lastPage), loading: true })),
+                                hasNext: historyInfo.page < historyInfo.lastPage,
+                                onPrevious: () => setHistoryInfo((hInfo) => ({ ...hInfo, page: Math.max(hInfo.page - 1, 1), loading: true })),
+                                onNext: () => setHistoryInfo((hInfo) => ({ ...hInfo, page: Math.min(hInfo.page + 1, hInfo.lastPage), loading: true })),
                                 label: `${historyInfo.from || 0}-${historyInfo.to || 0} of ${formatNumberWithCommas(historyInfo.total)} history`,
                             }}
                             renderItem={(item, index) => {
