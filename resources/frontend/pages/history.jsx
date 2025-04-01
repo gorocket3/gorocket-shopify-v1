@@ -27,6 +27,7 @@ import {
     VariantIcon,
 } from "@shopify/polaris-icons";
 import productAttributes from "../components/grid/attributes.json";
+import { FeaturedImage } from "../components/history/featured-image";
 import { formatNumberWithCommas, formatISOStringToReadableDate } from "../utils/formats";
 import { getHistoryData } from "../utils/api";
 
@@ -213,19 +214,15 @@ export default function HistoryPage() {
                                                                                                     <Box
                                                                                                         paddingBlock="200"
                                                                                                         paddingInline="300"
-                                                                                                        borderColor="border"
-                                                                                                        borderWidth="025"
-                                                                                                        background="bg-surface-critical">
-                                                                                                        <InlineGrid gap="200" columns="14px auto">
+                                                                                                        borderColor="border-critical"
+                                                                                                        borderWidth="050">
+                                                                                                        <InlineGrid gap="200" columns="20px auto">
                                                                                                             <Box>
                                                                                                                 <Icon source={MinusIcon} tone="critical"/>
                                                                                                             </Box>
                                                                                                             <InlineStack blockAlign="center">
                                                                                                                 {key === 'featured_image' ? (
-                                                                                                                    <Thumbnail
-                                                                                                                        source={old_value || ImageIcon}
-                                                                                                                        size="large"
-                                                                                                                        alt="Previous Image"/>
+                                                                                                                    <FeaturedImage src={old_value} alt="Old Image"/>
                                                                                                                 ) : key === 'body_html' ? (
                                                                                                                     <Box paddingBlockEnd="050">
                                                                                                                         <div dangerouslySetInnerHTML={{ __html: old_value }}></div>
@@ -239,19 +236,15 @@ export default function HistoryPage() {
                                                                                                     <Box
                                                                                                         paddingBlock="200"
                                                                                                         paddingInline="300"
-                                                                                                        borderColor="border"
-                                                                                                        borderWidth="025"
-                                                                                                        background="bg-surface-success">
-                                                                                                        <InlineGrid gap="200" columns="14px auto">
+                                                                                                        borderColor="border-success"
+                                                                                                        borderWidth="050">
+                                                                                                        <InlineGrid gap="200" columns="20px auto">
                                                                                                             <Box>
                                                                                                                 <Icon source={PlusIcon} tone="success"/>
                                                                                                             </Box>
                                                                                                             <InlineStack blockAlign="center">
                                                                                                                 {key === 'featured_image' ? (
-                                                                                                                    <Thumbnail
-                                                                                                                        source={new_value || ImageIcon}
-                                                                                                                        size="large"
-                                                                                                                        alt="New Image"/>
+                                                                                                                    <FeaturedImage src={new_value} alt="New Image"/>
                                                                                                                 ) : key === 'body_html' ? (
                                                                                                                     <Box paddingBlockEnd="050">
                                                                                                                         <div dangerouslySetInnerHTML={{ __html: new_value }}></div>
