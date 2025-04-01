@@ -36,10 +36,6 @@ class ProductUpdateListener implements ShouldQueue
             if (!$shop) {
                 Log::error("[LISTENER][PRODUCT] Shop not found - {$shopId}");
                 return;
-            } else {
-                do {
-                    $deleted = Product::where('user_id', $shopId)->limit($chunk)->delete();
-                } while ($deleted > 0);
             }
 
             $totalProductsQuery = <<<GRAPHQL
@@ -62,12 +58,15 @@ class ProductUpdateListener implements ShouldQueue
                     'product-sync',
                     ['progress' => 100]
                 ));
+                return;
             }
 
             $processedProducts = 0;
             $progress = 0;
             $batch = [];
             $nextPage = null;
+
+            $this->deleteDBProducts($shopId, $chunk);
 
             do {
                 $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
@@ -77,7 +76,8 @@ class ProductUpdateListener implements ShouldQueue
 
                 if (($response['errors'] ?? false) || !isset($response['body']['products'])) {
                     Log::error("[LISTENER][PRODUCT] API failed - {$shopId}");
-                    break;
+                    Redis::del("shop:{$shopId}:product_sync");
+                    return;
                 }
 
                 $products = $response['body']['products'];
@@ -162,65 +162,90 @@ class ProductUpdateListener implements ShouldQueue
             }
             Log::info("[LISTENER][PRODUCT] Queue success - {$shopId}");
 
-            $bulkQuery = <<<GRAPHQL
-            mutation {
-                bulkOperationRunQuery(
-                    query: """
-                    {
-                        products {
-                            edges {
-                                node {
-                                    id
-                                    productCategory {
-                                        productTaxonomyNode {
+            $this->runBulkProductGraphQL($shop);
+
+        } catch (Exception $e) {
+            Log::error("[LISTENER][PRODUCT] Queue failed - {$shopId}, Error: {$e->getMessage()}");
+            Redis::del("shop:{$shopId}:product_sync");
+        }
+    }
+
+    /**
+     * Delete all local products for the shop in chunks.
+     *
+     * @param int $shopId
+     * @param int $chunk
+     * @return void
+     */
+    private function deleteDBProducts(int $shopId, int $chunk = 250): void
+    {
+        do {
+            $deleted = Product::where('user_id', $shopId)->limit($chunk)->delete();
+        } while ($deleted > 0);
+    }
+
+    /**
+     * Run bulk product GraphQL query to fetch all products.
+     *
+     * @param User $shop
+     * @return void
+     */
+    private function runBulkProductGraphQL(User $shop): void
+    {
+        $bulkQuery = <<<GRAPHQL
+        mutation {
+            bulkOperationRunQuery(
+                query: """
+                {
+                    products {
+                        edges {
+                            node {
+                                id
+                                productCategory {
+                                    productTaxonomyNode {
+                                        id
+                                        name
+                                        fullName
+                                    }
+                                }
+                                seo {
+                                    title
+                                    description
+                                }
+                                featuredMedia {
+                                    preview {
+                                        image {
+                                            src
+                                        }
+                                    }
+                                }
+                                collections(first: 10) {
+                                    edges {
+                                        node {
                                             id
-                                            name
-                                            fullName
-                                        }
-                                    }
-                                    seo {
-                                        title
-                                        description
-                                    }
-                                    featuredMedia {
-                                        preview {
-                                            image {
-                                                src
-                                            }
-                                        }
-                                    }
-                                    collections(first: 10) {
-                                        edges {
-                                            node {
-                                                id
-                                                title
-                                                handle
-                                            }
+                                            title
+                                            handle
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                    """
-                ) {
-                    bulkOperation {
-                        id
-                        status
-                    }
-                    userErrors {
-                        field
-                        message
-                    }
+                }
+                """
+            ) {
+                bulkOperation {
+                    id
+                    status
+                }
+                userErrors {
+                    field
+                    message
                 }
             }
-            GRAPHQL;
-
-            $shop->api()->graph($bulkQuery);
-
-        } catch (Exception $e) {
-            Log::error("[LISTENER][PRODUCT] Queue failed - {$shopId}, Error: {$e->getMessage()}");
-            Redis::del("shop:{$shopId}:product_sync");
         }
+        GRAPHQL;
+
+        $shop->api()->graph($bulkQuery);
     }
 }
