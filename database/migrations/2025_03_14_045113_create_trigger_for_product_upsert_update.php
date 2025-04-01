@@ -153,20 +153,22 @@ return new class extends Migration
                     SET old_values = JSON_SET(old_values, "$.barcode", OLD.barcode);
                     SET new_values = JSON_SET(new_values, "$.barcode", NEW.barcode);
                 END IF;
-                IF (CASE WHEN OLD.sku IS NULL THEN "" ELSE OLD.sku END)
-                   <> (CASE WHEN NEW.sku IS NULL THEN "" ELSE NEW.sku END) THEN
-                    SET old_values = JSON_SET(old_values, "$.sku", OLD.sku);
-                    SET new_values = JSON_SET(new_values, "$.sku", NEW.sku);
-                END IF;
-                IF (CASE WHEN OLD.weight IS NULL THEN "" ELSE OLD.weight END)
-                   <> (CASE WHEN NEW.weight IS NULL THEN "" ELSE NEW.weight END) THEN
-                    SET old_values = JSON_SET(old_values, "$.weight", OLD.weight);
-                    SET new_values = JSON_SET(new_values, "$.weight", NEW.weight);
-                END IF;
-                IF (CASE WHEN OLD.weight_unit IS NULL THEN "" ELSE OLD.weight_unit END)
-                   <> (CASE WHEN NEW.weight_unit IS NULL THEN "" ELSE NEW.weight_unit END) THEN
-                    SET old_values = JSON_SET(old_values, "$.weight_unit", OLD.weight_unit);
-                    SET new_values = JSON_SET(new_values, "$.weight_unit", NEW.weight_unit);
+                IF NOT (OLD.sku IS NULL AND OLD.weight IS NULL AND OLD.weight_unit IS NULL) THEN
+                    IF (CASE WHEN OLD.sku IS NULL THEN "" ELSE OLD.sku END)
+                       <> (CASE WHEN NEW.sku IS NULL THEN "" ELSE NEW.sku END) THEN
+                        SET old_values = JSON_SET(old_values, "$.sku", OLD.sku);
+                        SET new_values = JSON_SET(new_values, "$.sku", NEW.sku);
+                    END IF;
+                    IF (CASE WHEN OLD.weight IS NULL THEN "" ELSE OLD.weight END)
+                       <> (CASE WHEN NEW.weight IS NULL THEN "" ELSE NEW.weight END) THEN
+                        SET old_values = JSON_SET(old_values, "$.weight", OLD.weight);
+                        SET new_values = JSON_SET(new_values, "$.weight", NEW.weight);
+                    END IF;
+                    IF (CASE WHEN OLD.weight_unit IS NULL THEN "" ELSE OLD.weight_unit END)
+                       <> (CASE WHEN NEW.weight_unit IS NULL THEN "" ELSE NEW.weight_unit END) THEN
+                        SET old_values = JSON_SET(old_values, "$.weight_unit", OLD.weight_unit);
+                        SET new_values = JSON_SET(new_values, "$.weight_unit", NEW.weight_unit);
+                    END IF;
                 END IF;
                 IF (CASE WHEN OLD.inventory_management IS NULL THEN "" ELSE OLD.inventory_management END)
                    <> (CASE WHEN NEW.inventory_management IS NULL THEN "" ELSE NEW.inventory_management END) THEN

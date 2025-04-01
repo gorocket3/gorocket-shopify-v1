@@ -140,7 +140,7 @@ class WebhookController extends Controller
             'shop-update'               => ShopUpdateJob::class,
             'product-update'            => ProductUpdateJob::class,
             'product-delete'            => ProductDeleteJob::class,
-            'inventory-items-update'    => InventoryItemsUpdateJob::class,
+            'inventory-items-update'    => InventoryItemsUpdateJob::class
         ];
 
         if (!isset($jobs[$type])) {

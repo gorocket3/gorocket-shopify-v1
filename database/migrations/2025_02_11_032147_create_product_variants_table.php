@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->decimal('price', 10, 2)->nullable();
             $table->integer('position')->nullable();
             $table->string('inventory_policy')->nullable();
-            $table->decimal('compare_at_price', 10, 2)->nullable();
+            $table->decimal('compare_at_price', 10, 2)->default(0);
             $table->string('option1')->nullable();
             $table->string('option2')->nullable();
             $table->string('option3')->nullable();
