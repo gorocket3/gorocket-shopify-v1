@@ -1,0 +1,17 @@
+{
+    "per_page": "per_page",
+    "product_name": "title",
+    "product_body": "content",
+    "product_type": "product_type",
+    "vendor": "vendor",
+    "product_status": "status",
+    "product_tags": "tags",
+    "product_category": "category",
+    "seo_title": "seo_title",
+    "seo_description": "seo_description",
+    "search_type": "search_type",
+    "start_date": "start_date",
+    "end_date": "end_date",
+    "sort_by": "sort_by",
+    "sort_dir": "sort_dir"
+}

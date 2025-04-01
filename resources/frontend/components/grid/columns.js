@@ -68,6 +68,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
             return;
         }
+
+        e.data[e.colDef.field] = e.newValue * 1;
         changeCellState(field, e);
     }
 
@@ -80,6 +82,29 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
     const onCellValueChangedForEditedField = (p) => {
         if (p.oldValue !== p.newValue) {
             editedCellCallback(p.newValue ? 1 : -1);
+        }
+    }
+
+    const getDefaultFilterParams = (type = 'set', options = {}) => {
+        const params = {
+            buttons: [ 'reset', 'apply' ],
+            closeOnApply: true,
+            newRowsAction: 'keep',
+            caseSensitive: true,
+        };
+
+        if (type === 'text') {
+            params.filterOptions = [ "contains", "notContains" ];
+            params.suppressAndOrCondition = true;
+        } else if (type === 'number') {
+            params.filterOptions = [ "inRange", "equals" ];
+            params.inRangeInclusive = true;
+            params.suppressAndOrCondition = true;
+        }
+
+        return {
+            ...params,
+            ...options,
         }
     }
 
@@ -205,10 +230,10 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Status",
             width: 75,
             filter: true,
-            filterParams: {
+            filterParams: getDefaultFilterParams('set', {
                 values: status,
                 valueFormatter: (p) => PRODUCT_STATUS[p.value]?.label || '-',
-            },
+            }),
             cellStyle: cellMergeStyling,
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('product_status'),
@@ -227,7 +252,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             field: "product_name",
             headerName: "Product Name",
             width: 200,
-            filter: true,
+            filter: "agTextColumnFilter",
+            filterParams: getDefaultFilterParams('text'),
             cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('product_name'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -239,9 +265,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Product Type",
             width: 100,
             filter: true,
-            filterParams: {
-                values: types,
-            },
+            filterParams: getDefaultFilterParams('set', { values: types }),
             cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('product_type'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -254,9 +278,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Category",
             width: 100,
             filter: "agTextColumnFilter",
-            filterParams: {
-                filterOptions: [ "contains", "notContains" ],
-            },
+            filterParams: getDefaultFilterParams('text'),
             cellStyle: cellMergeStyling,
             // cellClassRules: changedCellClassRules('product_category'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -268,9 +290,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Tags",
             width: 200,
             filter: "agTextColumnFilter",
-            filterParams: {
-                filterOptions: [ "contains", "notContains" ],
-            },
+            filterParams: getDefaultFilterParams('text'),
             cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('product_tags'),
             cellRenderer: (p) => p.data.position > 1 ? '' : (!p.value ? '-' : `
@@ -292,6 +312,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             field: "product_body",
             headerName: "Product Body HTML",
             width: 300,
+            filter: "agTextColumnFilter",
+            filterParams: getDefaultFilterParams('text'),
             cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('product_body'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -308,9 +330,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Vendor",
             width: 120,
             filter: true,
-            filterParams: {
-                values: vendor,
-            },
+            filterParams: getDefaultFilterParams('set', { values: vendor }),
             cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('vendor'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -328,7 +348,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             field: "handle",
             headerName: "URL Handle",
             width: 130,
-            filter: true,
+            filter: "agTextColumnFilter",
+            filterParams: getDefaultFilterParams('text'),
             cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('handle'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -350,9 +371,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "SEO Title",
             width: 200,
             filter: "agTextColumnFilter",
-            filterParams: {
-                filterOptions: [ "contains", "notContains" ],
-            },
+            filterParams: getDefaultFilterParams('text'),
             cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('seo_title'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -364,9 +383,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "SEO Description",
             width: 250,
             filter: "agTextColumnFilter",
-            filterParams: {
-                filterOptions: [ "contains", "notContains" ],
-            },
+            filterParams: getDefaultFilterParams('text'),
             cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
             cellClassRules: changedCellClassRules('seo_description'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -435,6 +452,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Variant Name",
             width: 150,
             filter: "agTextColumnFilter",
+            filterParams: getDefaultFilterParams('text'),
             cellClassRules: changedCellClassRules('option_name'),
             onCellValueChanged: (e) => changeCellState('option_name', e),
             editable: true,
@@ -445,6 +463,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             type: "currencyType",
             width: 90,
             filter: "agNumberColumnFilter",
+            filterParams: getDefaultFilterParams('number'),
             cellClassRules: changedCellClassRules('price'),
             cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
             onCellValueChanged: (e) => changeCellStateIfNumber('price', e),
@@ -456,6 +475,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             type: 'currencyType',
             width: 135,
             filter: "agNumberColumnFilter",
+            filterParams: getDefaultFilterParams('number'),
             cellClassRules: changedCellClassRules('compare_at_price'),
             cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
             onCellValueChanged: (e) => changeCellStateIfNumber('compare_at_price', e),
@@ -466,9 +486,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Inventory Management",
             width: 150,
             filter: true,
-            filterParams: {
-                values: [ 'true', 'false' ],
-            },
+            filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
             cellStyle: (p) => p.value === 'true' ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
         },
@@ -477,6 +495,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Inventory Quantity",
             width: 120,
             filter: "agNumberColumnFilter",
+            filterParams: getDefaultFilterParams('number'),
             cellStyle: (p) => p.data.inventory_management !== 'true' ? { textDecoration: 'line-through' } : {},
             cellClass: 'hd-grid-number',
             cellClassRules: changedCellClassRules('inventory_quantity'),
@@ -492,9 +511,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Inventory Policy",
             width: 120,
             filter: true,
-            filterParams: {
-                values: [ 'continue', 'deny' ],
-            },
+            filterParams: getDefaultFilterParams('set', { values: [ 'continue', 'deny' ], suppressSelectAll: true, suppressSorting: true }),
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('inventory_policy'),
             onCellValueChanged: (e) => changeCellState('inventory_policy', e),
@@ -516,9 +533,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Taxable",
             width: 70,
             filter: true,
-            filterParams: {
-                values: [ 'true', 'false' ],
-            },
+            filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
             cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('taxable'),
@@ -536,7 +551,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             field: "barcode",
             headerName: "Barcode",
             width: 130,
-            filter: true,
+            filter: "agTextColumnFilter",
+            filterParams: getDefaultFilterParams('text'),
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('barcode'),
             onCellValueChanged: (e) => changeCellState('barcode', e),
@@ -546,7 +562,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             field: "sku",
             headerName: "sku",
             width: 120,
-            filter: true,
+            filter: "agTextColumnFilter",
+            filterParams: getDefaultFilterParams('text'),
             cellClassRules: changedCellClassRules('sku'),
             onCellValueChanged: (e) => changeCellState('sku', e),
             editable: true,
@@ -556,6 +573,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "requires_shipping",
             width: 120,
             filter: true,
+            filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
             cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
             cellClass: 'hd-grid-code',
             cellClassRules: changedCellClassRules('requires_shipping'),
@@ -575,6 +593,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             type: 'currencyType',
             width: 80,
             filter: "agNumberColumnFilter",
+            filterParams: getDefaultFilterParams('number'),
             cellClassRules: changedCellClassRules('weight'),
             cellRenderer: (p) => numberWithCommas(p.value || 0),
             onCellValueChanged: (e) => changeCellStateIfNumber('weight', e),
@@ -585,9 +604,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Unit",
             width: 60,
             filter: true,
-            filterParams: {
-                values: [ 'g', 'kg', 'lb', 'oz' ],
-            },
+            filterParams: getDefaultFilterParams('set', { values: [ 'g', 'kg', 'lb', 'oz' ] }),
             cellClassRules: changedCellClassRules('weight_unit'),
             onCellValueChanged: (e) => changeCellState('weight_unit', e),
             editable: true,

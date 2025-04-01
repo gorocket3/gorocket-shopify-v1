@@ -50,6 +50,7 @@ import {
     saveColumns,
     saveProducts,
     searchProducts,
+    updatePerPage,
     undoGrid
 } from "../components/grid/controller";
 import { getHistoryData, getMyPlanData } from "../utils/api";
@@ -144,7 +145,7 @@ export default function ProductsPage() {
     }
 
     const searchClick = () => {
-        searchProducts({ per_page: searchPerPage });
+        searchProducts();
         hideSaveBar();
     }
 
@@ -217,6 +218,10 @@ export default function ProductsPage() {
             clearInterval(productActionInterval.current);
         };
     }, [ info.shopId ]);
+
+    useEffectWithoutInitialState(() => {
+        updatePerPage(searchPerPage);
+    }, [ searchPerPage ]);
 
     useEffectWithoutInitialState(() => {
         if (productAction.progress === 100) {

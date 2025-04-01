@@ -2,6 +2,7 @@ import { getCompositionData } from "../../utils/api";
 import fetchData from "../../utils/fetch";
 import { formatNumberWithCommas } from "../../utils/formats";
 import getInitialColumns from "./columns";
+import COLUMN_PARAMS from "./cols.json";
 
 let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback;
 let editedCellCount = 0;
@@ -23,10 +24,14 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
     refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
 }
 
-export function searchProducts({ per_page = 25 } = {}) {
-    // let params = $('form[name="search"]').serialize();
-    let params = 'per_page=' + per_page;
+export function updatePerPage(perPage) {
+    defaultData.per_page = perPage;
+}
 
+export function searchProducts() {
+    let params = getFilterParams(filterData, { per_page: defaultData.per_page });
+
+    gx.gridOptions.api.hidePopupMenu();
     gx.Request('/api/products', params, 1, function (v) {
         const data = v.data.reduce((a, c, i) => {
             if (c.variants.length < 1) {
@@ -76,12 +81,12 @@ export function searchProducts({ per_page = 25 } = {}) {
                 option_name: item.title,
                 option_img: item.image?.src || '',
                 inventory_management: item.inventory_management === 'shopify' ? 'true' : 'false',
-                inventory_quantity: ((item.inventory_quantity || 0) * 1).toString(),
-                price: ((item.price || 0) * 1).toString(),
-                compare_at_price: ((item.compare_at_price || 0) * 1).toString(),
+                inventory_quantity: ((item.inventory_quantity || 0) * 1),
+                price: ((item.price || 0) * 1),
+                compare_at_price: ((item.compare_at_price || 0) * 1),
                 taxable: item.taxable ? 'true' : 'false',
                 barcode: item.barcode || '',
-                weight: ((item.weight || 0) * 1).toString(),
+                weight: ((item.weight || 0) * 1),
             };
             cur_data['prev'] = { ...cur_data };
             return cur_data;
@@ -91,7 +96,6 @@ export function searchProducts({ per_page = 25 } = {}) {
 
         if (v.current_page === 1) {
             gx.gridOptions.api.setRowData(result);
-            gx.gridOptions.api.setFilterModel(filterData);
 
             addEditedCellCount(0, true);
         } else {
@@ -342,6 +346,7 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
         },
         onFilterChanged: (e) => {
             filterData = e.api.getFilterModel();
+            searchProducts();
 
             const displayedRows = gx.gridOptions.api.getRenderedNodes().map(node => node.data.product_id);
             // const cnt = [ ...new Set(displayedRows) ].length;
@@ -353,7 +358,7 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
         }
     });
 
-    searchProducts(defaultData);
+    searchProducts();
 }
 
 async function getInitialData() {
@@ -389,4 +394,42 @@ function addEditedCellCount(num, reset = false) {
     if (editedCellCount > defaultData.plan_selected_limit) {
         shopify.toast.show('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')', { isError: true });
     }
+}
+
+function getFilterParams(data, defaultData) {
+    let params = [];
+
+    for (const key in defaultData) {
+        const paramsKey = COLUMN_PARAMS[key];
+        params.push(paramsKey + '=' + defaultData[key]);
+    }
+
+    for (const key in data) {
+        const col = data[key];
+        const paramsKey = COLUMN_PARAMS[key];
+
+        if (col.filterType === 'set') {
+            col.values.forEach((val) => {
+                params.push(paramsKey + '[]=' + val);
+            });
+        }
+
+        if (col.filterType === 'number') {
+            if (col.type === 'inRange') {
+                params.push(paramsKey + '_min=' + col.filter);
+                params.push(paramsKey + '_max=' + col.filterTo);
+            } else if (col.type === 'equals') {
+                params.push(paramsKey + '=' + col.filter);
+            }
+        }
+
+        if (col.filterType === 'text') {
+            if (col.type === 'contains') {
+                params.push(paramsKey + '=' + col.filter);
+            } else if (col.type === 'notContains') {
+                params.push(paramsKey + '_not=' + col.filter);
+            }
+        }
+    }
+    return params.join('&');
 }
