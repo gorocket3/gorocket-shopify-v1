@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->string('featured_image')->nullable();
             $table->string('title')->nullable();;
             $table->string('handle')->nullable();;
-            $table->text('body_html')->nullable();
+            $table->longText('body_html')->nullable();
             $table->string('product_type')->nullable();
             $table->string('vendor')->nullable();
             $table->string('status')->default('active');
