@@ -90,7 +90,7 @@ class ProductController extends Controller
      */
     private function applyFilters(mixed $query, array $filters): void
     {
-        $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('title', 'LIKE', "%{$title}%"))
+        $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('products.title', 'LIKE', "%{$title}%"))
             ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_html', 'LIKE', "%{$content}%"))
             ->when($filters['product_type'] ?? null, fn($q, $type) => $q->where('product_type', $type))
             ->when($filters['vendor'] ?? null, fn($q, $vendor) => $q->where('vendor', $vendor))
