@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AIController;
 use App\Http\Controllers\API\CompositionController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\HistoryController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\API\PersonalController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\SyncController;
 use App\Http\Controllers\API\PlanController;
+use App\Http\Middleware\LimitAIUseMiddleware;
 use App\Http\Middleware\LimitProductEditMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -64,5 +66,9 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('history', [HistoryController::class, 'index'])->name('history.list');
     Route::get('history/count', [HistoryController::class, 'count'])->name('history.count');
 
+    // AI
+    Route::middleware([LimitAIUseMiddleware::class])->group(function () {
+        Route::post('/generate-seo', [AIController::class, 'generateSeo'])->name('generate.seo');
+    });
 });
 

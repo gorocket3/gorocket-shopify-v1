@@ -47,4 +47,20 @@ return [
         'Free'  => env('PLAN_SELECTED_LIMIT_FREE', 10000),
         'Basic' => env('PLAN_SELECTED_LIMIT_BASIC', 100000),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Plan-Based AI Usage Limits
+    |--------------------------------------------------------------------------
+    |
+    | Defines how many times a user can use AI-related features per day,
+    | depending on their subscription plan. You can control these limits
+    | via environment variables as needed.
+    |
+    */
+
+    'ai_limits' => [
+        'Free'  => env('PLAN_AI_LIMIT_FREE', 5),
+        'Basic' => env('PLAN_AI_LIMIT_BASIC', 250)
+    ]
 ];

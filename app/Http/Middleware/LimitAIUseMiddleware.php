@@ -5,9 +5,9 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Models\ChangeLog;
+use App\Models\AIGeneration;
 
-class LimitProductEditMiddleware
+class LimitAIUseMiddleware
 {
     /**
      * Handle an incoming request.
@@ -20,16 +20,15 @@ class LimitProductEditMiddleware
         }
 
         $planName = $shop->plan->name ?? 'Free';
-        $maxDailyRequests = config("plans.edit_limits.{$planName}", config('plans.edit_limits.Free'));
+        $maxDailyRequests = config("plans.ai_limits.{$planName}", config('plans.ai_limits.Free'));
 
-        $editCount = ChangeLog::where('user_id', $shop->id)
-            ->where('updated_by', 'gorocket')
+        $todayCount = AIGeneration::where('shop_id', $shop->id)
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->count();
 
-        if ($editCount >= $maxDailyRequests) {
+        if ($todayCount >= $maxDailyRequests) {
             return response()->json([
-                'message' => "Daily limit exceeded: {$maxDailyRequests}"
+                'message' => "Daily AI usage limit exceeded: {$maxDailyRequests}"
             ], 429);
         }
 
