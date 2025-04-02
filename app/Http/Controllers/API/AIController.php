@@ -12,6 +12,61 @@ use OpenAI;
 
 class AIController extends Controller
 {
+
+    /**
+     * API endpoint to generate SEO-friendly title and meta description for a product.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $shop = Auth::user();
+
+        $validated = $request->validate([
+            'per_page' => 'integer|min:1|max:1000',
+            'product_id' => 'nullable'
+        ]);
+
+        $perPage = $validated['per_page'] ?? 50;
+
+        $query = AIGeneration::with([
+            'product',
+            'product.images',
+        ])->where('user_id', $shop->id);
+
+        if (!empty($validated['product_id'])) {
+            if (is_array($validated['product_id'])) {
+                $query->whereIn('product_id', $validated['product_id']);
+            } else {
+                $query->where('product_id', $validated['product_id']);
+            }
+        }
+
+        $logs = $query->latest()->paginate($perPage);
+
+        return response()->json($logs);
+    }
+
+    /**
+     * API endpoint to count the number of AI generations for a shop.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function count(Request $request): JsonResponse
+    {
+        $shop = auth()->user();
+
+        $query = AIGeneration::where('user_id', $shop->id)
+            ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()]);
+
+        $planName = $shop->plan->name ?? 'Free';
+        $limit = config("plans.ai_limits.{$planName}", config("plans.ai_limits.Free"));
+
+        return response()->json(['count' => $query->count(), 'limit' => $limit]);
+    }
+
     /**
      * Generate SEO-friendly title and meta description for a product.
      *

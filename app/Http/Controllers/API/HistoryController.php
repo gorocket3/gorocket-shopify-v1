@@ -7,12 +7,11 @@ use App\Models\ChangeLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
 
 class HistoryController extends Controller
 {
     /**
-     * SyncController constructor.
+     * API endpoint to retrieve the history of changes for a shop.
      *
      * @param Request $request
      * @return JsonResponse
@@ -63,7 +62,7 @@ class HistoryController extends Controller
     }
 
     /**
-     * SyncController constructor.
+     * API endpoint to count the number of History logs for a shop.
      *
      * @param Request $request
      * @return JsonResponse

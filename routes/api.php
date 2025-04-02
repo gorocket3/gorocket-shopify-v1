@@ -70,5 +70,7 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::middleware([LimitAIUseMiddleware::class])->group(function () {
         Route::post('/generate-seo', [AIController::class, 'generateSeo'])->name('generate.seo');
     });
+    Route::get('usage', [AIController::class, 'index'])->name('usage');
+    Route::get('usage/count', [AIController::class, 'count'])->name('usage.limit');
 });
 
