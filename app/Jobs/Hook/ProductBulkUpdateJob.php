@@ -97,7 +97,7 @@ class ProductBulkUpdateJob implements ShouldQueue
             $this->upsertProducts($batch);
         }
 
-        Log::info("[BULK] Product updates completed - shop: {$shop_id}");
+        Log::info("[SETUP][BULK] Product updates completed - shop: {$shop_id}");
     }
 
     /**

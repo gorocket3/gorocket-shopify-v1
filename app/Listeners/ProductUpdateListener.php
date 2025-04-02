@@ -246,6 +246,7 @@ class ProductUpdateListener implements ShouldQueue
         }
         GRAPHQL;
 
-        $shop->api()->graph($bulkQuery);
+        $response = $shop->api()->graph($bulkQuery);
+        Log::info("[LISTENER][BULK] Response: ", $response);
     }
 }
