@@ -91,7 +91,7 @@ export default function PlanPage() {
                                                     <Button onClick={() => goToChargesPage()}
                                                             variant="primary"
                                                             size="large" fullWidth={true}>
-                                                        Start Now for FREE
+                                                        Subscribe Now
                                                     </Button>
                                                 )}
                                             </Box>
@@ -107,19 +107,25 @@ export default function PlanPage() {
                                                         plan_name: plan.name,
                                                     },
                                                     {
-                                                        title: "Edit count",
+                                                        title: "Edit Limit",
                                                         type: "text",
-                                                        content: plan.limits.edit_limit + ' times per day',
+                                                        content: plan.limits.edit_limit + ' edits per day',
                                                         plan_name: plan.name,
                                                     },
                                                     {
-                                                        title: "History viewing period",
+                                                        title: "AI SEO Generation",
+                                                        type: "text",
+                                                        content: plan.limits.ai_limit + ' uses per day',
+                                                        plan_name: plan.name,
+                                                    },
+                                                    {
+                                                        title: "History Retention",
                                                         type: "text",
                                                         content: plan.limits.history_days + ' days',
                                                         plan_name: plan.name,
                                                     },
                                                     {
-                                                        title: "Shopify's history viewing",
+                                                        title: "Shopify History Access",
                                                         type: "success",
                                                         content: plan.id !== 1,
                                                         plan_name: plan.name,

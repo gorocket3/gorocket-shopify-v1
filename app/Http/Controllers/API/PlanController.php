@@ -39,6 +39,7 @@ class PlanController extends Controller
                     'user_plan'  => $plan->id == $currentPlanId,
                     'limits'     => [
                         'edit_limit'        => config("plans.edit_limits.{$planName}"),
+                        'ai_limit'          => config("plans.ai_limits.{$planName}"),
                         'history_days'      => config("plans.history_days.{$planName}"),
                         'max_selected_rows' => config("plans.max_selected_rows.{$planName}")
                     ]
@@ -88,7 +89,7 @@ class PlanController extends Controller
         $confirmationUrl = $getPlanUrl(new ShopId($shop->getKey()), $nullablePlanId, $host);
 
         return response()->json([
-            'confirmation_url' => $confirmationUrl,
+            'confirmation_url' => $confirmationUrl
         ]);
     }
 }
