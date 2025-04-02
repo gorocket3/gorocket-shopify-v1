@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('category')->nullable();
             $table->text('collections')->nullable();
             $table->string('seo_title')->nullable();
-            $table->string('seo_description')->nullable();
+            $table->text('seo_description')->nullable();
             $table->string('featured_image')->nullable();
             $table->string('title')->nullable();;
             $table->string('handle')->nullable();;
