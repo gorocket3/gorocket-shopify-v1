@@ -2,24 +2,7 @@ import Quill from 'quill';
 import ImageResize from 'quill-image-resize';
 import "quill/dist/quill.snow.css";
 
-const BlockEmbed = Quill.import('blots/block/embed');
-
-class RawHTMLBlot extends BlockEmbed {
-    static create(value) {
-        const node = super.create();
-        node.innerHTML = value;
-        return node;
-    }
-
-    static value(node) {
-        return node.innerHTML;
-    }
-}
-
-RawHTMLBlot.blotName = 'raw-html';
-RawHTMLBlot.tagName = 'section';
-
-Quill.register(RawHTMLBlot);
+window.Quill = Quill;
 Quill.register('modules/ImageResize', ImageResize);
 
 export default class GridContentEditor {
@@ -44,11 +27,10 @@ export default class GridContentEditor {
         const rawHtml = this.editorApp.getSemanticHTML();
 
         let trimmedHtml = rawHtml
-            .replace(/(<p>(<br\s*\/?>)?<\/p>)\s*$/i, '')
-            .replace(/^<section[^>]*>/, '')
-            .replace(/<\/section>$/, '')
-            .replace(/(<p>(<br\s*\/?>)?<\/p>)\s*$/i, '')
-            .replace(/&nbsp;/g, ' ');
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&#39;/g, '\'')
+            .replace(/&quot;/g, '\"')
+            .replace(/(<p>(<br\s*\/?>)?<\/p>)\s*$/i, '');
 
         return trimmedHtml;
     }
@@ -81,8 +63,7 @@ export default class GridContentEditor {
                 },
             },
         });
-        this.editorApp.insertEmbed(0, 'raw-html', this.value, 'user');
-        this.editorApp.focus();
+        this.editorApp.clipboard.dangerouslyPasteHTML(0, this.value, 'user');
     }
 
     destroy() {

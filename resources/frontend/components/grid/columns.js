@@ -50,6 +50,11 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
 
         if (oldValue === newValue) return;
 
+        const trimOldValue = oldValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
+        const trimNewValue = newValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
+
+        if (trimOldValue === trimNewValue) return;
+
         if (e.data.prev[field] === newValue) {
             e.node.setDataValue(field + '_changed', false);
         } else {

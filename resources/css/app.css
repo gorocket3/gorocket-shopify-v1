@@ -6,8 +6,13 @@
 .ql-editor {
     min-height: 200px;
     max-height: 400px;
+    line-height: 1.6 !important;
     overflow: auto;
     background-color: white;
+}
+
+.ql-editor p {
+    padding: 0.25rem 0 !important;
 }
 
 .ql-toolbar {
