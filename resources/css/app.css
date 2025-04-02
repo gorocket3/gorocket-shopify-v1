@@ -3,12 +3,21 @@
 @tailwind utilities;
 
 /* Custom Quill CSS */
-.ql-editor {
+.grid-content-editor .ql-editor {
     min-height: 200px;
     max-height: 400px;
     line-height: 1.6 !important;
     overflow: auto;
     background-color: white;
+}
+
+.readonly-editor .ql-editor {
+    max-height: 200px;
+    overflow: hidden;
+}
+
+.readonly-editor.show .ql-editor {
+    max-height: unset;
 }
 
 .ql-editor p {

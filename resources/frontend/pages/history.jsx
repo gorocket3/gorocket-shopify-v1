@@ -26,8 +26,10 @@ import {
     ProductIcon,
     VariantIcon,
 } from "@shopify/polaris-icons";
+import 'quill/dist/quill.snow.css';
 import productAttributes from "../components/grid/attributes.json";
 import { FeaturedImage } from "../components/history/featured-image";
+import { HtmlViewer } from "../components/history/html-viewer";
 import { formatNumberWithCommas, formatISOStringToReadableDate } from "../utils/formats";
 import { getHistoryData } from "../utils/api";
 
@@ -151,7 +153,7 @@ export default function HistoryPage() {
                                                         <Card padding="0" roundedAbove="0">
                                                             {item.logs.map((log, idx) => (
                                                                 <ResourceItem
-                                                                    key={idx}
+                                                                    key={'item_' + idx}
                                                                     id={log.id}
                                                                     // media={}
                                                                     accessibilityLabel={`View details for ${log.product_id}`}
@@ -206,7 +208,7 @@ export default function HistoryPage() {
                                                                                         }
 
                                                                                         return (
-                                                                                            <BlockStack key={changes_idx} gap="200">
+                                                                                            <BlockStack key={'changes_' + log.id + changes_idx} gap="200">
                                                                                                 <Text as="h6" variant="bodyMd" fontWeight="semibold">
                                                                                                     {productAttributes[key] || key}
                                                                                                 </Text>
@@ -224,8 +226,8 @@ export default function HistoryPage() {
                                                                                                                 {key === 'featured_image' ? (
                                                                                                                     <FeaturedImage src={old_value} alt="Old Image"/>
                                                                                                                 ) : key === 'body_html' ? (
-                                                                                                                    <Box paddingBlockEnd="050">
-                                                                                                                        <div dangerouslySetInnerHTML={{ __html: old_value }}></div>
+                                                                                                                    <Box paddingBlockEnd="050" minWidth="100%" maxWidth="750px">
+                                                                                                                        <HtmlViewer id={'changes_old' + log.id + changes_idx} source={old_value}/>
                                                                                                                     </Box>
                                                                                                                 ) : (
                                                                                                                     <Text as="p" variant="bodySm" tone="base" breakWord={true}>{old_value}</Text>
@@ -246,8 +248,8 @@ export default function HistoryPage() {
                                                                                                                 {key === 'featured_image' ? (
                                                                                                                     <FeaturedImage src={new_value} alt="New Image"/>
                                                                                                                 ) : key === 'body_html' ? (
-                                                                                                                    <Box paddingBlockEnd="050">
-                                                                                                                        <div dangerouslySetInnerHTML={{ __html: new_value }}></div>
+                                                                                                                    <Box paddingBlockEnd="050" minWidth="100%" maxWidth="750px">
+                                                                                                                        <HtmlViewer id={'changes_new' + log.id + changes_idx} source={new_value}/>
                                                                                                                     </Box>
                                                                                                                 ) : (
                                                                                                                     <Text as="p" variant="bodySm" tone="base" breakWord={true}>{new_value}</Text>

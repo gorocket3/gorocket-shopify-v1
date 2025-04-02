@@ -19,6 +19,7 @@ export default class GridContentEditor {
 
         this.container = document.createElement('div');
         this.container.setAttribute('id', 'gd-editor');
+        this.container.setAttribute('class', 'grid-content-editor');
         this.container.style = "width: 100%; max-width: 700px;";
         this.container.addEventListener('keydown', (event) => this.onEditorKeyDown(event));
     }
