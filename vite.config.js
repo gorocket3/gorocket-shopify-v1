@@ -19,6 +19,7 @@ export default defineConfig(function ({ mode }) {
             preserveSymlinks: true,
         },
         build: {
+            chunkSizeWarningLimit: 1000,
             rollupOptions: {
                 output: {
                     manualChunks(id) {
@@ -27,6 +28,7 @@ export default defineConfig(function ({ mode }) {
                             if (id.includes('@shopify')) return 'shopify';
                             if (id.includes('ag-grid')) return 'grid';
                             if (id.includes('axios')) return 'vendor';
+                            if (id.includes('quill')) return 'quill';
                             return 'vendor-other';
                         }
                     }
