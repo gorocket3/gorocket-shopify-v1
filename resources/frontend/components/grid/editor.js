@@ -2,6 +2,24 @@ import Quill from 'quill';
 import ImageResize from 'quill-image-resize';
 import "quill/dist/quill.snow.css";
 
+const BlockEmbed = Quill.import('blots/block/embed');
+
+class RawHTMLBlot extends BlockEmbed {
+    static create(value) {
+        const node = super.create();
+        node.innerHTML = value;
+        return node;
+    }
+
+    static value(node) {
+        return node.innerHTML;
+    }
+}
+
+RawHTMLBlot.blotName = 'raw-html';
+RawHTMLBlot.tagName = 'section';
+
+Quill.register(RawHTMLBlot);
 Quill.register('modules/ImageResize', ImageResize);
 
 export default class GridContentEditor {
@@ -23,7 +41,16 @@ export default class GridContentEditor {
     }
 
     getValue() {
-        return this.editorApp.getSemanticHTML();
+        const rawHtml = this.editorApp.getSemanticHTML();
+
+        let trimmedHtml = rawHtml
+            .replace(/(<p>(<br\s*\/?>)?<\/p>)\s*$/i, '')
+            .replace(/^<section[^>]*>/, '')
+            .replace(/<\/section>$/, '')
+            .replace(/(<p>(<br\s*\/?>)?<\/p>)\s*$/i, '')
+            .replace(/&nbsp;/g, ' ');
+
+        return trimmedHtml;
     }
 
     getGui() {
@@ -54,7 +81,8 @@ export default class GridContentEditor {
                 },
             },
         });
-        this.editorApp.clipboard.dangerouslyPasteHTML(0, this.value);
+        this.editorApp.insertEmbed(0, 'raw-html', this.value, 'user');
+        this.editorApp.focus();
     }
 
     destroy() {
