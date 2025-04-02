@@ -247,13 +247,11 @@ class ProductUpdateListener implements ShouldQueue
         GRAPHQL;
 
         $response = $shop->api()->graph($bulkQuery);
-
         $userErrors = $response['body']['data']['bulkOperationRunQuery']['userErrors'] ?? [];
         if (empty($userErrors)) {
             Log::error("[LISTENER][BULK] Bulk operation success - {$shop->id}");
         } else {
-            $messages = collect($userErrors)->pluck('message')->implode('; ');
-            Log::error("[LISTENER][BULK] Bulk operation failed - {$messages}");
+            Log::error("[LISTENER][BULK] Bulk operation failed - {$shop->id}");
         }
     }
 }
