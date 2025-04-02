@@ -1,7 +1,13 @@
-.hd-grid-number {
+.hd-grid-right {
+    line-height: 43px !important;
     text-align: right;
 }
+.hd-grid-left {
+    line-height: 43px !important;
+    text-align: left;
+}
 .hd-grid-code {
+    line-height: 43px !important;
     text-align: center;
 }
 /*.hd-grid-edit {*/
@@ -60,7 +66,8 @@
 
 .ag-theme-balham .ag-ltr .ag-cell {
     padding: 0 3px;
-    line-height: 42px;
+    line-height: unset;
+    max-height: 50px;
 }
 
 .ag-theme-balham .ag-ltr .ag-cell:not(.ag-selection-fill-bottom) {

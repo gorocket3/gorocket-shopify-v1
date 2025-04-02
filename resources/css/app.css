@@ -2,3 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom Quill CSS */
+.ql-editor {
+    min-height: 200px;
+    max-height: 400px;
+    overflow: auto;
+    background-color: white;
+}
+
+.ql-toolbar {
+    width: 100%;
+    max-width: 700px;
+}

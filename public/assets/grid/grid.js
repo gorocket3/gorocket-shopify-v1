@@ -98,13 +98,13 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
         columnTypes: {
             numberType: {
                 //filter: 'agNumberColumnFilter',
-                comparator: sortnumber, valueFormatter: formatNumber, cellClass: 'hd-grid-number',
+                comparator: sortnumber, valueFormatter: formatNumber, cellClass: 'hd-grid-right',
             }, percentType: {
 
                 //filter: 'agNumberColumnFilter',
                 comparator: sortnumber,
                 valueFormatter: formatNumber,
-                cellClass: [ 'hd-grid-number', 'hd-grid-percent' ],
+                cellClass: [ 'hd-grid-right', 'hd-grid-percent' ],
                 precision: 2,
             },
 
@@ -112,7 +112,7 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
                 //filter: 'agNumberColumnFilter',
                 comparator: sortnumber,
                 valueFormatter: formatNumber,
-                cellClass: 'hd-grid-number',
+                cellClass: 'hd-grid-right',
                 cellStyle: params => {
                     if (params.value > 0) {
                         return { color: 'red' };
@@ -126,14 +126,14 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
 
             currencyType: {
                 //filter: 'agNumberColumnFilter',
-                comparator: sortnumber, valueFormatter: formatNumber, cellClass: 'hd-grid-number',
+                comparator: sortnumber, valueFormatter: formatNumber, cellClass: 'hd-grid-right',
             },
 
             currencyColorType: {
                 //filter: 'agNumberColumnFilter',
                 comparator: sortnumber,
                 valueFormatter: formatNumber,
-                cellClass: 'hd-grid-number',
+                cellClass: 'hd-grid-right',
                 cellStyle: params => {
                     if (params.value > 0) {
                         return { color: 'red' };
@@ -148,7 +148,7 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
                 //filter: 'agNumberColumnFilter',
                 comparator: sortnumber,
                 valueFormatter: formatNumber,
-                cellClass: 'hd-grid-number',
+                cellClass: 'hd-grid-right',
                 cellStyle: params => {
                     if (params.value < 0) {
                         return { color: 'blue' };
@@ -403,7 +403,7 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
                 },
             },
         }, {
-            id: 'hd-grid-number', numberFormat: {
+            id: 'hd-grid-right', numberFormat: {
                 format: '#,##0',
             },
         }, {

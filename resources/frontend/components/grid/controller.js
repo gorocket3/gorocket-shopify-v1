@@ -25,7 +25,7 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
 }
 
 export function updatePerPage(perPage) {
-    defaultData.per_page = perPage;
+    if (defaultData) defaultData.per_page = perPage;
 }
 
 export function searchProducts() {
