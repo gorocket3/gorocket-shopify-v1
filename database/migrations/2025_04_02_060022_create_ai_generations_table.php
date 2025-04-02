@@ -24,7 +24,6 @@ return new class extends Migration
             $table->index(['user_id', 'created_at'], 'idx_user_created');
 
             $table->index('product_id');
-            $table->index('related_id');
         });
     }
 
