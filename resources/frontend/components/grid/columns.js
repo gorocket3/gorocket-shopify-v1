@@ -234,7 +234,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "product_status",
             headerName: "Status",
-            width: 75,
+            width: 80,
             filter: true,
             filterParams: getDefaultFilterParams('set', {
                 values: status,
@@ -270,7 +270,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "product_type",
             headerName: "Product Type",
-            width: 100,
+            width: 120,
             filter: true,
             filterParams: getDefaultFilterParams('set', { values: types }),
             cellStyle: cellMergeStyling,
@@ -284,7 +284,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             // 카테고리 리스트 조회 후 선택하는 방식으로 변경 예정
             field: "product_category",
             headerName: "Category",
-            width: 100,
+            width: 120,
             filter: "agTextColumnFilter",
             filterParams: getDefaultFilterParams('text'),
             cellStyle: cellMergeStyling,
@@ -488,7 +488,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             field: "compare_at_price",
             headerName: "Compare At Price($)",
             type: 'currencyType',
-            width: 135,
+            width: 150,
             filter: "agNumberColumnFilter",
             filterParams: getDefaultFilterParams('number'),
             cellClass: 'hd-grid-right',
@@ -509,7 +509,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "inventory_quantity",
             headerName: "Inventory Quantity",
-            width: 120,
+            width: 140,
             filter: "agNumberColumnFilter",
             filterParams: getDefaultFilterParams('number'),
             cellStyle: (p) => p.data.inventory_management !== 'true' ? { textDecoration: 'line-through' } : {},
@@ -525,7 +525,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "inventory_policy",
             headerName: "Inventory Policy",
-            width: 120,
+            width: 140,
             filter: true,
             filterParams: getDefaultFilterParams('set', { values: [ 'continue', 'deny' ], suppressSelectAll: true, suppressSorting: true }),
             cellClass: 'hd-grid-code',
@@ -547,7 +547,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "taxable",
             headerName: "Taxable",
-            width: 70,
+            width: 80,
             filter: true,
             filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
             cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
@@ -588,7 +588,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "requires_shipping",
             headerName: "requires_shipping",
-            width: 120,
+            width: 140,
             filter: true,
             filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
             cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },

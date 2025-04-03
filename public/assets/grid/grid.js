@@ -69,22 +69,18 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
     this.gridCurrent = this.id + '-current';
     this.is_agg = false;
 
-    //console.log(this.gridTotal);
-    //columns = this.setMobile(columns);
-
-    /* custom grid css - 이전 bizest 스타일 형식으로 UI/UX 로 변경 및 적용 */
-    const applyBizestColumns = (columns) => {
+    const getCustomColumns = (columns) => {
         const applied_columns = columns.map((column) => {
-            if (!column.hasOwnProperty("children")) {
-                column.headerClass = column.hasOwnProperty("headerClass") ? `${column.headerClass} bizest` : 'bizest'
+            if (!!column.editable) {
+                column.headerClass = column.hasOwnProperty("headerClass") ? `${column.headerClass} ag-header-cell-editable` : 'ag-header-cell-editable';
             }
             return column;
-        })
+        });
         return applied_columns;
     };
 
     this.gridOptions = {
-        columnDefs: applyBizestColumns(columns),
+        columnDefs: getCustomColumns(columns),
         defaultColDef: {
             suppressMenu: true, // set every column width
             flex: 1, // make every column editable
