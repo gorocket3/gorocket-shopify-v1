@@ -144,7 +144,15 @@ class ProductController extends Controller
             ->when($filters['price_max'] ?? null, fn($q, $priceMax) => $q->where('price', '<=', $priceMax))
             ->when($filters['compare_at_price_min'] ?? null, fn($q, $compareAtPriceMin) => $q->where('compare_at_price', '>=', $compareAtPriceMin))
             ->when($filters['compare_at_price_max'] ?? null, fn($q, $compareAtPriceMax) => $q->where('compare_at_price', '<=', $compareAtPriceMax))
-            ->when($filters['inventory_management'] ?? null, fn($q, $inventoryManagement) => $q->where('inventory_management', $inventoryManagement))
+            ->when(isset($filters['inventory_management']), function ($q) use ($filters) {
+                if ($filters['inventory_management'] === 'shopify') {
+                    $q->where('inventory_management', 'shopify');
+                } else {
+                    $q->where(function ($query) {
+                        $query->where('inventory_management', '!=', 'shopify')->orWhereNull('inventory_management');
+                    });
+                }
+            })
             ->when($filters['inventory_quantity_min'] ?? null, fn($q, $inventoryQuantityMin) => $q->where('inventory_quantity', '>=', $inventoryQuantityMin))
             ->when($filters['inventory_quantity_max'] ?? null, fn($q, $inventoryQuantityMax) => $q->where('inventory_quantity', '<=', $inventoryQuantityMax))
             ->when($filters['inventory_policy'] ?? null, fn($q, $inventoryPolicy) => $q->where('inventory_policy', $inventoryPolicy))
