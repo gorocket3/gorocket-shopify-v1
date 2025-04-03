@@ -309,13 +309,13 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             `),
             onCellValueChanged: (e) => changeCellState('product_tags', e),
             editable: (p) => p.data.position < 2,
-            cellEditor: GridFieldMultipleEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridFieldMultipleEditor,
-                values: tags.map((tag) => ({ id: tag, label: tag })),
-                width: "120px",
-            },
+            // cellEditor: GridFieldMultipleEditor,
+            // cellEditorPopup: true,
+            // cellEditorParams: {
+            //     cellEditor: GridFieldMultipleEditor,
+            //     values: tags.map((tag) => ({ id: tag, label: tag })),
+            //     width: "120px",
+            // },
         },
         {
             field: "product_body",
@@ -357,10 +357,10 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "handle",
             headerName: "URL Handle",
-            width: 130,
+            width: 150,
             filter: "agTextColumnFilter",
             filterParams: getDefaultFilterParams('text'),
-            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
+            cellStyle: cellMergeStyling,
             cellClass: 'hd-grid-left',
             cellClassRules: changedCellClassRules('handle'),
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
