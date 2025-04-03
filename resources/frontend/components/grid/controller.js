@@ -237,8 +237,6 @@ export async function connectProducts(errorCallback = null) {
 }
 
 export async function saveColumns(e) {
-    if (!confirm("Would you like to save the column information?")) return;
-
     let column_datalist = gx.gridOptions.api.getColumnDefs();
     let new_column_datalist = [];
 
@@ -284,8 +282,6 @@ export async function saveColumns(e) {
 }
 
 export async function resetColumns(e) {
-    if (!confirm("Would you like to reset the column information?")) return;
-
     try {
         const response = await fetch('/api/personal-column', {
             method: 'DELETE',

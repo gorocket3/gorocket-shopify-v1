@@ -53,6 +53,7 @@ import {
     updatePerPage,
     undoGrid
 } from "../components/grid/controller";
+import { ConfirmModal } from "../components/common/ConfirmModal";
 import { getHistoryData, getMyPlanData } from "../utils/api";
 import { formatNumberWithCommas, formatISOStringToReadableDate } from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
@@ -105,6 +106,9 @@ export default function ProductsPage() {
         firstLoading: false,
     });
     const [ histories, setHistories ] = useState([]);
+
+    // Confirm Modal
+    const [confirmType, setConfirmType] = useState(null);
 
     async function initProducts() {
         const planData = await getMyPlanData(); // shopId, planId, planSelectedLimit
@@ -408,12 +412,12 @@ export default function ProductsPage() {
                                         items={[
                                             {
                                                 content: 'Save Columns',
-                                                onAction: saveColumns,
+                                                onAction: () => setConfirmType('save'),
                                                 disabled: productAction.inProgress
                                             },
                                             {
                                                 content: 'Reset Columns',
-                                                onAction: resetColumns,
+                                                onAction: () => setConfirmType('reset'),
                                                 disabled: productAction.inProgress
                                             }
                                         ]}
@@ -648,6 +652,31 @@ export default function ProductsPage() {
                     </Box>
                 )}
             </Modal>
+            <ConfirmModal
+                open={!!confirmType}
+                onClose={() => setConfirmType(null)}
+                title={
+                    confirmType === 'save'
+                        ? 'Save column'
+                        : 'Reset columns'
+                }
+                content={
+                    confirmType === 'save'
+                        ? 'Save your column layout and preferences?'
+                        : 'Reset your column layout to default?'
+                }
+                primaryText={confirmType === 'save' ? 'Save' : 'Reset'}
+                onPrimary={async () => {
+                    setConfirmType(null);
+                    if (confirmType === 'save') {
+                        await saveColumns();
+                    } else {
+                        await resetColumns();
+                    }
+                }}
+                type={confirmType}
+            />
+
         </Page>
     );
 }
