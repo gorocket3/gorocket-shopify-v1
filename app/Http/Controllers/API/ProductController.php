@@ -29,9 +29,9 @@ class ProductController extends Controller
             'per_page' => 'integer|min:1|max:1000',
             'title' => 'nullable|string|max:512',
             'content' => 'nullable|string',
-            'product_type' => 'nullable|string|max:255',
-            'vendor' => 'nullable|string|max:255',
-            'status' => 'nullable|string',
+            'product_type' => 'nullable',
+            'vendor' => 'nullable',
+            'status' => 'nullable',
             'tags' => 'nullable|string',
             'category' => 'nullable|string|max:255',
             'seo_title' => 'nullable|string|max:255',
@@ -92,9 +92,27 @@ class ProductController extends Controller
     {
         $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('products.title', 'LIKE', "%{$title}%"))
             ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_html', 'LIKE', "%{$content}%"))
-            ->when($filters['product_type'] ?? null, fn($q, $type) => $q->where('product_type', $type))
-            ->when($filters['vendor'] ?? null, fn($q, $vendor) => $q->where('vendor', $vendor))
-            ->when($filters['status'] ?? null, fn($q, $status) => $q->where('status', $status))
+            ->when($filters['product_type'] ?? null, function ($q, $type) {
+                if (is_array($type)) {
+                    $q->whereIn('product_type', $type);
+                } else {
+                    $q->where('product_type', $type);
+                }
+            })
+            ->when($filters['vendor'] ?? null, function ($q, $vendor) {
+                if (is_array($vendor)) {
+                    $q->whereIn('vendor', $vendor);
+                } else {
+                    $q->where('vendor', $vendor);
+                }
+            })
+            ->when($filters['status'] ?? null, function ($q, $status) {
+                if (is_array($status)) {
+                    $q->whereIn('status', $status);
+                } else {
+                    $q->where('status', $status);
+                }
+            })
             ->when($filters['tags'] ?? null, function ($q, $tags) {
                 $tagsArray = is_array($tags) ? $tags : explode(',', $tags);
                 $q->where(function ($subQuery) use ($tagsArray) {
