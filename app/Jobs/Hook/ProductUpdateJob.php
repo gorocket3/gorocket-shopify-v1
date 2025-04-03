@@ -79,6 +79,7 @@ class ProductUpdateJob implements ShouldQueue
                 'collections'          => $this->data['collections'] ?? null,
                 'handle'               => $this->data['handle'],
                 'body_html'            => $this->data['body_html'],
+                'body_text'            => strip_tags($this->data['body_html']),
                 'product_type'         => $this->data['product_type'],
                 'vendor'               => $this->data['vendor'],
                 'status'               => $this->data['status'],

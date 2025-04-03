@@ -33,6 +33,23 @@ class ProductController extends Controller
             'vendor' => 'nullable',
             'status' => 'nullable',
             'tags' => 'nullable|string',
+            'handle' => 'nullable|string|max:255',
+            'option_name' => 'nullable|string|max:255',
+            'price_min' => 'nullable|numeric',
+            'price_max' => 'nullable|numeric|gte:price_min',
+            'compare_at_price_min' => 'nullable|numeric',
+            'compare_at_price_max' => 'nullable|numeric|gte:compare_at_price_min',
+            'inventory_management' => 'nullable|string|max:255',
+            'inventory_quantity_min' => 'nullable|integer',
+            'inventory_quantity_max' => 'nullable|integer|gte:inventory_quantity_min',
+            'inventory_policy' => 'nullable|string|max:255',
+            'taxable' => 'nullable|boolean',
+            'barcode' => 'nullable|string|max:255',
+            'sku' => 'nullable|string|max:255',
+            'requires_shipping' => 'nullable|boolean',
+            'weight_min' => 'nullable|numeric',
+            'weight_max' => 'nullable|numeric|gte:weight_min',
+            'weight_unit' => 'nullable',
             'category' => 'nullable|string|max:255',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:255',
@@ -91,7 +108,7 @@ class ProductController extends Controller
     private function applyFilters(mixed $query, array $filters): void
     {
         $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('products.title', 'LIKE', "%{$title}%"))
-            ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_html', 'LIKE', "%{$content}%"))
+            ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_text', 'LIKE', "%{$content}%"))
             ->when($filters['product_type'] ?? null, function ($q, $type) {
                 if (is_array($type)) {
                     $q->whereIn('product_type', $type);
@@ -120,6 +137,29 @@ class ProductController extends Controller
                         $subQuery->orWhere('tags', $tag);
                     }
                 });
+            })
+            ->when($filters['handle'] ?? null, fn($q, $handle) => $q->where('handle', 'LIKE', "%{$handle}%"))
+            ->when($filters['option_name'] ?? null, fn($q, $optionName) => $q->where('product_variants.title', 'LIKE', "%{$optionName}%"))
+            ->when($filters['price_min'] ?? null, fn($q, $priceMin) => $q->where('price', '>=', $priceMin))
+            ->when($filters['price_max'] ?? null, fn($q, $priceMax) => $q->where('price', '<=', $priceMax))
+            ->when($filters['compare_at_price_min'] ?? null, fn($q, $compareAtPriceMin) => $q->where('compare_at_price', '>=', $compareAtPriceMin))
+            ->when($filters['compare_at_price_max'] ?? null, fn($q, $compareAtPriceMax) => $q->where('compare_at_price', '<=', $compareAtPriceMax))
+            ->when($filters['inventory_management'] ?? null, fn($q, $inventoryManagement) => $q->where('inventory_management', $inventoryManagement))
+            ->when($filters['inventory_quantity_min'] ?? null, fn($q, $inventoryQuantityMin) => $q->where('inventory_quantity', '>=', $inventoryQuantityMin))
+            ->when($filters['inventory_quantity_max'] ?? null, fn($q, $inventoryQuantityMax) => $q->where('inventory_quantity', '<=', $inventoryQuantityMax))
+            ->when($filters['inventory_policy'] ?? null, fn($q, $inventoryPolicy) => $q->where('inventory_policy', $inventoryPolicy))
+            ->when(isset($filters['taxable']), fn($q) => $q->where('taxable', $filters['taxable']))
+            ->when($filters['barcode'] ?? null, fn($q, $barcode) => $q->where('barcode', 'LIKE', "%{$barcode}%"))
+            ->when($filters['sku'] ?? null, fn($q, $sku) => $q->where('sku', 'LIKE', "%{$sku}%"))
+            ->when(isset($filters['requires_shipping']), fn($q) => $q->where('requires_shipping', $filters['requires_shipping']))
+            ->when($filters['weight_min'] ?? null, fn($q, $weightMin) => $q->where('weight', '>=', $weightMin))
+            ->when($filters['weight_max'] ?? null, fn($q, $weightMax) => $q->where('weight', '<=', $weightMax))
+            ->when($filters['weight_unit'] ?? null, function ($q, $weightUnit) {
+                if (is_array($weightUnit)) {
+                    $q->whereIn('weight_unit', $weightUnit);
+                } else {
+                    $q->where('weight_unit', $weightUnit);
+                }
             })
             ->when($filters['category'] ?? null, fn($q, $category) => $q->where('category', 'LIKE', "%{$category}%"))
             ->when($filters['seo_title'] ?? null, fn($q, $seoTitle) => $q->where('seo_title', 'LIKE', "%{$seoTitle}%"))

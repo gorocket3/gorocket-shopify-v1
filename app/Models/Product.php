@@ -30,6 +30,7 @@ class Product extends BaseModel
         'title',
         'handle',
         'body_html',
+        'body_text',
         'product_type',
         'vendor',
         'status',

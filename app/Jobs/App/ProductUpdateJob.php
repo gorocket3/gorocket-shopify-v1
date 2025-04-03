@@ -173,6 +173,7 @@ class ProductUpdateJob implements ShouldQueue
                     'title' => $product['title'] ?? '',
                     'status' => $product['status'],
                     'body_html' => $product['body_html'] ?? '',
+                    'body_text' => strip_tags($product['body_html']) ?? '',
                     'tags' => $product['tags'] ?? '',
                     'product_type' => $product['product_type'] ?? '',
                     'vendor' => $product['vendor'] ?? '',

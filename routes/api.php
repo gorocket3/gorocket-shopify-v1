@@ -46,7 +46,7 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
     // Product
-    Route::get('products', [ProductController::class, 'list'])->name('products.list');
+    Route::post('products', [ProductController::class, 'list'])->name('products.list');
     Route::get('products/count', [ProductController::class, 'count'])->name('products.count');
     Route::post('products/sync', [ProductController::class, 'sync'])->middleware(
         app()->environment('production') ? 'throttle:1,1800' : [])->name('products.sync');
