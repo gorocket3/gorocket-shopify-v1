@@ -49,7 +49,7 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::post('products', [ProductController::class, 'list'])->name('products.list');
     Route::get('products/count', [ProductController::class, 'count'])->name('products.count');
     Route::post('products/sync', [ProductController::class, 'sync'])->middleware(
-        app()->environment('production') ? 'throttle:1,1800' : [])->name('products.sync');
+        app()->environment('production') ? 'throttle:1,30' : [])->name('products.sync');
     Route::middleware([LimitProductEditMiddleware::class])->group(function () {
         Route::post('products/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::post('products/delete', [ProductController::class, 'delete'])->name('products.delete');
