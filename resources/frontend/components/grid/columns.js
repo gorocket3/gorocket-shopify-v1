@@ -50,10 +50,12 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
 
         if (oldValue === newValue) return;
 
-        const trimOldValue = oldValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
-        const trimNewValue = newValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
+        if (field === 'product_body') {
+            const trimOldValue = oldValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
+            const trimNewValue = newValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
 
-        if (trimOldValue === trimNewValue) return;
+            if (trimOldValue === trimNewValue) return;
+        }
 
         if (e.data.prev[field] === newValue) {
             e.node.setDataValue(field + '_changed', false);
@@ -96,11 +98,10 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             buttons: [ 'reset', 'apply' ],
             closeOnApply: true,
             newRowsAction: 'keep',
-            caseSensitive: true,
         };
 
         if (type === 'text') {
-            params.filterOptions = [ "contains", "notContains" ];
+            params.filterOptions = [ "contains" ];
             params.suppressAndOrCondition = true;
         } else if (type === 'number') {
             params.filterOptions = [ "inRange", "equals" ];

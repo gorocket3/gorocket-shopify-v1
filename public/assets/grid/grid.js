@@ -524,10 +524,17 @@ HDGrid.prototype._Request = function (callback, http_method) {
 
     let _gx = this;
     this.requst_data += '&page=' + this.page + '&total=' + _gx.total;
+    let params_object = {};
     if (http_method === 'post') {
         let params_data = this.requst_data;
         params_data.split('&').forEach(data => {
-            this.requst_data[data.split('=')[0]] = encodeURI(data.split('=')[1]);
+            const val = data.split('=')[1];
+
+            if (val.split(',').length > 1) {
+                params_object[data.split('=')[0]] = val.split(',');
+            } else {
+                params_object[data.split('=')[0]] = val;
+            }
         });
     }
 
@@ -538,7 +545,7 @@ HDGrid.prototype._Request = function (callback, http_method) {
         }
     };
     if (http_method === 'post') {
-        init.body = JSON.stringify(this.requst_data);
+        init.body = JSON.stringify(params_object);
     } else {
         this.request_url += '?' + this.requst_data;
     }

@@ -122,7 +122,7 @@
     background-color: #1b6d8544;
 }
 
-.ag-header-cell-editable .ag-header-cell-label > span::before {
+.ag-header-cell-editable .ag-header-cell-label > .ag-header-cell-text::before {
     content: '';
     display: inline-block;
     width: 16px;

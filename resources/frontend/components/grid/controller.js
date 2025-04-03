@@ -101,7 +101,7 @@ export function searchProducts() {
         } else {
             gx.gridOptions.api.applyTransaction({ add: result });
         }
-    });
+    }, 'post');
 }
 
 export function getProductsToUpdate() {
@@ -419,9 +419,11 @@ function getFilterParams(data, defaultData) {
         const paramsKey = COLUMN_PARAMS[key];
 
         if (col.filterType === 'set') {
-            col.values.forEach((val) => {
-                params.push(paramsKey + '[]=' + val);
-            });
+            if (paramsKey === 'inventory_management') {
+                params.push(paramsKey + '=' + col.values.map(val => val === 'true' ? 'shopify' : '').join(','));
+            } else {
+                params.push(paramsKey + '=' + col.values.map(val => val === 'true' ? 1 : val === 'false' ? 0 : val).join(','));
+            }
         }
 
         if (col.filterType === 'number') {
@@ -436,8 +438,6 @@ function getFilterParams(data, defaultData) {
         if (col.filterType === 'text') {
             if (col.type === 'contains') {
                 params.push(paramsKey + '=' + col.filter);
-            } else if (col.type === 'notContains') {
-                params.push(paramsKey + '_not=' + col.filter);
             }
         }
     }
