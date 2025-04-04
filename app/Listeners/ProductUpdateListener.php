@@ -9,6 +9,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
@@ -179,9 +180,14 @@ class ProductUpdateListener implements ShouldQueue
      */
     private function deleteDBProducts(int $shopId, int $chunk = 250): void
     {
+        DB::statement('SET @DISABLE_PRODUCT_DELETE_TRIGGER = TRUE');
+
         do {
             $deleted = Product::where('user_id', $shopId)->limit($chunk)->delete();
         } while ($deleted > 0);
+
+        DB::statement('SET @DISABLE_PRODUCT_DELETE_TRIGGER = NULL');
+
     }
 
     /**
