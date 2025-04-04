@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
  * @method static updateOrCreate(array $array, array $array1)
  * @method static upsert(mixed[] $toArray, string[] $array)
  * @method static whereNotIn(string $string, Collection $optionIds)
+ * @method static insert($toArray)
  */
 class ProductOption extends BaseModel
 {

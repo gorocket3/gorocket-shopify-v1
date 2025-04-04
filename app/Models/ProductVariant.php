@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
  * @method static updateOrCreate(array $array, array $array1)
  * @method static upsert(mixed[] $toArray, string[] $array)
  * @method static whereNotIn(string $string, Collection $variantIds)
+ * @method static insert($toArray)
  */
 class ProductVariant extends BaseModel
 {
