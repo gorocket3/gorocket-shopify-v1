@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -44,7 +45,12 @@ class ProductDeleteJob implements ShouldQueue
         try {
             $productId  = $this->container['id'];
             if ($productId) {
+                DB::statement("SET @UPDATE_BY = 'shopify'");
+
                 Product::where('product_id', $productId)->delete();
+
+                DB::statement("SET @UPDATE_BY = NULL");
+
                 Log::info("[HOOK][PRODUCT] Delete success - {$productId}");
             } else {
                 Log::warning("[HOOK][PRODUCT] Id is missing - {$productId}");

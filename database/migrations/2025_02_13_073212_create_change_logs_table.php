@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('related_id')->nullable();
             $table->string('event');
             $table->json('old_values')->nullable();
-            $table->json('new_values');
+            $table->json('new_values')->nullable();
             $table->timestamps();
             $table->string('updated_by')->default('gorocket');
 

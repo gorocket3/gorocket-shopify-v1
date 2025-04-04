@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProductDeleteJob implements ShouldQueue
@@ -65,7 +66,12 @@ class ProductDeleteJob implements ShouldQueue
             $response = $shop->api()->graph($query);
 
             if (empty($response['errors'])) {
+
+                DB::statement("SET @UPDATE_BY = 'gorocket'");
+
                 Product::whereIn('product_id', $productIds)->delete();
+
+                DB::statement("SET @UPDATE_BY = NULL");
             }
 
             event(new MessageCompleted(
