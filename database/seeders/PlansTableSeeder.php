@@ -22,7 +22,7 @@ class PlansTableSeeder extends Seeder
                 'price' => '0.00',
                 'interval' => 'EVERY_30_DAYS',
                 'capped_amount' => '0.00',
-                'terms' => 'This plan is completely free.',
+                'terms' => 'This is a free plan with no cost.',
                 'trial_days' => 0,
                 'test' => 1,
                 'on_install' => 1,
@@ -32,16 +32,29 @@ class PlansTableSeeder extends Seeder
             [
                 'type' => 'RECURRING',
                 'name' => 'Basic',
-                'price' => '7.99',
+                'price' => '3.99',
                 'interval' => 'EVERY_30_DAYS',
                 'capped_amount' => '0.00',
-                'terms' => 'Get full access to Basic features.',
+                'terms' => 'Upgrade for faster editing and more AI SEO power.',
                 'trial_days' => 0,
                 'test' => 1,
                 'on_install' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
+            [
+                'type' => 'RECURRING',
+                'name' => 'Pro',
+                'price' => '7.99',
+                'interval' => 'EVERY_30_DAYS',
+                'capped_amount' => '0.00',
+                'terms' => 'Access generous usage limits built for growing businesses.',
+                'trial_days' => 0,
+                'test' => 1,
+                'on_install' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
         ]);
     }
 }
