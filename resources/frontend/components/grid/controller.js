@@ -64,6 +64,7 @@ export function searchProducts() {
                 ...item,
                 group_id: item.parent.product_id,
                 product_name: item.parent.title,
+                collections: item.parent.collections,
                 product_type: item.parent.product_type,
                 product_category: item.parent.category,
                 product_tags: item.parent.tags,
