@@ -16,6 +16,7 @@ import {
 } from "@shopify/polaris";
 import { CheckIcon, StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
 import { getPlanData } from "../utils/api";
+import { formatNumberWithCommas } from "../utils/formats";
 import { goToChargesPage } from "../utils/hooks";
 
 export default function PlanPage() {
@@ -36,32 +37,27 @@ export default function PlanPage() {
     return (
         <Page
             title="Plan"
+            fullWidth={true}
             backAction={{ onAction: () => navigate(-1) }}
         >
             <Box paddingBlockEnd="400">
                 {!info.plans ? (
-                    <InlineGrid columns={{ xs: 1, lg: 2 }} gap="400">
-                        <Card>
-                            <Box paddingBlock="400">
-                                <BlockStack gap="300">
-                                    <SkeletonDisplayText size="small"/>
-                                    <SkeletonBodyText lines={2}/>
-                                </BlockStack>
-                            </Box>
-                        </Card>
-                        <Card>
-                            <Box paddingBlock="400">
-                                <BlockStack gap="300">
-                                    <SkeletonDisplayText size="small"/>
-                                    <SkeletonBodyText lines={2}/>
-                                </BlockStack>
-                            </Box>
-                        </Card>
+                    <InlineGrid columns={{ xs: 1, lg: 3 }} gap="400">
+                        {[ ...Array(3) ].map((_, index) => (
+                            <Card key={index}>
+                                <Box paddingBlock="400">
+                                    <BlockStack gap="300">
+                                        <SkeletonDisplayText size="small"/>
+                                        <SkeletonBodyText lines={2}/>
+                                    </BlockStack>
+                                </Box>
+                            </Card>
+                        ))}
                     </InlineGrid>
                 ) : (
-                    <InlineGrid columns={{ xs: 1, lg: 2 }} gap="400">
+                    <InlineGrid columns={{ xs: 1, lg: info.plans.length }} gap="400">
                         {info.plans.map((plan, index) => (
-                            <Card key={index}>
+                            <Card key={'plan_' + index}>
                                 <Box paddingBlock="400">
                                     <BlockStack gap="200">
                                         <BlockStack gap="200">
@@ -87,8 +83,8 @@ export default function PlanPage() {
                                                 <Text as='span' variant="bodySm">/{plan.interval}</Text>
                                             </Text>
                                             <Box minHeight="32px">
-                                                {(plan.id === 2 && !plan.user_plan) && (
-                                                    <Button onClick={() => goToChargesPage()}
+                                                {(plan.id !== 1 && !plan.user_plan) && (
+                                                    <Button onClick={() => goToChargesPage(plan.id)}
                                                             variant="primary"
                                                             size="large" fullWidth={true}>
                                                         Subscribe Now
@@ -109,19 +105,19 @@ export default function PlanPage() {
                                                     {
                                                         title: "Edit Limit",
                                                         type: "text",
-                                                        content: plan.limits.edit_limit + ' edits per day',
+                                                        content: plan.limits.edit_limit === null ? 'Unlimited' : `Editable ${formatNumberWithCommas(plan.limits.edit_limit)} times a day`,
                                                         plan_name: plan.name,
                                                     },
                                                     {
                                                         title: "AI SEO Generation",
                                                         type: "text",
-                                                        content: plan.limits.ai_limit + ' uses per day',
+                                                        content: plan.limits.ai_limit === null ? 'Unlimited' : `Can be used ${formatNumberWithCommas(plan.limits.ai_limit)} times a day`,
                                                         plan_name: plan.name,
                                                     },
                                                     {
                                                         title: "History Retention",
                                                         type: "text",
-                                                        content: plan.limits.history_days + ' days',
+                                                        content: plan.limits.history_days === null ? 'Unlimited' : plan.limits.history_days + ' days',
                                                         plan_name: plan.name,
                                                     },
                                                     {
@@ -130,6 +126,13 @@ export default function PlanPage() {
                                                         content: plan.id !== 1,
                                                         plan_name: plan.name,
                                                     },
+                                                    {
+                                                        title: "Editable Cell Count",
+                                                        type: "text",
+                                                        content: plan.limits.max_selected_rows === null ? 'Unlimited' : `Up to ${formatNumberWithCommas(plan.limits.max_selected_rows)} per save`,
+                                                        plan_name: plan.name,
+                                                    },
+
                                                 ]}
                                                 renderItem={(item, idx) => {
                                                     const { title, type, content, plan_name } = item;
