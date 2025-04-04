@@ -30,7 +30,7 @@ import 'quill/dist/quill.snow.css';
 import productAttributes from "../components/grid/attributes.json";
 import { FeaturedImage } from "../components/history/featured-image";
 import { HtmlViewer } from "../components/history/html-viewer";
-import { formatNumberWithCommas, formatISOStringToReadableDate } from "../utils/formats";
+import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
 import { getHistoryData } from "../utils/api";
 
 export default function HistoryPage() {
@@ -174,7 +174,7 @@ export default function HistoryPage() {
                                                                                       textDecorationLine={log.product ? false : 'line-through'}>
                                                                                     {log.product ? `${log.product.title} ${log.variant ? `(${log.variant.title})` : ''}` : 'Deleted Product'}
                                                                                 </Text>
-                                                                                <Tooltip content={log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}>
+                                                                                <Tooltip content={formatTitleCase(log.event.replaceAll('_', ' '))}>
                                                                                     <PolarisLink url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
                                                                                         <Icon source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
                                                                                               tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}

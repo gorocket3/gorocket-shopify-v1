@@ -35,3 +35,7 @@ export function formatNumberWithCommas(value) {
         return value;
     }
 }
+
+export function formatTitleCase(str) {
+    return (str || '').replace(/\b\w/g, (match) => match.toUpperCase());
+}

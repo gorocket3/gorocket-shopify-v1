@@ -28,14 +28,20 @@ import {
     Tooltip
 } from "@shopify/polaris";
 import {
+    AlertCircleIcon,
     AlertTriangleIcon,
+    CheckCircleIcon,
     DeleteIcon,
     EditIcon,
-    ImageIcon, MinusIcon, PlusIcon, ProductIcon,
+    ImageIcon,
+    MinusIcon,
+    PlusIcon,
+    ProductIcon,
     RedoIcon,
     SearchIcon,
     SettingsIcon,
-    UndoIcon, VariantIcon,
+    UndoIcon,
+    VariantIcon,
     XCircleIcon
 } from "@shopify/polaris-icons";
 import productAttributes from "../components/grid/attributes.json";
@@ -53,9 +59,9 @@ import {
     updatePerPage,
     undoGrid
 } from "../components/grid/controller";
-import { ConfirmModal } from "../components/common/ConfirmModal";
+import { ConfirmModal } from "../components/common/confirm-modal";
 import { getHistoryData, getMyPlanData } from "../utils/api";
-import { formatNumberWithCommas, formatISOStringToReadableDate } from "../utils/formats";
+import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
 
 export default function ProductsPage() {
@@ -108,7 +114,8 @@ export default function ProductsPage() {
     const [ histories, setHistories ] = useState([]);
 
     // Confirm Modal
-    const [confirmType, setConfirmType] = useState(null);
+    const [ confirmType, setConfirmType ] = useState(null);
+    const [ selectedRows, setSelectedRows ] = useState(null);
 
     async function initProducts() {
         const planData = await getMyPlanData(); // shopId, planId, planSelectedLimit
@@ -138,9 +145,14 @@ export default function ProductsPage() {
     const deleteClick = () => {
         const rows = getProductsToRemove();
         if (rows) {
-            startProductAction('delete');
-            removeProducts(rows, resetProductAction);
+            setSelectedRows(rows);
+            setConfirmType('delete_product');
         }
+    }
+
+    const deleteAfterConfirm = async () => {
+        startProductAction('delete');
+        removeProducts(selectedRows || [], resetProductAction);
     }
 
     const connectClick = () => {
@@ -412,12 +424,12 @@ export default function ProductsPage() {
                                         items={[
                                             {
                                                 content: 'Save Columns',
-                                                onAction: () => setConfirmType('save'),
+                                                onAction: () => setConfirmType('save_columns'),
                                                 disabled: productAction.inProgress
                                             },
                                             {
                                                 content: 'Reset Columns',
-                                                onAction: () => setConfirmType('reset'),
+                                                onAction: () => setConfirmType('reset_columns'),
                                                 disabled: productAction.inProgress
                                             }
                                         ]}
@@ -521,7 +533,7 @@ export default function ProductsPage() {
                                                                                       textDecorationLine={log.product ? false : 'line-through'}>
                                                                                     {log.product ? (log.event === 'product_variant_update' ? (log.variant?.title || log.product.title) : log.product.title) : 'Deleted Product'}
                                                                                 </Text>
-                                                                                <Tooltip content={log.event.replaceAll('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}>
+                                                                                <Tooltip content={formatTitleCase(log.event.replaceAll('_', ' '))}>
                                                                                     <PolarisLink url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
                                                                                         <Icon source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
                                                                                               tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
@@ -655,28 +667,48 @@ export default function ProductsPage() {
             <ConfirmModal
                 open={!!confirmType}
                 onClose={() => setConfirmType(null)}
-                title={
-                    confirmType === 'save'
-                        ? 'Save column'
-                        : 'Reset columns'
-                }
-                content={
-                    confirmType === 'save'
-                        ? 'Save your column layout and preferences?'
-                        : 'Reset your column layout to default?'
-                }
-                primaryText={confirmType === 'save' ? 'Save' : 'Reset'}
+                size="small"
+                primaryText={confirmType === 'save_columns' ? 'Save' : (confirmType === 'reset_columns' ? 'Reset' : (confirmType === 'delete_product' ? 'Delete' : ''))}
                 onPrimary={async () => {
                     setConfirmType(null);
-                    if (confirmType === 'save') {
-                        await saveColumns();
-                    } else {
-                        await resetColumns();
+
+                    switch (confirmType) {
+                        case 'save_columns':
+                            await saveColumns();
+                            break;
+                        case 'reset_columns':
+                            await resetColumns();
+                            break;
+                        case 'delete_product':
+                            deleteAfterConfirm();
+                            break;
                     }
                 }}
-                type={confirmType}
-            />
-
+            >
+                {confirmType === 'save_columns' ? (
+                    <InlineStack blockAlign="center" gap="100">
+                        <Box>
+                            <Icon source={CheckCircleIcon} tone="success"/>
+                        </Box>
+                        <Text as="p" variant="bodySm">Save your column layout and preferences?</Text>
+                    </InlineStack>
+                ) : confirmType === 'reset_columns' ? (
+                    <InlineStack blockAlign="center" gap="100">
+                        <Box>
+                            <Icon source={AlertCircleIcon} tone="warning"/>
+                        </Box>
+                        <Text as="p" variant="bodySm">Reset your column layout to default?</Text>
+                    </InlineStack>
+                ) : confirmType === 'delete_product' ? (
+                    <InlineStack blockAlign="center" gap="100">
+                        <Box>
+                            <Icon source={AlertCircleIcon} tone="critical"/>
+                        </Box>
+                        <Text as="p" variant="bodySm">Are you sure you want to
+                            delete <strong>{(selectedRows || []).length}</strong> {(selectedRows || []).length < 2 ? 'product' : 'products'}?</Text>
+                    </InlineStack>
+                ) : ''}
+            </ConfirmModal>
         </Page>
     );
 }
