@@ -312,7 +312,7 @@ export default function HomePage() {
                 </Card>
                 <Box paddingInline={{ xs: 200, sm: 0 }}>
                     <BlockStack inlineAlign='end'>
-                        <Button onClick={() => open('mailto:gorocket33@gmail.com')}>
+                        <Button onClick={() => open('mailto:support@gorocket3.ai')}>
                             Customer Support
                         </Button>
                     </BlockStack>
