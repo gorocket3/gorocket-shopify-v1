@@ -99,12 +99,12 @@ return [
     */
 
     'trim' => [
-        'recent' => 30,
-        'pending' => 120,
-        'completed' => 180,
-        'recent_failed' => 4320,
-        'failed' => 4320,
-        'monitored' => 2880,
+        'recent' => 10,
+        'pending' => 60,
+        'completed' => 30,
+        'recent_failed' => 1440,
+        'failed' => 10080,
+        'monitored' => 4320,
     ],
 
     /*
@@ -191,7 +191,7 @@ return [
             'maxJobs' => 500,
             'memory' => 512,
             'tries' => 3,
-	    'timeout' => 60,	  
+	    'timeout' => 60,
             'nice' => 5,
         ],
     ],
