@@ -171,22 +171,32 @@ export default function HistoryPage() {
                                                                                 <Text as="h4" variant="bodyLg"
                                                                                       fontWeight="semibold"
                                                                                       tone={log.product ? 'base' : 'subdued'}
-                                                                                      textDecorationLine={log.product ? false : 'line-through'}>
+                                                                                      textDecorationLine={log.product && log.event !== 'product_delete' ? false : 'line-through'}>
                                                                                     {log.product ? `${log.product.title} ${log.variant ? `(${log.variant.title})` : ''}` : 'Deleted Product'}
                                                                                 </Text>
-                                                                                <Tooltip content={formatTitleCase(log.event.replaceAll('_', ' '))}>
-                                                                                    <PolarisLink url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
-                                                                                        <Icon source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
-                                                                                              tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
-                                                                                        />
-                                                                                    </PolarisLink>
-                                                                                </Tooltip>
+                                                                                {log.event === 'product_delete' ? (
+                                                                                     <Box>
+                                                                                         <Icon
+                                                                                             source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
+                                                                                             tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
+                                                                                         />
+                                                                                     </Box>
+                                                                                ) : (
+                                                                                    <Tooltip content={formatTitleCase(log.event.replaceAll('_', ' '))}>
+                                                                                        <PolarisLink url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
+                                                                                            <Icon source={log.event === 'product_variant_update' ? VariantIcon : ProductIcon}
+                                                                                                  tone={log.event === 'product_variant_update' ? 'warning' : 'info'}
+                                                                                            />
+                                                                                        </PolarisLink>
+                                                                                    </Tooltip>
+                                                                                )}
                                                                             </InlineStack>
                                                                             <InlineStack gap="200">
                                                                                 <Badge progress="complete" tone={log.updated_by === 'gorocket' ? 'magic' : 'success'}>
                                                                                     {log.updated_by}
                                                                                 </Badge>
-                                                                                <Text as="p" variant="bodySm" tone="subdued">Changed
+                                                                                <Text as="p" variant="bodySm" tone="subdued">
+                                                                                    {log.event === 'product_delete' ? 'Removed ' : 'Changed '}
                                                                                     at {formatISOStringToReadableDate(log.updated_at, {
                                                                                         day: false,
                                                                                         year: false,
@@ -195,7 +205,18 @@ export default function HistoryPage() {
                                                                                 </Text>
                                                                             </InlineStack>
                                                                         </InlineGrid>
-                                                                        {(Object.keys(log.old_values).length + Object.keys(log.new_values).length) > 0 ? (
+                                                                        {log.event === 'product_delete' ? (
+                                                                            <Box
+                                                                                paddingBlock="200"
+                                                                                paddingInline="300"
+                                                                                borderColor="border"
+                                                                                borderWidth="025"
+                                                                                background="bg-surface-critical">
+                                                                                <Text as="p" variant="bodySm" tone="base" breakWord={true}>
+                                                                                    This product has been removed.
+                                                                                </Text>
+                                                                            </Box>
+                                                                        ) : (Object.keys(log.old_values).length + Object.keys(log.new_values).length) > 0 ? (
                                                                             <Card>
                                                                                 <BlockStack gap="400">
                                                                                     {Object.keys(log.old_values).map((key, changes_idx) => {
