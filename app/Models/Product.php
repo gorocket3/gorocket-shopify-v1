@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
  * @method static upsert(mixed[] $toArray, string[] $array)
  * @method static whereIn(string $string, mixed $productIds)
  * @method static insert(mixed[] $toArray)
+ * @method static insertOrIgnore(mixed[] $toArray)
  */
 class Product extends BaseModel
 {

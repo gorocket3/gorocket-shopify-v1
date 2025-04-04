@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
  * @method static upsert(mixed[] $toArray, string[] $array)
  * @method static whereNotIn(string $string, Collection $optionIds)
  * @method static insert($toArray)
+ * @method static insertOrIgnore($toArray)
  */
 class ProductOption extends BaseModel
 {

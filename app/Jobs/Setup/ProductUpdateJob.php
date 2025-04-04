@@ -101,7 +101,7 @@ class ProductUpdateJob implements ShouldQueue
             'updated_at'           => Carbon::parse($product['updated_at'])->setTimezone('UTC')
         ]);
 
-        Product::insert($products->toArray());
+        Product::insertOrIgnore($products->toArray());
     }
 
     /**
@@ -138,7 +138,7 @@ class ProductUpdateJob implements ShouldQueue
         ]));
 
         $variants->chunk(300)->each(function ($chunk) {
-            ProductVariant::insert($chunk->toArray());
+            ProductVariant::insertOrIgnore($chunk->toArray());
         });
     }
 
@@ -182,7 +182,7 @@ class ProductUpdateJob implements ShouldQueue
         ]));
 
         $options->chunk(300)->each(function ($chunk) {
-            ProductOption::insert($chunk->toArray());
+            ProductOption::insertOrIgnore($chunk->toArray());
         });
     }
 }
