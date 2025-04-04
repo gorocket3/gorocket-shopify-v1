@@ -162,26 +162,36 @@ export default function HistoryPage() {
                                                                 >
                                                                     <BlockStack gap="300">
                                                                         <InlineGrid columns={{ xs: 1, md: "1fr auto" }} alignItems="center" gap="200">
-                                                                            <InlineStack gap="200">
-                                                                                <Thumbnail
-                                                                                    source={log.event === 'product_variant_update' ? (log.variant?.image?.src || ImageIcon) : (log.product?.images?.[0]?.src || ImageIcon)}
-                                                                                    size="extraSmall"
-                                                                                    alt={log.product_id}
-                                                                                />
-                                                                                <Text as="h4" variant="bodyLg"
-                                                                                      fontWeight="semibold"
-                                                                                      tone={log.product ? 'base' : 'subdued'}
-                                                                                      textDecorationLine={log.product && log.event !== 'product_delete' ? false : 'line-through'}>
-                                                                                    {log.product ? `${log.product.title} ${log.variant ? `(${log.variant.title})` : ''}` : 'Deleted Product'}
-                                                                                </Text>
-                                                                                {log.event === 'product_delete' ? (
-                                                                                     <Box>
-                                                                                         <Icon
-                                                                                             source={log.event === 'product_delete' ? DeleteIcon : (log.event === 'product_variant_update' ? VariantIcon : ProductIcon)}
-                                                                                             tone={log.event === 'product_delete' ? 'critical' : (log.event === 'product_variant_update' ? 'warning' : 'info')}
-                                                                                         />
-                                                                                     </Box>
-                                                                                ) : (
+                                                                            {log.event === 'product_delete' ? (
+                                                                                <InlineStack gap="200">
+                                                                                    <Thumbnail
+                                                                                        source={log.product?.images?.[0]?.src || ImageIcon}
+                                                                                        size="extraSmall"
+                                                                                        alt={log.product_id}
+                                                                                    />
+                                                                                    <Text as="h4" variant="bodyLg"
+                                                                                          fontWeight="semibold"
+                                                                                          tone={log.product ? 'base' : 'subdued'}
+                                                                                          textDecorationLine='line-through'>
+                                                                                        {log.product ? log.product.title : (log.old_values?.title || 'Deleted Product')}
+                                                                                    </Text>
+                                                                                    <Box>
+                                                                                        <Icon source={DeleteIcon} tone="critical"/>
+                                                                                    </Box>
+                                                                                </InlineStack>
+                                                                            ) : (
+                                                                                <InlineStack gap="200">
+                                                                                    <Thumbnail
+                                                                                        source={log.event === 'product_variant_update' ? (log.variant?.image?.src || ImageIcon) : (log.product?.images?.[0]?.src || ImageIcon)}
+                                                                                        size="extraSmall"
+                                                                                        alt={log.product_id}
+                                                                                    />
+                                                                                    <Text as="h4" variant="bodyLg"
+                                                                                          fontWeight="semibold"
+                                                                                          tone={log.product ? 'base' : 'subdued'}
+                                                                                          textDecorationLine={log.product ? false : 'line-through'}>
+                                                                                        {log.product ? `${log.product.title} ${log.variant ? `(${log.variant.title})` : ''}` : 'Deleted Product'}
+                                                                                    </Text>
                                                                                     <Tooltip content={formatTitleCase(log.event.replaceAll('_', ' '))}>
                                                                                         <PolarisLink url={`shopify://admin/products/${log.product_id}` + (log.event === 'product_variant_update' && !!log.variant ? '/variants/' + log.variant.variant_id : '')}>
                                                                                             <Icon source={log.event === 'product_variant_update' ? VariantIcon : ProductIcon}
@@ -189,8 +199,8 @@ export default function HistoryPage() {
                                                                                             />
                                                                                         </PolarisLink>
                                                                                     </Tooltip>
-                                                                                )}
-                                                                            </InlineStack>
+                                                                                </InlineStack>
+                                                                            )}
                                                                             <InlineStack gap="200">
                                                                                 <Badge progress="complete" tone={log.updated_by === 'gorocket' ? 'magic' : 'success'}>
                                                                                     {log.updated_by}
