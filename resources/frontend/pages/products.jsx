@@ -34,6 +34,7 @@ import {
     DeleteIcon,
     EditIcon,
     ImageIcon,
+    MagicIcon,
     MinusIcon,
     PlusIcon,
     ProductIcon,
@@ -57,10 +58,13 @@ import {
     saveProducts,
     searchProducts,
     updatePerPage,
-    undoGrid
+    undoGrid,
+    getSelectedSeoContents,
+    setSeoContentFromAI,
 } from "../components/grid/controller";
 import { ConfirmModal } from "../components/common/confirm-modal";
-import { getHistoryData, getMyPlanData } from "../utils/api";
+import { AiSeoModal } from "../components/products/ai-seo-modal";
+import { getHistoryData, getMyPlanData, getProductAiSeoContent } from "../utils/api";
 import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
 
@@ -116,6 +120,10 @@ export default function ProductsPage() {
     // Confirm Modal
     const [ confirmType, setConfirmType ] = useState(null);
     const [ selectedRows, setSelectedRows ] = useState(null);
+
+    // AI SEO
+    const [ aiSeo, setAiSeo ] = useState({ rows: null, loading: false });
+    const resetAiSeo = () => setAiSeo({ rows: null, loading: false });
 
     async function initProducts() {
         const planData = await getMyPlanData(); // shopId, planId, planSelectedLimit
@@ -201,6 +209,46 @@ export default function ProductsPage() {
         });
 
         return Object.values(groupedLogs);
+    }
+
+    function startMakingAiSeo() {
+        const rows = getSelectedSeoContents();
+        setAiSeo((content) => ({ ...content, rows }));
+    }
+
+    async function generateAiSeo(data = []) {
+        setAiSeo(cont => ({ ...cont, loading: true }));
+
+        try {
+            const result = await Promise.all(
+                data.map(async (item) => {
+                    const { productId, title, description, tags } = item;
+                    const res = await getProductAiSeoContent({ productId, title, description, tags });
+                    if (!res) return null;
+
+                    const { seoProductId, seoTitle, seoDescription } = res;
+                    return { seoProductId, seoTitle, seoDescription };
+                }).filter(item => item)
+            );
+
+            const rows = aiSeo.rows.map((row) => {
+                const findRow = result.find(r => r.seoProductId === row.productId);
+                if (findRow) {
+                    return { ...row, seoTitle: findRow.seoTitle, seoDescription: findRow.seoDescription, active: true };
+                }
+                return row;
+            });
+
+            setAiSeo((cont) => ({ ...cont, rows, loading: false }));
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function applyAiSeo(data) {
+        setSeoContentFromAI(data, () => {
+            setAiSeo(cont => ({ ...cont, rows: null }));
+        });
     }
 
     useEffectWithoutInitialState(() => {
@@ -392,6 +440,7 @@ export default function ProductsPage() {
                                     <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
                                     <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
                                 </ButtonGroup>
+                                <Button icon={MagicIcon} variant="primary" onClick={startMakingAiSeo} disabled={false}>AI SEO</Button>
                                 <Popover
                                     active={searchPerPagePopoverActive}
                                     activator={
@@ -451,6 +500,7 @@ export default function ProductsPage() {
                     </BlockStack>
                 </Card>
             </div>
+            <AiSeoModal open={!!aiSeo.rows && aiSeo.rows.length > 0} onClose={resetAiSeo} contents={aiSeo.rows || []} onGenerate={generateAiSeo} generateLoading={aiSeo.loading} onApply={applyAiSeo}/>
             <Modal
                 variant="large"
                 open={!!historyInfo.product}

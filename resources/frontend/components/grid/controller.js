@@ -1,6 +1,7 @@
 import { getCompositionData } from "../../utils/api";
 import fetchData from "../../utils/fetch";
 import { formatNumberWithCommas } from "../../utils/formats";
+import { showError } from "../../utils/toasts";
 import getInitialColumns from "./columns";
 import COLUMN_PARAMS from "./cols.json";
 
@@ -301,6 +302,36 @@ export async function resetColumns(e) {
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
+}
+
+export function getSelectedSeoContents() {
+    const rows = gx.gridOptions.api.getSelectedRows();
+
+    if (rows.length < 1) {
+        showError('Please select the product(s) for which you want to generate AI SEO information.');
+        return null;
+    }
+
+    const result = rows.map(row => ({
+        id: row.product_id,
+        productId: row.product_id,
+        title: row.product_name,
+        description: row.product_body,
+        tags: row.product_tags
+    }));
+
+    return [ ...new Map(result.map(item => [item.id, item])).values() ];
+}
+
+export async function setSeoContentFromAI(data, callback) {
+    gx.gridOptions.api.forEachNode((node) => {
+        const row = data.find(row => row.productId === node.data.product_id);
+        if (row) {
+            node.setDataValue('seo_title', row.seoTitle);
+            node.setDataValue('seo_description', row.seoDescription);
+        }
+    });
+    callback();
 }
 
 /*

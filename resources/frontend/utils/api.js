@@ -102,6 +102,20 @@ export async function syncProducts() {
     }
 }
 
+export async function getProductAiSeoContent({ productId, title, description, tags }) {
+    try {
+        const { product_id: seoProductId, title: seoTitle, description: seoDescription } = await fetchData({
+            method: 'POST',
+            url: '/api/generate-seo',
+            body: { product_id: productId, title, description, tags }
+        });
+        return { seoProductId, seoTitle, seoDescription };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
 export async function getCompositionData() {
     try {
         const {
