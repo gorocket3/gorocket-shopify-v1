@@ -83,7 +83,7 @@ export default function PlanPage() {
                                                 <Text as='span' variant="bodySm">/{plan.interval}</Text>
                                             </Text>
                                             <Box minHeight="32px">
-                                                {!plan.user_plan && (
+                                                {(plan.id !== 1 && !plan.user_plan) && (
                                                     <Button onClick={() => goToChargesPage(plan.id)}
                                                             variant="primary"
                                                             size="large" fullWidth={true}>

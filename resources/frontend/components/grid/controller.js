@@ -27,6 +27,7 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
 
 export function updatePerPage(perPage) {
     if (defaultData) defaultData.per_page = perPage;
+    searchProducts();
 }
 
 export function searchProducts() {
@@ -385,11 +386,6 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
         onFilterChanged: (e) => {
             filterData = e.api.getFilterModel();
             searchProducts();
-
-            const displayedRows = gx.gridOptions.api.getRenderedNodes().map(node => node.data.product_id);
-            // const cnt = [ ...new Set(displayedRows) ].length;
-            const cnt = displayedRows.length;
-            $("#" + gx.gridCurrent).text(numberWithCommas(cnt));
         },
         onGridReady: (e) => {
             startGrid();
