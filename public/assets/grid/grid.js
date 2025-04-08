@@ -603,10 +603,6 @@ HDGrid.prototype._Request = function (callback, http_method) {
             _gx.loading = false;
             _gx.HideLoadingLayer();
             _gx.gridOptions.api.hideOverlay();
-
-            // const displayedRows = _gx.gridOptions.api.getRenderedNodes().map(node => node.data.product_id);
-            // const cnt = [ ...new Set(displayedRows) ].length;
-            // $("#" + _gx.gridCurrent).text(numberWithCommas(cnt));
         });
 };
 
