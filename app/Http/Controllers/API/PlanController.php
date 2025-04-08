@@ -41,7 +41,7 @@ class PlanController extends Controller
                         'edit_limit'        => config("plans.edit_limits.{$planName}"),
                         'ai_limit'          => config("plans.ai_limits.{$planName}"),
                         'history_days'      => config("plans.history_days.{$planName}"),
-                        'max_selected_rows' => config("plans.max_selected_rows.{$planName}")
+                        'max_selected_cell' => config("plans.max_selected_cell.{$planName}")
                     ]
                 ];
             });
@@ -62,7 +62,7 @@ class PlanController extends Controller
         $shop = Auth::user();
 
         $planName = $shop->plan->name ?? 'Free';
-        $planLimit = config("plans.max_selected_rows.{$planName}", config("plans.max_selected_rows.Free"));
+        $planLimit = config("plans.max_selected_cell.{$planName}", config("plans.max_selected_cell.Free"));
 
         return response()->json([
             'shop_id'             => $shop->id,

@@ -103,15 +103,21 @@ export default function PlanPage() {
                                                         plan_name: plan.name,
                                                     },
                                                     {
-                                                        title: "Edit Limit",
+                                                        title: "Bulk Edit",
                                                         type: "text",
-                                                        content: plan.limits.edit_limit === null ? 'Unlimited' : `Editable ${formatNumberWithCommas(plan.limits.edit_limit)} times a day`,
+                                                        content: plan.limits.edit_limit === null ? 'Unlimited' : `${formatNumberWithCommas(plan.limits.edit_limit)} times a day`,
+                                                        plan_name: plan.name,
+                                                    },
+                                                    {
+                                                        title: "Editable Cell Count",
+                                                        type: "text",
+                                                        content: plan.limits.max_selected_cell === null ? 'Unlimited' : `${formatNumberWithCommas(plan.limits.max_selected_cell)} per save`,
                                                         plan_name: plan.name,
                                                     },
                                                     {
                                                         title: "AI SEO Generation",
                                                         type: "text",
-                                                        content: plan.limits.ai_limit === null ? 'Unlimited' : `Can be used ${formatNumberWithCommas(plan.limits.ai_limit)} times a day`,
+                                                        content: plan.limits.ai_limit === null ? 'Unlimited' : `${formatNumberWithCommas(plan.limits.ai_limit)} times a day`,
                                                         plan_name: plan.name,
                                                     },
                                                     {
@@ -126,13 +132,6 @@ export default function PlanPage() {
                                                         content: plan.id !== 1,
                                                         plan_name: plan.name,
                                                     },
-                                                    {
-                                                        title: "Editable Cell Count",
-                                                        type: "text",
-                                                        content: plan.limits.max_selected_rows === null ? 'Unlimited' : `Up to ${formatNumberWithCommas(plan.limits.max_selected_rows)} per save`,
-                                                        plan_name: plan.name,
-                                                    },
-
                                                 ]}
                                                 renderItem={(item, idx) => {
                                                     const { title, type, content, plan_name } = item;

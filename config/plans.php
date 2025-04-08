@@ -45,7 +45,7 @@ return [
     |
     */
 
-    'max_selected_rows' => [
+    'max_selected_cell' => [
         'Free'  => env('PLAN_SELECTED_LIMIT_FREE', 10),
         'Basic' => env('PLAN_SELECTED_LIMIT_BASIC', 100),
         'Pro' => env('PLAN_SELECTED_LIMIT_PRO', 200)
