@@ -1,0 +1,14 @@
+services:
+  soketi:
+    image: quay.io/soketi/soketi:latest
+    container_name: soketi
+    ports:
+      - "6001:6001"
+    environment:
+      SOKETI_DEBUG: "true"
+      SOKETI_METRICS_ENABLED: "true"
+      SOKETI_DEFAULT_APP_ID: "1959665"
+      SOKETI_DEFAULT_APP_KEY: "525ae7d5c0bc3906dd87"
+      SOKETI_DEFAULT_APP_SECRET: "b8d137eafe9935aef763"
+    restart: unless-stopped
+

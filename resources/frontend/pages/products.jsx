@@ -269,8 +269,21 @@ export default function ProductsPage() {
 
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
         const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
+        const pusherHost = import.meta.env.VITE_PUSHER_HOST;
+        const pusherPort = import.meta.env.VITE_PUSHER_PORT;
+        const pusherScheme = import.meta.env.VITE_PUSHER_SCHEME;
+	const pusherUseTLS = import.meta.env.VITE_PUSHER_USE_TLS === 'true';
         const channelName = 'gorocket-shop-' + info.shopId;
-        const pusher = new Pusher(pusherKey, { cluster: pusherCluster });
+
+	const pusher = new Pusher(pusherKey, {
+            cluster: pusherCluster,
+	    wsHost: pusherHost,
+	    wsPort: pusherPort,
+	    wssPort: pusherPort,
+	    forceTLS: pusherUseTLS,
+            enabledTransports: ['ws', 'wss']
+    	});
+
         const channel = pusher.subscribe(channelName);
 
         channel.bind('product-update', function (d) {
