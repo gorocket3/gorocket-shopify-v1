@@ -81,12 +81,14 @@ class AIController extends Controller
         $productTitle = $request->input('title');
         $productDescription = $request->input('description');
         $productTags = $request->input('tags');
+        $productType = $request->input('product_type');
 
         $cleanTitle = Str::limit(trim($productTitle), 60);
         $cleanDescription = trim(strip_tags($productDescription));
         $shortDescription = Str::limit($cleanDescription, 250);
         $tagsArray = array_filter(array_map('trim', explode(',', $productTags)));
         $limitedTags = implode(', ', array_slice($tagsArray, 0, 6));
+        $productType = Str::limit(trim($productType), 60);
 
         if (empty($cleanTitle) || mb_strlen($cleanTitle) < 5 || empty($cleanDescription) || mb_strlen($cleanDescription) < 30) {
             return response()->json([
@@ -104,7 +106,7 @@ class AIController extends Controller
                 ],
                 [
                     'role' => 'user',
-                    'content' => "Title: {$cleanTitle}\nTags: {$limitedTags}\nDescription: {$shortDescription}"
+                    'content' => "Title: {$cleanTitle}\nCategory: {$productType}\nTags: {$limitedTags}\nDescription: {$shortDescription}"
                 ]
             ]
         ]);
@@ -133,6 +135,7 @@ class AIController extends Controller
             'raw_prompt' => [
                 'model' => env('OPENAI_API_MODEL'),
                 'title' => $cleanTitle,
+                'product_type' => $productType,
                 'tags' => $limitedTags,
                 'description' => $shortDescription
             ],
