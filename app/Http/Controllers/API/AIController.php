@@ -96,9 +96,9 @@ class AIController extends Controller
             ], 400);
         }
 
-        $client = OpenAI::client(env('OPENAI_API_KEY'));
+        $client = OpenAI::client(config('services.openai.key'));
         $response = $client->chat()->create([
-            'model' => env('OPENAI_API_MODEL'),
+            'model' => config('services.openai.model'),
             'messages' => [
                 [
                     'role' => 'system',

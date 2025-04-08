@@ -52,6 +52,11 @@ return [
 
     'gtag' => [
         'id' => env('GTAG_ID'),
+    ],
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_API_MODEL', 'gpt-4o-mini')
     ]
 
 ];
