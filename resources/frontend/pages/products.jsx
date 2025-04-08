@@ -222,19 +222,27 @@ export default function ProductsPage() {
         try {
             const result = await Promise.all(
                 data.map(async (item) => {
-                    const { productId, title, description, tags } = item;
-                    const res = await getProductAiSeoContent({ productId, title, description, tags });
-                    if (!res) return null;
-
-                    const { seoProductId, seoTitle, seoDescription } = res;
-                    return { seoProductId, seoTitle, seoDescription };
-                }).filter(item => item)
+                    const { productId, title, description, tags, productType } = item;
+                    const res = await getProductAiSeoContent({ productId, title, description, tags, productType });
+                    return {
+                        seoProductId: res.seoProductId,
+                        seoTitle: res.seoTitle || '',
+                        seoDescription: res.seoDescription || '',
+                        error: res.errorMsg,
+                    };
+                })
             );
 
             const rows = aiSeo.rows.map((row) => {
                 const findRow = result.find(r => r.seoProductId === row.productId);
                 if (findRow) {
-                    return { ...row, seoTitle: findRow.seoTitle, seoDescription: findRow.seoDescription, active: true };
+                    return {
+                        ...row,
+                        seoTitle: findRow.seoTitle,
+                        seoDescription: findRow.seoDescription,
+                        active: true,
+                        error: findRow.error
+                    };
                 }
                 return row;
             });

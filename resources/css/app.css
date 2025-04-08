@@ -28,3 +28,28 @@
     width: 100%;
     max-width: 700px;
 }
+
+/* Custom CSS */
+@keyframes blink { 0%, 20%, 40%, to { opacity: 1; } 10%, 30% { opacity: 0; } }
+
+.blinking {
+    animation: blink 2s linear;
+}
+
+.index-col > span {
+    white-space: normal;
+}
+
+.index-col.col-sm {
+    width: 80px;
+}
+
+.index-col.col-md {
+    width: 25%;
+    min-width: 100px;
+}
+
+.index-col.col-lg {
+    width: 50%;
+    min-width: 120px;
+}

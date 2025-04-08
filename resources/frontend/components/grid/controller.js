@@ -318,7 +318,8 @@ export function getSelectedSeoContents() {
         productId: row.product_id,
         title: row.product_name,
         description: row.product_body,
-        tags: row.product_tags
+        tags: row.product_tags,
+        productType: row.product_type,
     }));
 
     return [ ...new Map(result.map(item => [item.id, item])).values() ];

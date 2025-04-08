@@ -102,17 +102,16 @@ export async function syncProducts() {
     }
 }
 
-export async function getProductAiSeoContent({ productId, title, description, tags }) {
+export async function getProductAiSeoContent({ productId, title, description, tags, productType }) {
     try {
         const { product_id: seoProductId, title: seoTitle, description: seoDescription } = await fetchData({
             method: 'POST',
             url: '/api/generate-seo',
-            body: { product_id: productId, title, description, tags }
+            body: { product_id: productId, title, description, tags, product_type: productType }
         });
         return { seoProductId, seoTitle, seoDescription };
     } catch (e) {
-        console.error(e);
-        return null;
+        return { seoProductId: productId, errorMsg: e.response.error || e.response.message };
     }
 }
 

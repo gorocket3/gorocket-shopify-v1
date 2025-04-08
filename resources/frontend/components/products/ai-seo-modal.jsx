@@ -2,7 +2,12 @@ import { Modal, TitleBar } from "@shopify/app-bridge-react";
 import { Box, Card, Text, IndexTable, useIndexResourceState, Button, InlineStack } from "@shopify/polaris";
 
 export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoading, onApply }) {
-    const { selectedResources, allResourcesSelected, handleSelectionChange, removeSelectedResources } = useIndexResourceState(contents);
+    const {
+        selectedResources,
+        allResourcesSelected,
+        handleSelectionChange,
+        removeSelectedResources
+    } = useIndexResourceState(contents);
 
     const onHide = async () => {
         await removeSelectedResources(selectedResources);
@@ -40,6 +45,7 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                         title: content.title,
                                         description: content.description,
                                         tags: content.tags,
+                                        productType: content.productType,
                                     };
                                 }))
                             }
@@ -59,8 +65,10 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                            title,
                                            description,
                                            tags,
+                                           productType,
                                            seoTitle,
                                            seoDescription,
+                                           error,
                                            active
                                        }, index) => (
                                 <IndexTable.Row
@@ -68,34 +76,45 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                     key={'seo_' + productId}
                                     selected={selectedResources.includes(productId)}
                                     position={index}
+                                    tone={error ? 'critical' : (!!seoTitle && !!seoDescription ? 'success' : '')}
                                 >
-                                    <IndexTable.Cell>
+                                    <IndexTable.Cell className="index-col col-md">
                                         <Text variant="bodyMd" fontWeight="bold" as="span">
                                             {title}
                                         </Text>
                                     </IndexTable.Cell>
-                                    <IndexTable.Cell>
+                                    <IndexTable.Cell className="index-col col-sm">
                                         <InlineStack align="center">
                                             <Button onClick={(e) => {
                                                 e.stopPropagation();
-                                                onGenerate([ { productId, title, description, tags } ]);
+                                                onGenerate([ { productId, title, description, tags, productType } ]);
                                             }}>
                                                 Generate
                                             </Button>
                                         </InlineStack>
                                     </IndexTable.Cell>
-                                    <IndexTable.Cell className="ai-seo-table-column-active">
-                                        <Text variant="bodyMd" as="span" tone={active ? 'magic' : ''}
-                                              fontWeight={active ? 'bold' : ''}>
-                                            {seoTitle || ''}
-                                        </Text>
-                                    </IndexTable.Cell>
-                                    <IndexTable.Cell className="ai-seo-table-column-active">
-                                        <Text variant="bodyMd" as="span" tone={active ? 'magic' : ''}
-                                              fontWeight={active ? 'bold' : ''}>
-                                            {seoDescription || ''}
-                                        </Text>
-                                    </IndexTable.Cell>
+                                    {error ? (
+                                        <IndexTable.Cell colSpan={2} className="blinking">
+                                            <Text variant="bodyMd" as="span" tone="critical">
+                                                Failed ({error || '-'})
+                                            </Text>
+                                        </IndexTable.Cell>
+                                    ) : (
+                                        <>
+                                            <IndexTable.Cell className="index-col col-md">
+                                                <Text variant="bodyMd" as="span" tone={active ? 'magic' : ''}
+                                                      fontWeight={active ? 'bold' : ''}>
+                                                    {seoTitle || ''}
+                                                </Text>
+                                            </IndexTable.Cell>
+                                            <IndexTable.Cell className="index-col col-lg">
+                                                <Text variant="bodyMd" as="span" tone={active ? 'magic' : ''}
+                                                      fontWeight={active ? 'bold' : ''}>
+                                                    {seoDescription || ''}
+                                                </Text>
+                                            </IndexTable.Cell>
+                                        </>
+                                    )}
                                 </IndexTable.Row>
                             ),
                         )}
