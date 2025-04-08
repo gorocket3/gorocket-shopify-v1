@@ -141,6 +141,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "chk",
             headerName: '',
+            pinned: "left",
             checkboxSelection: (p) => p.data.position < 2,
             headerCheckboxSelection: true,
             width: 24,
@@ -163,6 +164,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             field: "product_img",
             headerName: "Image",
+            pinned: "left",
             width: 60,
             cellStyle: cellMergeStyling,
             cellRenderer: (p) => {
