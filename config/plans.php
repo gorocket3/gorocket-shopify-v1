@@ -31,8 +31,8 @@ return [
 
     'history_days' => [
         'Free'  => env('PLAN_HISTORY_LIMIT_FREE', 7),
-        'Basic' => env('PLAN_HISTORY_LIMIT_BASIC', 90),
-        'Pro' => env('PLAN_HISTORY_LIMIT_PRO', 180)
+        'Basic' => env('PLAN_HISTORY_LIMIT_BASIC', 180),
+        'Pro' => env('PLAN_HISTORY_LIMIT_PRO', 360)
     ],
 
     /*
@@ -47,8 +47,8 @@ return [
 
     'max_selected_cell' => [
         'Free'  => env('PLAN_SELECTED_LIMIT_FREE', 10),
-        'Basic' => env('PLAN_SELECTED_LIMIT_BASIC', 100),
-        'Pro' => env('PLAN_SELECTED_LIMIT_PRO', 200)
+        'Basic' => env('PLAN_SELECTED_LIMIT_BASIC', 250),
+        'Pro' => env('PLAN_SELECTED_LIMIT_PRO', 500)
     ],
 
     /*
