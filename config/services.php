@@ -54,6 +54,10 @@ return [
         'id' => env('GTAG_ID'),
     ],
 
+    'tawk' => [
+        'id' => env('TAWK_ID'),
+    ],
+
     'openai' => [
         'key' => env('OPENAI_API_KEY'),
         'model' => env('OPENAI_API_MODEL', 'gpt-4o-mini')

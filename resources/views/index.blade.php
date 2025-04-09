@@ -58,7 +58,7 @@
         (function(){
             var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
             s1.async=true;
-            s1.src='https://embed.tawk.to/67f618179b5f671906ebd5ff/1iocks78t';
+            s1.src='https://embed.tawk.to/67f618179b5f671906ebd5ff/{{ config('services.tawk.id') }}';
             s1.charset='UTF-8';
             s1.setAttribute('crossorigin','*');
             s0.parentNode.insertBefore(s1,s0);
