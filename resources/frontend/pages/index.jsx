@@ -283,7 +283,7 @@ export default function HomePage() {
                                                     <ProgressBar progress={Math.max(customAction.progress, 3)}
                                                                  tone="success"/>
                                                 </Box>
-                                                {customActionDuration >= 30 && (
+                                                {customActionDuration >= 180 && (
                                                     <div style={{ cursor: 'pointer' }}
                                                          onClick={() => resetCustomAction()}>
                                                         <Icon source={XCircleIcon} tone="primary"/>
