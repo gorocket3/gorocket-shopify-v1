@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 
 class SyncController extends Controller
@@ -11,12 +12,13 @@ class SyncController extends Controller
     /**
      * SyncController constructor.
      *
-     * @param int $shopId
      * @return JsonResponse
      */
-    public function getSyncStatus(int $shopId): JsonResponse
+    public function getSyncStatus(): JsonResponse
     {
-        $syncKey = "shop:{$shopId}:product_sync";
+        $shop = Auth::user();
+
+        $syncKey = "shop:{$shop->id}:product_sync";
         $syncStatus = Redis::hgetall($syncKey);
 
         if (empty($syncStatus)) {

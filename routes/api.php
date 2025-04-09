@@ -6,6 +6,7 @@ use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\HistoryController;
 use App\Http\Controllers\API\PersonalController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\SupportController;
 use App\Http\Controllers\API\SyncController;
 use App\Http\Controllers\API\PlanController;
 use App\Http\Middleware\LimitAIUseMiddleware;
@@ -34,7 +35,11 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::delete('personal-column', [PersonalController::class, 'destroy'])->name('personal.column.destroy');
 
     // Sync
-    Route::get('sync-status/{shopId}', [SyncController::class, 'getSyncStatus'])->name('sync.status');
+    Route::get('sync-status', [SyncController::class, 'getSyncStatus'])->name('sync.status');
+
+    // Support
+    Route::post('support-mail', [SupportController::class, 'send'])->name('support.mail');
+
 
     /*
     |--------------------------------------------------------------------------
