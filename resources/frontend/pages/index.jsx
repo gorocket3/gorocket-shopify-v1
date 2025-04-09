@@ -325,7 +325,7 @@ export default function HomePage() {
                 <Box paddingInline={{ xs: 200, sm: 0 }}>
                     <BlockStack inlineAlign='end'>
                         <Button onClick={() => open('mailto:support@gorocket3.ai')}>
-                            Customer Support
+                            Contact us
                         </Button>
                     </BlockStack>
                 </Box>
