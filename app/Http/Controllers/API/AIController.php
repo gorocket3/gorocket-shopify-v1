@@ -129,14 +129,6 @@ class AIController extends Controller
         }
 
         if (empty($title) || empty($description)) {
-            $lines = array_filter(array_map('trim', explode("\n", $raw)));
-            if (count($lines) >= 2) {
-                $title = $title ?: $lines[0];
-                $description = $description ?: $lines[1];
-            }
-        }
-
-        if (empty($title) || empty($description)) {
             return response()->json([
                 'error' => 'Could not extract title or description from OpenAI response.'
             ], 500);
