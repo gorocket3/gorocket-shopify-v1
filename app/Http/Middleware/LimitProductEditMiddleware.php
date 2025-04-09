@@ -22,9 +22,11 @@ class LimitProductEditMiddleware
         $planName = $shop->plan->name ?? 'Free';
         $maxDailyRequests = config("plans.edit_limits.{$planName}", config('plans.edit_limits.Free'));
 
+        [$startDay, $endDay] = user_daily_utc_range($shop->shop->timezone);
+
         $editCount = ChangeLog::where('user_id', $shop->id)
             ->where('updated_by', 'gorocket')
-            ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
+            ->whereBetween('created_at', [$startDay, $endDay])
             ->count();
 
         if ($editCount >= $maxDailyRequests) {

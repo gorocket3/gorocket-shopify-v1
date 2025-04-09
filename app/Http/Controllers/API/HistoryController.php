@@ -64,16 +64,17 @@ class HistoryController extends Controller
     /**
      * API endpoint to count the number of History logs for a shop.
      *
-     * @param Request $request
      * @return JsonResponse
      */
-    public function count(Request $request): JsonResponse
+    public function count(): JsonResponse
     {
         $shop = auth()->user();
 
+        [$startDay, $endDay] = user_daily_utc_range($shop->shop->timezone);
+
         $query = ChangeLog::where('user_id', $shop->id)
             ->where('updated_by', 'gorocket')
-            ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()]);
+            ->whereBetween('created_at', [$startDay, $endDay]);
 
         $planName = $shop->plan->name ?? 'Free';
         $limit = config("plans.edit_limits.{$planName}", config("plans.edit_limits.Free"));

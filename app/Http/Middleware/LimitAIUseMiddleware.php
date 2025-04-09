@@ -22,8 +22,10 @@ class LimitAIUseMiddleware
         $planName = $shop->plan->name ?? 'Free';
         $maxDailyRequests = config("plans.ai_limits.{$planName}", config('plans.ai_limits.Free'));
 
+        [$startDay, $endDay] = user_daily_utc_range($shop->shop->timezone);
+
         $todayCount = AIGeneration::where('user_id', $shop->id)
-            ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
+            ->whereBetween('created_at', [$startDay, $endDay])
             ->count();
 
         if ($todayCount >= $maxDailyRequests) {
