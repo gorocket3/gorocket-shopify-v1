@@ -28,6 +28,7 @@ class SyncController extends Controller
         return response()->json([
             'syncing'  => filter_var($syncStatus['syncing'] ?? false, FILTER_VALIDATE_BOOLEAN),
             'progress' => intval($syncStatus['progress'] ?? 0),
+            'bulking'  => intval($syncStatus['bulking'] ?? 0)
         ]);
     }
 }

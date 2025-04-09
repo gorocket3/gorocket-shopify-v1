@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class ProductBulkUpdateJob implements ShouldQueue
 {
@@ -97,6 +98,7 @@ class ProductBulkUpdateJob implements ShouldQueue
             $this->upsertProducts($batch);
         }
 
+        Redis::hdel("shop:{$shop_id}:product_sync", 'bulking');
         Log::info("[SETUP][BULK] Bulk completed - {$shop_id}");
     }
 

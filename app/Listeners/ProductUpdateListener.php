@@ -52,6 +52,7 @@ class ProductUpdateListener implements ShouldQueue
             if($totalProducts > 0) {
                 Redis::hset("shop:{$shopId}:product_sync", 'syncing', true);
                 Redis::hset("shop:{$shopId}:product_sync", 'progress', 0);
+                Redis::hset("shop:{$shopId}:product_sync", 'bulking', 0);
                 Redis::expire("shop:{$shopId}:product_sync", 7200);
             } else {
                 event(new MessageCompleted(
