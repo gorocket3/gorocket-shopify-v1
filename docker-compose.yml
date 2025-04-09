@@ -4,11 +4,23 @@ services:
     container_name: soketi
     ports:
       - "6001:6001"
+      - "9601:9601"
+    env_file:
+      - .env
     environment:
-      SOKETI_DEBUG: "true"
+      SOKETI_DEBUG: "false"
       SOKETI_METRICS_ENABLED: "true"
-      SOKETI_DEFAULT_APP_ID: "1959665"
-      SOKETI_DEFAULT_APP_KEY: "525ae7d5c0bc3906dd87"
-      SOKETI_DEFAULT_APP_SECRET: "b8d137eafe9935aef763"
+      SOKETI_METRICS_SERVER_PORT: "9601"
+      SOKETI_DEFAULT_APP_ID: "${PUSHER_APP_ID}"
+      SOKETI_DEFAULT_APP_KEY: "${PUSHER_APP_KEY}"
+      SOKETI_DEFAULT_APP_SECRET: "${PUSHER_APP_SECRET}"
+      SOKETI_ALLOWED_ORIGINS: "${VITE_PUSHER_HOST}"
+      SOKETI_DEFAULT_APP_ENABLE_CLIENT_MESSAGES: "false"
+      SOKETI_DEFAULT_APP_ENABLE_STATS: "false"
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "5"
     restart: unless-stopped
 
