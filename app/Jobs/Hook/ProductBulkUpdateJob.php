@@ -1,6 +1,7 @@
 <?php
 namespace App\Jobs\Hook;
 
+use App\Events\MessageCompleted;
 use App\Models\Product;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -99,6 +100,12 @@ class ProductBulkUpdateJob implements ShouldQueue
         }
 
         Redis::hdel("shop:{$shop_id}:product_sync", 'bulking');
+        event(new MessageCompleted(
+            $shop_id,
+            'product-sync',
+            ['bulking' => 100]
+        ));
+
         Log::info("[SETUP][BULK] Bulk completed - {$shop_id}");
     }
 
