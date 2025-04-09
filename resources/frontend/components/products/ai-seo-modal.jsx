@@ -6,11 +6,11 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
         selectedResources,
         allResourcesSelected,
         handleSelectionChange,
-        removeSelectedResources
+        clearSelection
     } = useIndexResourceState(contents);
 
     const onHide = async () => {
-        await removeSelectedResources(selectedResources);
+        await clearSelection();
         onClose();
     }
 
@@ -25,7 +25,7 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                     await onApply(selectedResources.map((productId) => {
                         return contents.find((content) => content.productId === productId);
                     }));
-                    removeSelectedResources(selectedResources);
+                    clearSelection();
                 }}>Apply
                 </button>
                 <button onClick={onHide}>Cancel</button>
@@ -88,6 +88,7 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                             <Button onClick={(e) => {
                                                 e.stopPropagation();
                                                 onGenerate([ { productId, title, description, tags, productType } ]);
+                                                selectedResources.push(productId);
                                             }}>
                                                 Generate
                                             </Button>

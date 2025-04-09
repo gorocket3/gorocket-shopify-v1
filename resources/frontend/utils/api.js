@@ -27,13 +27,21 @@ export async function getPlanData() {
     }
 }
 
-export async function getMyPlanData() {
+export async function getMyPlanData(onlyCount = false) {
     try {
-        const { shop_id, plan_id, plan_selected_limit } = await fetchData({
+        const { shop_id, plan_id, limits, counts } = await fetchData({
             method: 'GET',
-            url: '/api/plans/info'
+            url: '/api/plans/info' + (onlyCount ? '?only_count=true' : '')
         });
-        return { shopId: shop_id, planId: plan_id, planSelectedLimit: plan_selected_limit };
+        return {
+            shopId: shop_id,
+            planId: plan_id,
+            editableLimit: limits.edit_limit,
+            editableCount: counts.edit_count,
+            selectableLimit: limits.max_selected_cell,
+            aiSeoLimit: limits.ai_limit,
+            aiSeoCount: counts.ai_count,
+        };
     } catch (e) {
         console.error(e);
         return null;

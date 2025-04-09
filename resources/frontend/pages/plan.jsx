@@ -109,7 +109,7 @@ export default function PlanPage() {
                                                         plan_name: plan.name,
                                                     },
                                                     {
-                                                        title: "Editable Cell Count",
+                                                        title: "Selectable Cell Count",
                                                         type: "text",
                                                         content: plan.limits.max_selected_cell === null ? 'Unlimited' : `${formatNumberWithCommas(plan.limits.max_selected_cell)} per save`,
                                                         plan_name: plan.name,

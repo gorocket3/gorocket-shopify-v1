@@ -5,10 +5,10 @@ import { showError } from "../../utils/toasts";
 import getInitialColumns from "./columns";
 import COLUMN_PARAMS from "./cols.json";
 
-let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback;
+let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback, setSelectableCount;
 let editedCellCount = 0;
 
-export async function initGrid({ plan_selected_limit, default_per_page, show_changes, start_grid }) {
+export async function initGrid({ plan_selected_limit, default_per_page, show_changes, start_grid, set_selectable_count }) {
     pApp = new App('', { gridId: "#div-gd" });
 
     // const is_mobile = document.body.offsetWidth <= 1007;
@@ -22,6 +22,7 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
     defaultData = { plan_selected_limit, per_page: default_per_page };
     showChangesCallback = show_changes;
     startGridCallback = start_grid;
+    setSelectableCount = set_selectable_count;
     refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
 }
 
@@ -31,7 +32,7 @@ export function updatePerPage(perPage) {
 }
 
 export function searchProducts() {
-    let params = getFilterParams(filterData, { per_page: defaultData.per_page });
+    let params = getFilterParams(filterData, { per_page: defaultData?.per_page || 25 });
 
     gx.gridOptions.api.hidePopupMenu();
     gx.Request('/api/products', params, 1, function (v) {
@@ -327,6 +328,8 @@ export function getSelectedSeoContents() {
 
 export async function setSeoContentFromAI(data, callback) {
     gx.gridOptions.api.forEachNode((node) => {
+        if (node.data.position > 1) return;
+
         const row = data.find(row => row.productId === node.data.product_id);
         if (row) {
             node.setDataValue('seo_title', row.seoTitle);
@@ -420,7 +423,7 @@ async function openOnlineStoreLink(product_id) {
 function addEditedCellCount(num, reset = false) {
     if (reset) editedCellCount = 0;
     else editedCellCount += num;
-    document.getElementById('gd-edited').innerText = formatNumberWithCommas(editedCellCount);
+    setSelectableCount(editedCellCount);
 
     if (editedCellCount > 0) {
         shopify.saveBar.show('products-save-bar');

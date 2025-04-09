@@ -71,7 +71,16 @@ import { useEffectWithoutInitialState } from "../utils/hooks";
 export default function ProductsPage() {
     const navigate = useNavigate();
 
-    const [ info, setInfo ] = useState({ shopId: null, planSelectedLimit: null });
+    const [ info, setInfo ] = useState({
+        shopId: null,
+        editableLimit: null,
+        editableCount: 0,
+        selectableLimit: null,
+        selectableCount: 0,
+        aiSeoLimit: null,
+        aiSeoCount: 0,
+    });
+    const setSelectableCount = (count) => setInfo((info) => ({ ...info, selectableCount: count }));
 
     // Action
     const productActionInterval = useRef();
@@ -126,9 +135,17 @@ export default function ProductsPage() {
     const resetAiSeo = () => setAiSeo({ rows: null, loading: false });
 
     async function initProducts() {
-        const planData = await getMyPlanData(); // shopId, planId, planSelectedLimit
+        const planData = await getMyPlanData();
 
-        setInfo((info) => ({ ...info, shopId: planData.shopId, planSelectedLimit: planData.planSelectedLimit }));
+        setInfo((info) => ({
+            ...info,
+            shopId: planData.shopId,
+            editableLimit: planData.editableLimit,
+            editableCount: planData.editableCount,
+            selectableLimit: planData.selectableLimit,
+            aiSeoLimit: planData.aiSeoLimit,
+            aiSeoCount: planData.aiSeoCount,
+        }));
     }
 
     async function setHistoryData() {
@@ -261,10 +278,11 @@ export default function ProductsPage() {
 
     useEffectWithoutInitialState(() => {
         initGrid({
-            plan_selected_limit: info.planSelectedLimit,
+            plan_selected_limit: info.selectableLimit,
             default_per_page: searchPerPage,
             show_changes: (prd) => setHistoryInfo((info) => ({ ...info, product: prd, loading: true, firstLoading: true })),
             start_grid: () => setGridSetUp(true),
+            set_selectable_count: setSelectableCount,
         });
 
         const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
@@ -329,6 +347,8 @@ export default function ProductsPage() {
             setProductActionDuration(1);
             setDisableUndo(false);
             setDisableRedo(false);
+
+            initProducts(); // update plan info
         }
     }, [ productAction.inProgress ]);
 
@@ -451,9 +471,20 @@ export default function ProductsPage() {
                                     <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
                                     Product Variants
                                 </Text>
-                                <Text as="p" variant="bodySm" tone="magic">
-                                    [ <Text as="strong" id="gd-edited" fontWeight="bold">0</Text>/{formatNumberWithCommas(info.planSelectedLimit || 0)} edited ]
-                                </Text>
+                                <InlineStack gap="200">
+                                    <Badge size="large"
+                                           tone={(info.editableCount / info.editableLimit) >= 1 ? 'critical' : ((info.editableCount / info.editableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                                        <Text as="strong" fontWeight="bold">{info.editableCount}</Text>/{formatNumberWithCommas(info.editableLimit || 0)} edited
+                                    </Badge>
+                                    <Badge size="large"
+                                           tone={(info.selectableCount / info.selectableLimit) >= 1 ? 'critical' : ((info.selectableCount / info.selectableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                                        <Text as="strong" fontWeight="bold">{info.selectableCount}</Text>/{formatNumberWithCommas(info.selectableLimit || 0)} selected
+                                    </Badge>
+                                    <Badge size="large"
+                                           tone={(info.aiSeoCount / info.aiSeoLimit) >= 1 ? 'critical' : ((info.aiSeoCount / info.aiSeoLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                                        <Text as="strong" fontWeight="bold">{info.aiSeoCount}</Text>/{formatNumberWithCommas(info.aiSeoLimit || 0)} seo generated
+                                    </Badge>
+                                </InlineStack>
                             </InlineStack>
                             <InlineStack gap="200" align="end" blockAlign="center">
                                 <ButtonGroup variant="segmented">
