@@ -29,7 +29,10 @@ class HistoryController extends Controller
         $planName  = $shop->plan->name ?? 'Free';
         $daysLimit = config("plans.history_days.{$planName}", config("plans.history_days.Free"));
 
-        $cutoffDate = now()->subDays($daysLimit)->startOfDay();
+        $timezoneRaw = $shop->shop->timezone ?? 'UTC';
+        $timezone = preg_replace('/^\(GMT[+-]\d{2}:\d{2}\)\s*/', '', $timezoneRaw) ?: 'UTC';
+
+        $cutoffDate = now($timezone)->subDays($daysLimit)->startOfDay()->timezone('UTC');
 
         $query = ChangeLog::with([
             'product',
