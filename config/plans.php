@@ -64,7 +64,7 @@ return [
 
     'ai_limits' => [
         'Free'  => env('PLAN_AI_LIMIT_FREE', 5),
-        'Basic' => env('PLAN_AI_LIMIT_BASIC', 120),
-        'Pro' => env('PLAN_AI_LIMIT_PRO', 250)
+        'Basic' => env('PLAN_AI_LIMIT_BASIC', 250),
+        'Pro' => env('PLAN_AI_LIMIT_PRO', 500)
     ]
 ];
