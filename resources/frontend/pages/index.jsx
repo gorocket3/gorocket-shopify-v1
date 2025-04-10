@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
     Badge,
     BlockStack,
@@ -7,7 +7,6 @@ import {
     Button,
     CalloutCard,
     Card,
-    FooterHelp,
     Icon,
     Image,
     InlineGrid,
@@ -22,7 +21,7 @@ import {
 } from "@shopify/polaris";
 import { XCircleIcon } from "@shopify/polaris-icons";
 import ProgressNotifier from "../components/common/progress-notifier";
-import { getDashboardData, getMyPlanData, getTotalProductCount, syncProducts } from "../utils/api";
+import { getDashboardData, getMyPlanData, getPlanData, getTotalProductCount, syncProducts } from "../utils/api";
 import { formatNumberWithCommas } from "../utils/formats";
 import { goToChargesPage, useEffectWithoutInitialState } from "../utils/hooks";
 
@@ -39,6 +38,7 @@ export default function HomePage() {
         aiSeoCount: 0,
         aiSeoLimit: 0,
     });
+    const [ allPlans, setAllPlans ] = useState([]);
     const [ introCard, setIntroCard ] = useState({ dismissed: false });
     const setIntroCardDismissed = (dismissed) => setIntroCard((card) => ({ ...card, dismissed }));
 
@@ -73,6 +73,9 @@ export default function HomePage() {
             aiSeoCount: planData?.aiSeoCount || 0,
             aiSeoLimit: planData?.aiSeoLimit || 0,
         }));
+
+        const allPlansData = await getPlanData();
+        setAllPlans(allPlansData.plans || []);
     }
 
     async function setTotalProductCount() {
@@ -287,7 +290,7 @@ export default function HomePage() {
                     </InlineGrid>
                 )}
                 <Card>
-                    <Box paddingBlockEnd="800">
+                    <Box>
                         <BlockStack inlineAlign="center" gap="100">
                             <Image alt='Empty Products'
                                    source={'https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png'}/>
@@ -336,27 +339,27 @@ export default function HomePage() {
                                     </InlineGrid>
                                 )}
                             </Box>
-                            <p>
-                                With <PolarisLink monochrome onClick={() => goToChargesPage()}>Basic Plan</PolarisLink>,
-                                you
-                                can integrate and
-                                manage
-                                over 100,000 products.
-                            </p>
+                            {info.plan?.id && info.plan.id < 3 && (() => {
+                                const nextPlan = allPlans.find(p => p.id === (info.plan.id + 1));
+                                return (
+                                    <p>
+                                        With the <PolarisLink monochrome onClick={() => goToChargesPage(nextPlan?.id || null)}>
+                                        {nextPlan?.name || ''} Plan
+                                        </PolarisLink>, you can perform up to {formatNumberWithCommas(nextPlan?.limits?.edit_limit || 0)} bulk edits per day.
+                                    </p>
+                                );
+                            })()}
+                            <Box width="100%" paddingBlockStart="800">
+                                <BlockStack inlineAlign='end'>
+                                    <Button onClick={() => open('mailto:support@gorocket3.ai')}>
+                                        <Text as="span" tone="subdued">Contact us</Text>
+                                    </Button>
+                                </BlockStack>
+                            </Box>
                         </BlockStack>
                     </Box>
                 </Card>
-                <Box paddingInline={{ xs: 200, sm: 0 }}>
-                    <BlockStack inlineAlign='end'>
-                        <Button onClick={() => open('mailto:support@gorocket3.ai')}>
-                            Contact us
-                        </Button>
-                    </BlockStack>
-                </Box>
-                <FooterHelp>
-                    &copy; 2025 GoRocket. By using this app, you agree to the <PolarisLink><Link url="#">Privacy
-                    Policy</Link></PolarisLink>.
-                </FooterHelp>
+                <Box paddingBlock={{ xs: 1000, md: 0 }}></Box>
             </BlockStack>
         </Page>
     );
