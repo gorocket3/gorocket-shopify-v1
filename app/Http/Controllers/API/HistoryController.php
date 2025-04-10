@@ -22,7 +22,8 @@ class HistoryController extends Controller
 
         $validated = $request->validate([
             'per_page' => 'integer|min:1|max:1000',
-            'product_id' => 'nullable'
+            'product_id' => 'nullable',
+            'updated_by' => 'nullable|in:shopify,gorocket'
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
@@ -47,6 +48,10 @@ class HistoryController extends Controller
             } else {
                 $query->where('product_id', $validated['product_id']);
             }
+        }
+
+        if (!empty($validated['updated_by'])) {
+            $query->where('updated_by', $validated['updated_by']);
         }
 
         $history = $query->latest()->paginate($perPage);
