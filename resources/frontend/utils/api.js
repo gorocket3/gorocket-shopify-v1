@@ -75,9 +75,9 @@ export async function getPlanConfirmationUrl({ planId, host }) {
     }
 }
 
-export async function getHistoryData({ productId = '', page, perPage }) {
+export async function getHistoryData({ productId = '', updatedBy, page, perPage }) {
     try {
-        const params = `per_page=${perPage}&page=${page}&product_id=${productId}`;
+        const params = `per_page=${perPage}&page=${page}&product_id=${productId}&updated_by=${updatedBy}`;
         const { data, current_page, last_page, from, to, per_page, total } = await fetchData({
             method: 'GET',
             url: '/api/history?' + params

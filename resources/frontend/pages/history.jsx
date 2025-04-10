@@ -11,7 +11,10 @@ import {
     Link as PolarisLink,
     Page,
     ResourceItem,
-    ResourceList, SkeletonBodyText, SkeletonDisplayText,
+    ResourceList,
+    SkeletonBodyText,
+    SkeletonDisplayText,
+    Tabs,
     Text,
     Thumbnail,
     Tooltip,
@@ -38,6 +41,7 @@ export default function HistoryPage() {
 
     const [ info, setInfo ] = useState({
         shopId: null,
+        tabId: 0,
         page: 1,
         lastPage: 1,
         from: 0,
@@ -50,7 +54,15 @@ export default function HistoryPage() {
     const [ histories, setHistories ] = useState([]);
 
     async function setHistoryData() {
-        const { data, page: resPage, ...pageInfo } = await getHistoryData({ page: info.page, perPage: info.perPage }); // data, page, lastPage, from, to, perPage, total
+        const {
+            data,
+            page: resPage,
+            ...pageInfo
+        } = await getHistoryData({
+            updatedBy: [ '', 'shopify', 'gorocket' ][info.tabId],
+            page: info.page,
+            perPage: info.perPage
+        }); // data, page, lastPage, from, to, perPage, total
 
         setHistories(formatHistories(data || []));
         setInfo((info) => ({ ...info, ...(pageInfo || {}), loading: false, firstLoading: false }));
@@ -78,13 +90,22 @@ export default function HistoryPage() {
 
     useEffect(() => {
         setHistoryData();
-    }, [ info.page ]);
+    }, [ info.page, info.tabId ]);
 
     return (
         <Page
             title="History"
             backAction={{ onAction: () => navigate(-1) }}
         >
+            <Box paddingBlockEnd="200">
+                <Card padding="100">
+                    <Tabs tabs={[
+                        { id: 'all-history-filter-1', content: 'All' },
+                        { id: 'shopify-history-filter-1', content: 'Shopify Changes' },
+                        { id: 'gorocket-history-filter-1', content: 'Gorocket Changes' },
+                    ]} selected={info.tabId} onSelect={(num) => setInfo((i => ({ ...i, tabId: num, loading: true, firstLoading: true })))}/>
+                </Card>
+            </Box>
             {info.firstLoading ? (
                 <Card padding="600">
                     <BlockStack gap="800">
