@@ -61,6 +61,7 @@ import {
     undoGrid,
     getSelectedSeoContents,
     setSeoContentFromAI,
+    clearGlobalData,
 } from "../components/grid/controller";
 import { ConfirmModal } from "../components/common/confirm-modal";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
@@ -334,6 +335,8 @@ export default function ProductsPage() {
 
         return () => {
             if (productActionInterval.current) clearInterval(productActionInterval.current);
+
+            clearGlobalData();
         };
     }, []);
 

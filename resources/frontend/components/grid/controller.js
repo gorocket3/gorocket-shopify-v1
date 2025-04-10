@@ -26,6 +26,12 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
     refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
 }
 
+export function clearGlobalData() {
+    initData = null;
+    defaultData = null;
+    filterData = null;
+}
+
 export function updatePerPage(perPage) {
     if (defaultData) defaultData.per_page = perPage;
     searchProducts();
