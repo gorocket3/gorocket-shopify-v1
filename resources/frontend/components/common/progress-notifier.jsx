@@ -62,7 +62,7 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
 
     useEffectWithoutInitialState(() => {
         if (!loadingToast.id && (info.progress === 100 || info.bulking === 1)) {
-            const tst = shopify.toast.show('Processing additional data...');
+            const tst = shopify.toast.show('Processing additional data... This may take a few minutes.');
             setLoadingToast((lt) => ({ ...lt, id: tst }));
         } else if (loadingToast.id && info.bulking === 100) {
             setLoadingToast((lt) => ({ ...lt, id: null, dismiss: true }));
