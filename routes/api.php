@@ -37,10 +37,6 @@ Route::middleware(['verify.shopify'])->group(function () {
     // Sync
     Route::get('sync-status', [SyncController::class, 'getSyncStatus'])->name('sync.status');
 
-    // Support
-    Route::post('support-mail', [SupportController::class, 'send'])->name('support.mail');
-
-
     /*
     |--------------------------------------------------------------------------
     | Product Management
