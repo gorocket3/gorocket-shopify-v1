@@ -100,11 +100,11 @@ export async function syncProducts() {
     try {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
-        console.error(e);
         if (e?.status === '429') {
             showError('Connect request limit exceeded. (Once every 30 minutes)');
         } else {
             showError(`An error occurred while connecting products. (${e?.response?.message || '-'})`);
+            console.log(e?.response);
         }
         throw e;
     }
