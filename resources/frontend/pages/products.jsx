@@ -22,6 +22,7 @@ import {
     SkeletonBodyText,
     SkeletonDisplayText,
     SkeletonTabs,
+    Tabs,
     Text,
     Thumbnail,
     Tooltip
@@ -116,6 +117,7 @@ export default function ProductsPage() {
     // History
     const [ historyInfo, setHistoryInfo ] = useState({
         product: null,
+        tabId: 0,
         page: 1,
         lastPage: 1,
         from: 0,
@@ -151,6 +153,7 @@ export default function ProductsPage() {
 
     async function setHistoryData() {
         const { data, page: resPage, ...pageInfo } = await getHistoryData({
+            updatedBy: [ '', 'shopify', 'gorocket' ][historyInfo.tabId],
             productId: historyInfo.product?.product_id,
             page: historyInfo.page,
             perPage: historyInfo.perPage
@@ -328,7 +331,7 @@ export default function ProductsPage() {
 
     useEffectWithoutInitialState(() => {
         setHistoryData();
-    }, [ historyInfo.page ]);
+    }, [ historyInfo.page, historyInfo.tabId ]);
 
     useEffect(() => {
         initProducts();
@@ -535,6 +538,11 @@ export default function ProductsPage() {
                 onHide={() => setHistoryInfo((info) => ({ ...info, product: null }))}
             >
                 <TitleBar title={'The Snowboard' + '\'s change history'}></TitleBar>
+                <Tabs tabs={[
+                    { id: 'all-history-filter-1', content: 'All' },
+                    { id: 'shopify-history-filter-1', content: 'Shopify Changes' },
+                    { id: 'gorocket-history-filter-1', content: 'Gorocket Changes' },
+                ]} selected={historyInfo.tabId} onSelect={(num) => setHistoryInfo((i => ({ ...i, tabId: num, loading: true })))}/>
                 {historyInfo.firstLoading ? (
                     <Card padding="600">
                         <BlockStack gap="800">
