@@ -6,7 +6,6 @@ use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\HistoryController;
 use App\Http\Controllers\API\PersonalController;
 use App\Http\Controllers\API\ProductController;
-use App\Http\Controllers\API\SupportController;
 use App\Http\Controllers\API\SyncController;
 use App\Http\Controllers\API\PlanController;
 use App\Http\Middleware\LimitAIUseMiddleware;
