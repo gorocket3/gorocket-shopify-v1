@@ -231,8 +231,8 @@ export async function connectProducts(errorCallback = null) {
     try {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
-        if (e?.status === '429') {
-            shopify.toast.show('Connect request limit exceeded. (Once every 30 minutes)', { isError: true });
+        if (e?.status === 429) {
+            shopify.toast.show('Connect request limit exceeded. (Once every 10 minutes)', { isError: true });
         } else {
             shopify.toast.show('An error occurred while connecting products. Please try again.', { isError: true });
         }
