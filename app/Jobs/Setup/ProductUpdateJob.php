@@ -72,7 +72,6 @@ class ProductUpdateJob implements ShouldQueue
             ));
 
             if ($this->progress === 100) {
-                Redis::hset("shop:{$this->shopId}:product_sync", 'bulking', true);
                 Redis::hdel("shop:{$this->shopId}:product_sync", 'syncing', 'progress');
             } else {
                 Redis::hset("shop:{$this->shopId}:product_sync", 'progress', $this->progress);

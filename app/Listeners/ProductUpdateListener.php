@@ -53,7 +53,7 @@ class ProductUpdateListener implements ShouldQueue
                 Redis::hset("shop:{$shopId}:product_sync", 'syncing', true);
                 Redis::hset("shop:{$shopId}:product_sync", 'progress', 0);
                 Redis::hset("shop:{$shopId}:product_sync", 'bulking', 0);
-                Redis::expire("shop:{$shopId}:product_sync", 7200);
+                Redis::expire("shop:{$shopId}:product_sync", 1800);
             } else {
                 event(new MessageCompleted(
                     $shopId,
@@ -258,6 +258,7 @@ class ProductUpdateListener implements ShouldQueue
         if ($errors) {
             Log::error("[LISTENER][BULK] Bulk failed - {$shop->id}");
         } else {
+            Redis::hset("shop:{$shop->id}:product_sync", 'bulking', true);
             Log::info("[LISTENER][BULK] Bulk initiated - {$shop->id}");
         }
     }
