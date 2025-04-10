@@ -103,7 +103,7 @@ export async function syncProducts() {
         if (e?.status === '429') {
             showError('Connect request limit exceeded. (Once every 30 minutes)');
         } else {
-            showError(`An error occurred while connecting products. (${e?.response?.message || '-'})`);
+            showError('An error occurred while connecting products. Please try again.');
             console.log(e?.response);
         }
         throw e;
