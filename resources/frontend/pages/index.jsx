@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Pusher from "pusher-js";
 import {
     Badge,
     BlockStack,
@@ -22,7 +21,8 @@ import {
     Tooltip
 } from "@shopify/polaris";
 import { XCircleIcon } from "@shopify/polaris-icons";
-import { getDashboardData, getHistoryCountData, getTotalProductCount, syncProducts } from "../utils/api";
+import ProgressNotifier from "../components/common/progress-notifier";
+import { getDashboardData, getMyPlanData, getTotalProductCount, syncProducts } from "../utils/api";
 import { formatNumberWithCommas } from "../utils/formats";
 import { goToChargesPage, useEffectWithoutInitialState } from "../utils/hooks";
 
@@ -35,7 +35,9 @@ export default function HomePage() {
         totalProductCount: 0,
         syncData: null,
         historyCount: 0,
-        historyLimit: 0
+        historyLimit: 0,
+        aiSeoCount: 0,
+        aiSeoLimit: 0,
     });
     const [ introCard, setIntroCard ] = useState({ dismissed: false });
     const setIntroCardDismissed = (dismissed) => setIntroCard((card) => ({ ...card, dismissed }));
@@ -62,12 +64,14 @@ export default function HomePage() {
 
     async function initDashboard() {
         const dashboardData = await getDashboardData(); // shopId, plan, totalProductCount, syncData
-        const historyData = await getHistoryCountData(); // historyCount, historyLimit
+        const planData = await getMyPlanData(); // shopId, planId, editableLimit, editableCount, selectableLimit, aiSeoLimit, aiSeoCount
 
         setInfo((info) => ({
             ...info, ...(dashboardData || {}),
-            historyCount: historyData?.count || 0,
-            historyLimit: historyData?.limit || 0
+            historyCount: planData?.editableCount || 0,
+            historyLimit: planData?.editableLimit || 0,
+            aiSeoCount: planData?.aiSeoCount || 0,
+            aiSeoLimit: planData?.aiSeoLimit || 0,
         }));
     }
 
@@ -90,37 +94,6 @@ export default function HomePage() {
             startCustomAction('connect', info.syncData.progress || 0);
         }
     }, [ info.syncData ]);
-
-    useEffectWithoutInitialState(() => {
-        const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
-        const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
-        const pusherHost = import.meta.env.VITE_PUSHER_HOST;
-        const pusherPort = import.meta.env.VITE_PUSHER_PORT;
-        const pusherUseTLS = import.meta.env.VITE_PUSHER_USE_TLS === 'true';
-
-        const pusher = new Pusher(pusherKey, {
-            cluster: pusherCluster,
-            wsHost: pusherHost,
-            wsPort: pusherPort,
-            wssPort: pusherPort,
-            forceTLS: pusherUseTLS,
-            enabledTransports: ['ws', 'wss']
-        });
-
-        const channelName = 'gorocket-shop-' + info.shopId;
-        const channel = pusher.subscribe(channelName);
-
-        channel.bind('product-sync', function (d) {
-            updateCustomAction(d?.data?.progress || 0);
-        });
-
-        return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
-
-            clearInterval(customActionInterval.current);
-        };
-    }, [ info.shopId ]);
 
     useEffectWithoutInitialState(() => {
         if (customAction.progress === 100) {
@@ -147,6 +120,10 @@ export default function HomePage() {
 
     useEffect(() => {
         initDashboard();
+
+        return () => {
+            if (customActionInterval.current) clearInterval(customActionInterval.current);
+        };
     }, []);
 
     return (
@@ -158,6 +135,7 @@ export default function HomePage() {
                 { content: 'History', onAction: () => navigate('/history') },
             ]}
         >
+            <ProgressNotifier syncCallback={(d) => updateCustomAction(d?.progress || 0)}/>
             <BlockStack gap="200">
                 {!introCard.dismissed &&
                     <CalloutCard
@@ -170,7 +148,13 @@ export default function HomePage() {
                     </CalloutCard>
                 }
                 {!info.plan ? (
-                    <InlineGrid gap="200" columns={{ xs: 1, md: 3 }}>
+                    <InlineGrid gap="200" columns={{ xs: 1, md: 2, lg: 4 }}>
+                        <Card>
+                            <BlockStack gap="300">
+                                <SkeletonDisplayText size="small"/>
+                                <SkeletonBodyText lines={2}/>
+                            </BlockStack>
+                        </Card>
                         <Card>
                             <BlockStack gap="300">
                                 <SkeletonDisplayText size="small"/>
@@ -191,7 +175,7 @@ export default function HomePage() {
                         </Card>
                     </InlineGrid>
                 ) : (
-                    <InlineGrid gap="200" columns={{ xs: 1, md: 3 }}>
+                    <InlineGrid gap="200" columns={{ xs: 1, md: 2, lg: 4 }}>
                         <Card>
                             <BlockStack gap="400">
                                 <InlineGrid columns="1fr auto">
@@ -223,19 +207,17 @@ export default function HomePage() {
                         </Card>
                         <Card>
                             <BlockStack gap="200">
-                                <InlineGrid columns="1fr auto">
-                                    <Text as="h2" variant="headingMd">Total Product Count</Text>
-                                    <Button onClick={() => navigate('/products')}
-                                            accessibilityLabel="Manage">Manage</Button>
-                                </InlineGrid>
-                                <Text as="p" variant="headingXl">{formatNumberWithCommas(info.totalProductCount)} <Text
-                                    as="span" variant="bodySm" tone="subdued">products</Text></Text>
+                                <Text as="h2" variant="headingMd">Total Product Count</Text>
+                                <Box paddingBlockStart={200}>
+                                    <Text as="p" variant="headingXl">{formatNumberWithCommas(info.totalProductCount)} <Text
+                                        as="span" variant="bodySm" tone="subdued">products</Text></Text>
+                                </Box>
                             </BlockStack>
                         </Card>
                         <Card>
                             <BlockStack gap="600">
                                 <InlineGrid columns="1fr auto">
-                                    <Text as="h2" variant="headingMd">Product Edit Count</Text>
+                                    <Text as="h2" variant="headingMd">Bulk Edit</Text>
                                     <Button onClick={() => navigate('/history')} variant="plain"
                                             accessibilityLabel="history">History</Button>
                                 </InlineGrid>
@@ -244,17 +226,59 @@ export default function HomePage() {
                                         <ProgressBar
                                             size="small"
                                             progress={info.historyCount / Math.max(info.historyLimit, 1) * 100}
-                                            tone={(info.historyCount / Math.max(info.historyLimit, 1) * 100) > 90 ? 'critical' : 'highlight'}/>
+                                            tone={(info.historyCount / Math.max(info.historyLimit, 1) * 10) >= 8 ? 'critical' : 'primary'}/>
                                     </div>
                                     <Tooltip
-                                        active={(info.historyCount / Math.max(info.historyLimit, 1) * 100) > 90}
+                                        active={(info.historyCount / Math.max(info.historyLimit, 1) * 10) >= 8}
                                         preferredPosition="below"
                                         width="wide"
-                                        content="Upgrading your plan will allow you to edit more products.">
+                                        content={
+                                            <Box padding="200">
+                                                <InlineGrid columns="1fr auto" gap="200" alignItems="center">
+                                                    <Text as="span">
+                                                        Upgrade your plan if you need additional bulk editing features.
+                                                    </Text>
+                                                    <Button variant="primary" onClick={() => navigate('/plan')}>Upgrade</Button>
+                                                </InlineGrid>
+                                            </Box>
+                                        }>
                                         <Text as="p" variant="bodyLg">
                                             <Text as="span"
                                                   fontWeight="bold">{formatNumberWithCommas(info.historyCount)}</Text>
                                             /{formatNumberWithCommas(info.historyLimit)}
+                                        </Text>
+                                    </Tooltip>
+                                </InlineStack>
+                            </BlockStack>
+                        </Card>
+                        <Card>
+                            <BlockStack gap="600">
+                                <Text as="h2" variant="headingMd">AI SEO Generation</Text>
+                                <InlineStack gap="400" blockAlign="center">
+                                    <div style={{ width: 70 }}>
+                                        <ProgressBar
+                                            size="small"
+                                            progress={info.aiSeoCount / Math.max(info.aiSeoLimit, 1) * 100}
+                                            tone={(info.aiSeoCount / Math.max(info.aiSeoLimit, 1) * 10) >= 8 ? 'critical' : 'primary'}/>
+                                    </div>
+                                    <Tooltip
+                                        active={(info.aiSeoCount / Math.max(info.aiSeoLimit, 1) * 10) >= 8}
+                                        preferredPosition="below"
+                                        width="wide"
+                                        content={
+                                            <Box padding="200">
+                                                <InlineGrid columns="1fr auto" gap="200" alignItems="center">
+                                                    <Text as="span">
+                                                        Upgrade your plan if you need additional AI SEO generation.
+                                                    </Text>
+                                                    <Button variant="primary" onClick={() => navigate('/plan')}>Upgrade</Button>
+                                                </InlineGrid>
+                                            </Box>
+                                        }>
+                                        <Text as="p" variant="bodyLg">
+                                            <Text as="span"
+                                                  fontWeight="bold">{formatNumberWithCommas(info.aiSeoCount)}</Text>
+                                            /{formatNumberWithCommas(info.aiSeoLimit)}
                                         </Text>
                                     </Tooltip>
                                 </InlineStack>

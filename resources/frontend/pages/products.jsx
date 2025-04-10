@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Pusher from "pusher-js";
 import { Modal, SaveBar, TitleBar } from "@shopify/app-bridge-react";
 import {
     ActionList,
@@ -45,6 +44,7 @@ import {
     VariantIcon,
     XCircleIcon
 } from "@shopify/polaris-icons";
+import ProgressNotifier from "../components/common/progress-notifier";
 import productAttributes from "../components/grid/attributes.json";
 import {
     connectProducts,
@@ -284,41 +284,6 @@ export default function ProductsPage() {
             start_grid: () => setGridSetUp(true),
             set_selectable_count: setSelectableCount,
         });
-
-        const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
-        const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
-        const pusherHost = import.meta.env.VITE_PUSHER_HOST;
-        const pusherPort = import.meta.env.VITE_PUSHER_PORT;
-	    const pusherUseTLS = import.meta.env.VITE_PUSHER_USE_TLS === 'true';
-
-        const pusher = new Pusher(pusherKey, {
-                cluster: pusherCluster,
-                wsHost: pusherHost,
-                wsPort: pusherPort,
-                wssPort: pusherPort,
-                forceTLS: pusherUseTLS,
-                enabledTransports: ['ws', 'wss']
-            });
-
-        const channelName = 'gorocket-shop-' + info.shopId;
-        const channel = pusher.subscribe(channelName);
-
-        channel.bind('product-update', function (d) {
-            updateProductAction(d?.data?.progress || 0);
-        });
-        channel.bind('product-delete', function (d) {
-            updateProductAction(d?.data?.progress || 0);
-        });
-        channel.bind('product-sync', function (d) {
-            updateProductAction(d?.data?.progress || 0);
-        });
-
-        return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
-
-            clearInterval(productActionInterval.current);
-        };
     }, [ info.shopId ]);
 
     useEffectWithoutInitialState(() => {
@@ -366,6 +331,10 @@ export default function ProductsPage() {
 
     useEffect(() => {
         initProducts();
+
+        return () => {
+            if (productActionInterval.current) clearInterval(productActionInterval.current);
+        };
     }, []);
 
     return (
@@ -434,6 +403,11 @@ export default function ProductsPage() {
                 </InlineStack>
             }
         >
+            <ProgressNotifier
+                syncCallback={(d) => updateProductAction(d?.progress || 0)}
+                updateCallback={(d) => updateProductAction(d?.progress || 0)}
+                deleteCallback={(d) => updateProductAction(d?.progress || 0)}
+            />
             <SaveBar id="products-save-bar">
                 <button variant="primary" onClick={saveClick} {...((productAction.inProgress && productAction.type === 'update') && { loading: '' })}></button>
                 <button onClick={searchClick} disabled={productAction.inProgress && productAction.type === 'update'}></button>
