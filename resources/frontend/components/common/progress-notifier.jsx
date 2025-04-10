@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Pusher from "pusher-js";
-import { toast, Toaster } from "sonner";
 import { getSyncStatusData } from "../../utils/api";
 import { useEffectWithoutInitialState } from "../../utils/hooks";
 
@@ -63,23 +62,17 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
 
     useEffectWithoutInitialState(() => {
         if (!loadingToast.id && (info.progress === 100 || info.bulking === 1)) {
-            const tst = toast.loading('Processing additional data...', {
-                style: {
-                    color: '#ffffff',
-                    background: '#1a1a1a',
-                }
-            });
+            const tst = shopify.toast.show('Processing additional data...');
             setLoadingToast((lt) => ({ ...lt, id: tst }));
         } else if (loadingToast.id && info.bulking === 100) {
-            toast.dismiss(loadingToast.id);
             setLoadingToast((lt) => ({ ...lt, id: null, dismiss: true }));
         }
     }, [ info.progress, info.bulking ]);
 
     useEffectWithoutInitialState(() => {
         if (loadingToast.dismiss) {
-            toast.dismiss(loadingToast.id);
-            toast.success('Additional data processed successfully.', { duration: 2000 });
+            shopify.toast.hide(loadingToast.id);
+            shopify.toast.show('Additional data processed successfully.', { duration: 2000 });
         }
     }, [ loadingToast.dismiss ]);
 
@@ -89,9 +82,8 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
         return () => {
             if (channel) channel.unbind();
             if (pusher) pusher.unsubscribe();
-            toast.dismiss();
         };
     }, []);
 
-    return <Toaster position="bottom-center" richColors/>;
+    return null;
 }
