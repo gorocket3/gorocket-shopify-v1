@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        /**
+         * Custom Rate Limiter for AI usage
+         * 10 minutes, 1 request
+         */
+        RateLimiter::for('custom-throttle', function ($request) {
+            $ip = $request->header('CF-Connecting-IP', $request->ip());
+
+            $whitelist = [
+                '121.67.5.167'
+            ];
+
+            if (in_array($ip, $whitelist)) {
+                return Limit::perMinutes(10, 100)->by('ip:' . $ip);
+            } else {
+                return Limit::perMinutes(10, 1)->by('ip:' . $ip);
+            }
+        });
     }
 }
