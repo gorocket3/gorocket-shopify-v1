@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
             ];
 
             if (in_array($ip, $whitelist)) {
-                return Limit::perMinutes(10, 100)->by('ip:' . $ip);
+                return Limit::perMinutes(1, 1)->by('ip:' . $ip);
             } else {
                 return Limit::perMinutes(10, 1)->by('ip:' . $ip);
             }
