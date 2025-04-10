@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Pusher from "pusher-js";
 import {
     Badge,
     BlockStack,
@@ -22,6 +21,7 @@ import {
     Tooltip
 } from "@shopify/polaris";
 import { XCircleIcon } from "@shopify/polaris-icons";
+import ProgressNotifier from "../components/common/progress-notifier";
 import { getDashboardData, getHistoryCountData, getTotalProductCount, syncProducts } from "../utils/api";
 import { formatNumberWithCommas } from "../utils/formats";
 import { goToChargesPage, useEffectWithoutInitialState } from "../utils/hooks";
@@ -92,37 +92,6 @@ export default function HomePage() {
     }, [ info.syncData ]);
 
     useEffectWithoutInitialState(() => {
-        const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
-        const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
-        const pusherHost = import.meta.env.VITE_PUSHER_HOST;
-        const pusherPort = import.meta.env.VITE_PUSHER_PORT;
-        const pusherUseTLS = import.meta.env.VITE_PUSHER_USE_TLS === 'true';
-
-        const pusher = new Pusher(pusherKey, {
-            cluster: pusherCluster,
-            wsHost: pusherHost,
-            wsPort: pusherPort,
-            wssPort: pusherPort,
-            forceTLS: pusherUseTLS,
-            enabledTransports: ['ws', 'wss']
-        });
-
-        const channelName = 'gorocket-shop-' + info.shopId;
-        const channel = pusher.subscribe(channelName);
-
-        channel.bind('product-sync', function (d) {
-            updateCustomAction(d?.data?.progress || 0);
-        });
-
-        return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
-
-            clearInterval(customActionInterval.current);
-        };
-    }, [ info.shopId ]);
-
-    useEffectWithoutInitialState(() => {
         if (customAction.progress === 100) {
             setTimeout(() => {
                 resetCustomAction(true);
@@ -147,6 +116,10 @@ export default function HomePage() {
 
     useEffect(() => {
         initDashboard();
+
+        return () => {
+            if (customActionInterval.current) clearInterval(customActionInterval.current);
+        };
     }, []);
 
     return (
@@ -158,6 +131,7 @@ export default function HomePage() {
                 { content: 'History', onAction: () => navigate('/history') },
             ]}
         >
+            <ProgressNotifier syncCallback={(d) => updateCustomAction(d?.progress || 0)}/>
             <BlockStack gap="200">
                 {!introCard.dismissed &&
                     <CalloutCard

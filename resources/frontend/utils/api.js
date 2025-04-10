@@ -1,6 +1,19 @@
 import fetchData from "./fetch";
 import { showError } from "./toasts";
 
+export async function getSyncStatusData() {
+    try {
+        const { shop_id, syncing, progress, bulking } = await fetchData({
+            method: 'GET',
+            url: '/api/sync-status/'
+        });
+        return { shopId: shop_id, syncing, progress, bulking };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
 export async function getDashboardData() {
     try {
         const { shop_id, plan, total_product_count, sync_data } = await fetchData({
@@ -104,7 +117,7 @@ export async function syncProducts() {
             showError('Connect request limit exceeded. (Once every 30 minutes)');
         } else {
             showError('An error occurred while connecting products. Please try again.');
-            console.log(e?.response);
+            console.log(`${e?.status} Error (${e.method} ${e.url})`, e?.response);
         }
         throw e;
     }
