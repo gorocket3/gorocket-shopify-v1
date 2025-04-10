@@ -64,7 +64,6 @@ class ProductUpdateListener implements ShouldQueue
             }
 
             $processedProducts = 0;
-            $progress = 0;
             $batch = [];
             $nextPage = null;
 
@@ -150,7 +149,9 @@ class ProductUpdateListener implements ShouldQueue
                     ];
 
                     $batch[] = $data;
-                    $progress = intval((++$processedProducts / $totalProducts) * 100);
+                    $processedProducts++;
+                    $progress = min(100, round(($processedProducts / $totalProducts) * 100));
+
                     if (count($batch) >= $chunk) {
                         ProductUpdateJob::dispatch($batch, $shopId, $progress);
                         $batch = [];
@@ -160,7 +161,7 @@ class ProductUpdateListener implements ShouldQueue
             } while ($nextPage);
 
             if (!empty($batch)) {
-                ProductUpdateJob::dispatch($batch, $shopId, $progress);
+                ProductUpdateJob::dispatch($batch, $shopId, 100);
             }
             Log::info("[LISTENER][PRODUCT] Queue success - {$shopId}");
 
