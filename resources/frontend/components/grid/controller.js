@@ -174,7 +174,7 @@ export async function saveProducts(rows, limitCallback, errorCallback = null) {
     try {
         await fetchData({ method: 'POST', url: '/api/products/edit', body: { "products": rows } });
     } catch (e) {
-        if (e?.status === '429') {
+        if (e?.status === 429) {
             shopify.toast.show('Update request limit exceeded.', {
                 isError: true,
                 action: 'Upgrade Plan',
