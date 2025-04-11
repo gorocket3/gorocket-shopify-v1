@@ -21,7 +21,7 @@ php artisan view:cache
 php artisan event:cache
 
 echo "🔁 Restarting queue workers..."
-php artisan horizon:terminate
+php artisan horizon:terminate && sudo supervisorctl restart horizon
 
 echo "🎉 Deploy complete!"
 
