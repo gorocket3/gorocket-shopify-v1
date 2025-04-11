@@ -345,7 +345,7 @@ export default function HomePage() {
                                     <p>
                                         With the <PolarisLink monochrome onClick={() => goToChargesPage(nextPlan?.id || null)}>
                                         {nextPlan?.name || ''} Plan
-                                        </PolarisLink>, you can perform up to {formatNumberWithCommas(nextPlan?.limits?.edit_limit || 0)} bulk edits per day.
+                                        </PolarisLink>, you can perform up to {formatNumberWithCommas(nextPlan?.limits?.edit_limit || 0)} bulk edits and generate up to {formatNumberWithCommas(nextPlan?.limits?.ai_limit || 0)} AI SEO per day.
                                     </p>
                                 );
                             })()}
