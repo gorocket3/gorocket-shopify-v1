@@ -18,3 +18,5 @@ Route::middleware(['verify.shopify', 'verify.scopes', 'billable'])->group(functi
     Route::view('plan', 'index')->name('plan');
     Route::view('history', 'index')->name('history');
 });
+
+Route::view('privacy-policy', 'privacy')->name('privacy.policy');
