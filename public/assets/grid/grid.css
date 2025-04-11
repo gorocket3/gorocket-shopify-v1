@@ -137,6 +137,10 @@
     vertical-align: middle;
 }
 
+.ag-filter-condition-operator-or {
+    display:none;
+}
+
 /*.card {margin-bottom: 0px;}*/
 /*#content .innter_wrap {padding: calc(70px + 20px) calc(40px / 2) 20px calc(40px / 2);}*/
 /*#search-area .card-header {padding: 1.25rem 1.25rem 0.5rem 1.25rem;}*/

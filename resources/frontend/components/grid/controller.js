@@ -7,6 +7,7 @@ import COLUMN_PARAMS from "./cols.json";
 
 let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback, setSelectableCount;
 let editedCellCount = 0;
+let filterLoading = false;
 
 export async function initGrid({ plan_selected_limit, default_per_page, show_changes, start_grid, set_selectable_count }) {
     pApp = new App('', { gridId: "#div-gd" });
@@ -40,8 +41,8 @@ export function updatePerPage(perPage) {
 export function searchProducts() {
     let params = getFilterParams(filterData, { per_page: defaultData?.per_page || 25 });
 
-    gx.gridOptions.api.hidePopupMenu();
-    gx.Request('/api/products', params, 1, function (v) {
+    if (gx) gx.gridOptions.api.hidePopupMenu();
+    if (gx) gx.Request('/api/products', params, 1, function (v) {
         const data = v.data.reduce((a, c, i) => {
             if (c.variants.length < 1) {
                 return a.concat({
@@ -394,8 +395,16 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
             }
         },
         onFilterChanged: (e) => {
-            filterData = e.api.getFilterModel();
+            if (filterLoading) {
+                filterLoading = false;
+                return;
+            }
+
+            filterData = setCustomFilter(e.api.getFilterModel());
             searchProducts();
+
+            filterLoading = true;
+            e.api.setFilterModel(filterData);
         },
         onGridReady: (e) => {
             startGrid();
@@ -473,6 +482,10 @@ function getFilterParams(data, defaultData) {
             if (col.type === 'contains') {
                 params.push(paramsKey + '=' + col.filter);
             }
+            if (col.operator === 'AND') {
+                if (col.condition1) params.push(paramsKey + '=' + col.condition1.filter);
+                if (col.condition2) params.push(paramsKey + '=' + col.condition2.filter);
+            }
         }
     }
     return params.join('&');
@@ -502,4 +515,34 @@ async function handleTagPicker(tags, value, title) {
     });
 
     return await picker.selected;
+}
+
+function setCustomFilter(filters) {
+    Object.keys(filters).forEach((key) => {
+
+        if (key === 'product_tags') {
+            const ft = filters[key];
+            if (!!ft.filter) {
+                const arr = ft.filter.split(',').map(f => f.trim());
+                if (arr.length > 1) {
+                    filters[key] = {
+                        filterType: "text",
+                        operator: "AND",
+                        condition1: {
+                            filterType: "text",
+                            type: "equals",
+                            filter: arr[0]
+                        },
+                        condition2: {
+                            filterType: "text",
+                            type: "equals",
+                            filter: arr[1]
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return filters;
 }

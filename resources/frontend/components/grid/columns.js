@@ -312,7 +312,10 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Tags",
             width: 200,
             filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
+            filterParams: getDefaultFilterParams('text', {
+                suppressAndOrCondition: false,
+                filterOptions: [ "equals" ]
+            }),
             cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('product_tags'),
             cellRenderer: (p) => p.data.position > 1 ? '' : (!p.value ? '-' : `
