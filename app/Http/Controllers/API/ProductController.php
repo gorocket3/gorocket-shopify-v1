@@ -32,7 +32,7 @@ class ProductController extends Controller
             'product_type' => 'nullable',
             'vendor' => 'nullable',
             'status' => 'nullable',
-            'tags' => 'nullable|string',
+            'tags' => 'nullable',
             'handle' => 'nullable|string|max:255',
             'option_name' => 'nullable|string|max:255',
             'price_min' => 'nullable|numeric',
@@ -132,9 +132,10 @@ class ProductController extends Controller
             })
             ->when($filters['tags'] ?? null, function ($q, $tags) {
                 $tagsArray = is_array($tags) ? $tags : explode(',', $tags);
+                $tagsArray = array_map(fn($tag) => trim(strtolower($tag)), $tagsArray);
                 $q->where(function ($subQuery) use ($tagsArray) {
                     foreach ($tagsArray as $tag) {
-                        $subQuery->orWhere('tags', $tag);
+                        $subQuery->orWhereRaw('FIND_IN_SET(?, LOWER(REPLACE(tags, ", ", ",")))', [$tag]);
                     }
                 });
             })
