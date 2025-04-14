@@ -154,7 +154,7 @@ export default function HistoryPage() {
                                 hasNext: info.page < info.lastPage,
                                 onPrevious: () => setInfo((info) => ({ ...info, page: Math.max(info.page - 1, 1), loading: true })),
                                 onNext: () => setInfo((info) => ({ ...info, page: Math.min(info.page + 1, info.lastPage), loading: true })),
-                                label: `${info.from}-${info.to} of ${formatNumberWithCommas(info.total)} history`,
+                                label: info.total < 1 ? '0 history' : `${info.from || 0}-${info.to || 0} of ${formatNumberWithCommas(info.total)} history`,
                             }}
                             renderItem={(item) => {
                                 return (
