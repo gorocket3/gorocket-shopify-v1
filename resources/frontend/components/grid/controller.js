@@ -482,9 +482,11 @@ function getFilterParams(data, defaultData) {
             if (col.type === 'contains') {
                 params.push(paramsKey + '=' + col.filter);
             }
-            if (col.operator === 'AND') {
-                if (col.condition1) params.push(paramsKey + '=' + col.condition1.filter);
-                if (col.condition2) params.push(paramsKey + '=' + col.condition2.filter);
+            if (col.operator === 'OR') {
+                if (col.condition1) {
+                    const val = [col.condition1.filter, col.condition2?.filter].filter(Boolean).join(',');
+                    params.push(paramsKey + '=' + val);
+                }
             }
         }
     }
@@ -527,15 +529,15 @@ function setCustomFilter(filters) {
                 if (arr.length > 1) {
                     filters[key] = {
                         filterType: "text",
-                        operator: "AND",
+                        operator: "OR",
                         condition1: {
                             filterType: "text",
-                            type: "equals",
+                            type: "contains",
                             filter: arr[0]
                         },
                         condition2: {
                             filterType: "text",
-                            type: "equals",
+                            type: "contains",
                             filter: arr[1]
                         }
                     }

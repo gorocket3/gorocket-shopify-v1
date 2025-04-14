@@ -314,7 +314,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             filter: "agTextColumnFilter",
             filterParams: getDefaultFilterParams('text', {
                 suppressAndOrCondition: false,
-                filterOptions: [ "equals" ]
+                defaultJoinOperator: "OR"
             }),
             cellStyle: cellMergeStyling,
             cellClassRules: changedCellClassRules('product_tags'),
