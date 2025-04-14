@@ -15,6 +15,8 @@ class PlansTableSeeder extends Seeder
      */
     public function run(): void
     {
+        $isTestMode = env('APP_ENV') !== 'production';
+
         DB::table('plans')->insert([
             [
                 'type' => 'RECURRING',
@@ -24,7 +26,7 @@ class PlansTableSeeder extends Seeder
                 'capped_amount' => '0.00',
                 'terms' => 'This is a free plan with no cost.',
                 'trial_days' => 0,
-                'test' => 1,
+                'test' => $isTestMode ? 1 : 0,
                 'on_install' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
@@ -37,7 +39,7 @@ class PlansTableSeeder extends Seeder
                 'capped_amount' => '0.00',
                 'terms' => 'Upgrade for faster editing and more AI SEO power.',
                 'trial_days' => 0,
-                'test' => 1,
+                'test' => $isTestMode ? 1 : 0,
                 'on_install' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
@@ -50,7 +52,7 @@ class PlansTableSeeder extends Seeder
                 'capped_amount' => '0.00',
                 'terms' => 'Access generous usage limits built for growing businesses.',
                 'trial_days' => 0,
-                'test' => 1,
+                'test' => $isTestMode ? 1 : 0,
                 'on_install' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
