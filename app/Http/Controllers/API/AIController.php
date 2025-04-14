@@ -140,7 +140,7 @@ class AIController extends Controller
             'title' => $title,
             'description' => $description,
             'raw_prompt' => [
-                'model' => env('OPENAI_API_MODEL'),
+                'model' => config('services.openai.model'),
                 'title' => $cleanTitle,
                 'product_type' => $productType,
                 'tags' => $limitedTags,
