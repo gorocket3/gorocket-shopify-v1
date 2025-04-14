@@ -59,7 +59,8 @@ class ProductController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
             'sort_dir' => 'nullable|in:asc,desc',
-            'grade' => 'nullable|string|in:excellent,medium,poor,bad'
+            'grade' => 'nullable|string|in:excellent,medium,poor,bad',
+            'has_image' => 'nullable|boolean'
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
@@ -186,6 +187,13 @@ class ProductController extends Controller
                     $q->whereNull('ai_scores.product_id');
                 } else {
                     $q->where('ai_scores.grade', $grade);
+                }
+            })
+            ->when(isset($filters['has_image']), function ($q) use ($filters) {
+                if ($filters['has_image']) {
+                    $q->whereNotNull('products.featured_image');
+                } else {
+                    $q->whereNull('products.featured_image');
                 }
             });
     }
