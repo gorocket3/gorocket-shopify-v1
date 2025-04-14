@@ -540,9 +540,9 @@ export default function ProductsPage() {
                 <TitleBar title={'The Snowboard' + '\'s change history'}></TitleBar>
                 <Tabs tabs={[
                     { id: 'all-history-filter-1', content: 'All' },
-                    { id: 'shopify-history-filter-1', content: 'Shopify Changes' },
-                    { id: 'gorocket-history-filter-1', content: 'Gorocket Changes' },
-                ]} selected={historyInfo.tabId} onSelect={(num) => setHistoryInfo((i => ({ ...i, tabId: num, loading: true })))}/>
+                    { id: 'shopify-history-filter-1', content: 'In Shopify' },
+                    { id: 'gorocket-history-filter-1', content: 'Via App' },
+                ]} selected={historyInfo.tabId} onSelect={(num) => setHistoryInfo((i => ({ ...i, page: 1, tabId: num, loading: true })))}/>
                 {historyInfo.firstLoading ? (
                     <Card padding="600">
                         <BlockStack gap="800">
@@ -629,7 +629,7 @@ export default function ProductsPage() {
                                                                             </InlineStack>
                                                                             <InlineStack gap="200">
                                                                                 <Badge progress="complete" tone={log.updated_by === 'gorocket' ? 'magic' : 'success'}>
-                                                                                    {log.updated_by}
+                                                                                    {{ shopify: 'in shopify', gorocket: 'via app' }[log.updated_by]}
                                                                                 </Badge>
                                                                                 <Text as="p" variant="bodySm" tone="subdued">Changed
                                                                                     at {formatISOStringToReadableDate(log.updated_at, {

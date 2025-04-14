@@ -101,9 +101,9 @@ export default function HistoryPage() {
                 <Card padding="100">
                     <Tabs tabs={[
                         { id: 'all-history-filter-1', content: 'All' },
-                        { id: 'shopify-history-filter-1', content: 'Shopify Changes' },
-                        { id: 'gorocket-history-filter-1', content: 'Gorocket Changes' },
-                    ]} selected={info.tabId} onSelect={(num) => setInfo((i => ({ ...i, tabId: num, loading: true, firstLoading: true })))}/>
+                        { id: 'shopify-history-filter-1', content: 'In Shopify' },
+                        { id: 'gorocket-history-filter-1', content: 'Via App' },
+                    ]} selected={info.tabId} onSelect={(num) => setInfo((i => ({ ...i, page: 1, tabId: num, loading: true, firstLoading: true })))}/>
                 </Card>
             </Box>
             {info.firstLoading ? (
@@ -224,7 +224,7 @@ export default function HistoryPage() {
                                                                             )}
                                                                             <InlineStack gap="200">
                                                                                 <Badge progress="complete" tone={log.updated_by === 'gorocket' ? 'magic' : 'success'}>
-                                                                                    {log.updated_by}
+                                                                                    {{ shopify: 'in shopify', gorocket: 'via app' }[log.updated_by]}
                                                                                 </Badge>
                                                                                 <Text as="p" variant="bodySm" tone="subdued">
                                                                                     {log.event === 'product_delete' ? 'Removed ' : 'Changed '}
