@@ -57,7 +57,8 @@ class ProductController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
-            'sort_dir' => 'nullable|in:asc,desc'
+            'sort_dir' => 'nullable|in:asc,desc',
+            'grade' => 'nullable|string|in:excellent,medium,poor'
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
@@ -80,7 +81,8 @@ class ProductController extends Controller
         $query = Product::query()
             ->select('products.*')
             ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
-            ->with(['variants.image', 'images', 'options'])
+            ->leftJoin('ai_scores', 'products.id', '=', 'ai_scores.product_id')
+            ->with(['variants.image', 'images', 'options', 'aiScore'])
             ->where('products.user_id', $shop->id)
             ->distinct('products.id');
 
@@ -172,7 +174,8 @@ class ProductController extends Controller
             })
             ->when($filters['category'] ?? null, fn($q, $category) => $q->where('category', 'LIKE', "%{$category}%"))
             ->when($filters['seo_title'] ?? null, fn($q, $seoTitle) => $q->where('seo_title', 'LIKE', "%{$seoTitle}%"))
-            ->when($filters['seo_description'] ?? null, fn($q, $seoDescription) => $q->where('seo_description', 'LIKE', "%{$seoDescription}%"));
+            ->when($filters['seo_description'] ?? null, fn($q, $seoDescription) => $q->where('seo_description', 'LIKE', "%{$seoDescription}%"))
+            ->when($filters['grade'] ?? null, fn($q, $grade) => $q->where('grade', $grade));
     }
 
     /**

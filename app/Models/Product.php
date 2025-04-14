@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\hasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @method static updateOrCreate(array $array, array $array1)
@@ -102,5 +103,13 @@ class Product extends BaseModel
     public function logs(): hasMany
     {
         return $this->hasMany(ChangeLog::class, 'product_id', 'product_id');
+    }
+
+    /**
+     * Get the AI score associated with the product.
+     */
+    public function aiScore(): hasOne
+    {
+        return $this->hasOne(AIScore::class, 'product_id', 'product_id');
     }
 }
