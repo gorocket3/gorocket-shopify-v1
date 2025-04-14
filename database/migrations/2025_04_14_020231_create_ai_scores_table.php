@@ -22,7 +22,9 @@ return new class extends Migration
             $table->timestamp('checked_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['user_id', 'product_id']);
+            $table->unique(['product_id', 'user_id']);
+            $table->index('grade');
+
             $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
         });
     }

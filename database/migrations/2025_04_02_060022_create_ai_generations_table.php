@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('raw_response')->nullable();
             $table->timestamps();
 
-            $table->index(['user_id', 'created_at'], 'idx_user_created');
+            $table->index(['user_id', 'created_at']);
 
             $table->index('product_id');
         });
