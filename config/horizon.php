@@ -185,7 +185,7 @@ return [
             'queue' => ['job'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'queue-length',
-            'maxProcesses' => 10,
+            'maxProcesses' => 8,
             'minProcesses' => 5,
             'maxTime' => 0,
             'maxJobs' => 500,
@@ -199,7 +199,7 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 8,
                 'minProcesses' => 5,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
