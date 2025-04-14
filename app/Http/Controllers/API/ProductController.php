@@ -33,6 +33,7 @@ class ProductController extends Controller
             'vendor' => 'nullable',
             'status' => 'nullable',
             'tags' => 'nullable',
+            'tag_match' => 'nullable|string|in:any,all',
             'handle' => 'nullable|string|max:255',
             'option_name' => 'nullable|string|max:255',
             'price_min' => 'nullable|numeric',
@@ -58,7 +59,7 @@ class ProductController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
             'sort_dir' => 'nullable|in:asc,desc',
-            'grade' => 'nullable|string|in:excellent,medium,poor'
+            'grade' => 'nullable|string|in:excellent,medium,poor,bad'
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
@@ -132,12 +133,17 @@ class ProductController extends Controller
                     $q->where('status', $status);
                 }
             })
-            ->when($filters['tags'] ?? null, function ($q, $tags) {
+            ->when($filters['tags'] ?? null, function ($q, $tags) use ($filters) {
                 $tagsArray = is_array($tags) ? $tags : explode(',', $tags);
                 $tagsArray = array_map(fn($tag) => trim(strtolower($tag)), $tagsArray);
-                $q->where(function ($subQuery) use ($tagsArray) {
+                $q->where(function ($subQuery) use ($tagsArray, $filters) {
                     foreach ($tagsArray as $tag) {
-                        $subQuery->orWhereRaw('FIND_IN_SET(?, LOWER(REPLACE(tags, ", ", ",")))', [$tag]);
+                        $condition = 'FIND_IN_SET(?, LOWER(REPLACE(tags, ", ", ",")))';
+                        if (($filters['tag_match'] ?? 'any') === 'all') {
+                            $subQuery->whereRaw($condition, [$tag]);
+                        } else {
+                            $subQuery->orWhereRaw($condition, [$tag]);
+                        }
                     }
                 });
             })
@@ -175,7 +181,13 @@ class ProductController extends Controller
             ->when($filters['category'] ?? null, fn($q, $category) => $q->where('category', 'LIKE', "%{$category}%"))
             ->when($filters['seo_title'] ?? null, fn($q, $seoTitle) => $q->where('seo_title', 'LIKE', "%{$seoTitle}%"))
             ->when($filters['seo_description'] ?? null, fn($q, $seoDescription) => $q->where('seo_description', 'LIKE', "%{$seoDescription}%"))
-            ->when($filters['grade'] ?? null, fn($q, $grade) => $q->where('grade', $grade));
+            ->when($filters['grade'] ?? null, function ($q, $grade) {
+                if ($grade === 'bad') {
+                    $q->whereNull('ai_scores.product_id');
+                } else {
+                    $q->where('ai_scores.grade', $grade);
+                }
+            });
     }
 
     /**
