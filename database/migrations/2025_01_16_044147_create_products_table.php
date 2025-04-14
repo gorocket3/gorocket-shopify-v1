@@ -31,9 +31,8 @@ return new class extends Migration {
             $table->text('tags')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
-
-            $table->unsignedBigInteger('user_id');
             $table->string('updated_by')->default('gorocket');
+            $table->unsignedBigInteger('user_id');
 
             $table->index('user_id');
             $table->index('created_at');
