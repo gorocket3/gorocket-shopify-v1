@@ -166,14 +166,17 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             headerName: "Image",
             pinned: "left",
             width: 60,
+            filter: true,
+            filterParams: getDefaultFilterParams('set', {values: ['true', 'false'], suppressSelectAll: true, suppressSorting: true, valueFormatter: (p) => p.value === 'true' ? 'Exists' : 'None'}),
+            valueGetter: (params) => !!params.data.product_img ? 'true' : 'false',
             cellStyle: cellMergeStyling,
             cellRenderer: (p) => {
                 if (p.data.position > 1) return '';
                 return `
                     <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
                         <a href="shopify://admin/products/${p.data.group_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
-                            ${!!p.value ? `
-                                <img alt="${p.data.product_name}" src="${p.value}">
+                            ${!!p.data.product_img ? `
+                                <img alt="${p.data.product_name}" src="${p.data.product_img}">
                             ` : `
                                 <span class="Polaris-Icon">
                                     <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
