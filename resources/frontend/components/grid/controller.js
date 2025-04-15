@@ -249,28 +249,31 @@ export async function connectProducts(errorCallback = null) {
 }
 
 export async function saveColumns(e) {
-    let column_datalist = gx.gridOptions.api.getColumnDefs();
-    let new_column_datalist = [];
+    const columnDefs = gx.gridOptions.api.getColumnDefs();
+    const newColumnList = [];
 
-    column_datalist.forEach((value) => {
-        let value_children = value['children'];
-        let newchildren = [];
+    columnDefs.forEach((col) => {
+        if (col.children && Array.isArray(col.children)) {
+            const children = col.children.map((child) => ({
+                field: child.field,
+                hide: child.hide,
+                pinned: child.pinned,
+                width: child.width
+            }));
 
-        if (value['children'] !== undefined) {
-            value_children.forEach((val) => {
-                newchildren.push({
-                    'field': val['field'], 'hide': val['hide'], 'pinned': val['pinned'], 'width': val['width']
-                });
+            newColumnList.push({
+                headerName: col.headerName || '',
+                children
+            });
+        } else {
+            newColumnList.push({
+                field: col.field,
+                hide: col.hide,
+                pinned: col.pinned,
+                width: col.width,
+                children: []
             });
         }
-
-        new_column_datalist.push({
-            'field': value['field'],
-            'hide': value['hide'],
-            'pinned': value['pinned'],
-            'width': value['width'],
-            'children': newchildren
-        });
     });
 
     try {
@@ -279,7 +282,7 @@ export async function saveColumns(e) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ "columns": new_column_datalist })
+            body: JSON.stringify({ columns: newColumnList })
         });
 
         if (!response.ok) {
@@ -287,9 +290,9 @@ export async function saveColumns(e) {
         }
 
         const res = await response.json();
-        shopify.toast.show('Column information has been save.');
+        shopify.toast.show('Column information has been saved.');
     } catch (error) {
-        console.error('Error fetching personal column:', error);
+        console.error('Error saving personal column:', error);
     }
 }
 

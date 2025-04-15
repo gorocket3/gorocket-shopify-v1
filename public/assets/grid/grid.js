@@ -925,102 +925,77 @@ HDGrid.prototype.setFocusedWorkingCell = function () {
     }
 }
 
-/**
- * Grid Header 개인설정 조회
- *
- * @param gridCallback // return grid object
- * @param gridDiv
- * @param default_columns
- * @param grid_number
- * @returns {Promise<*|*[]|boolean>}
- */
+// 컬럼 개인화
 async function getMyColumns(gridCallback, gridDiv, default_columns, grid_number = 1) {
-    // let setting_btn_id = gridDiv.id.replace('div-', '') + '-setting';
-    // new GridCustomSettingEditor(setting_btn_id, grid_number, gridCallback);
-
     try {
         const response = await fetch('/api/personal-column', {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const res = await response.json();
-        if (!!res.columns) {
-            let res_data = [];
-            let parse_data = null;
-            if (res.columns.length > 0) {
-                if (typeof res.columns === 'string') parse_data = JSON.parse(res.columns?.[0] || '');
-                else parse_data = res.columns?.[0] || [];
-                parse_data.forEach((value) => {
-                    default_columns.forEach((col) => {
-                        if (value['field'] === col['field']) {
-                            if (value['children'].length > 0) {
-                                let value_children = value['children'];
-                                let col_children = col['children'];
-                                let new_children = [];
+        if (!res.columns) return default_columns;
 
-                                if (value['hide'] === true) {
-                                    res_data.push(Object.assign(clone(col), { 'hide': true }));
-                                } else {
-                                    Object.keys(value_children).forEach((key) => {
-                                        if (value_children[key]['hide'] === true) {
-                                            new_children.push(Object.assign(col_children[key], { 'hide': true }));
-                                        } else if (value_children[key]['pinned'] === 'left' || value_children[key]['width'] !== null) {
-                                            let properties = {};
+        let stored = typeof res.columns === 'string'
+            ? JSON.parse(res.columns?.[0] || '')
+            : res.columns?.[0] || [];
 
-                                            if (value_children[key]['pinned'] === 'left' && value_children[key]['width'] === undefined) {
-                                                properties = { 'pinned': 'left' };
-                                            } else if (value_children[key]['pinned'] === null && value_children[key]['width'] !== undefined) {
-                                                properties = { 'width': value_children[key]['width'] };
-                                            } else if (value_children[key]['pinned'] !== null && value_children[key]['width'] !== undefined) {
-                                                properties = {
-                                                    'pinned': 'left',
-                                                    'width': value_children[key]['width']
-                                                };
-                                            }
+        const resultColumns = stored.map((savedCol) => {
+            if (!savedCol.field && Array.isArray(savedCol.children)) {
+                const children = savedCol.children
+                    .map(applyColumnSettings(default_columns))
+                    .filter(Boolean);
 
-                                            new_children.push(Object.assign(col_children[key], properties));
-                                        } else {
-                                            new_children.push(col_children[key]);
-                                        }
-                                    });
-
-                                    col['children'] = new_children;
-                                    res_data.push(col);
-                                }
-                            } else {
-                                if (value['hide'] === true) {
-                                    res_data.push(Object.assign(clone(col), { 'hide': true }));
-                                } else if (value['pinned'] === 'left' || value['width'] !== undefined) {
-                                    let copy_properties = {};
-
-                                    if (value['pinned'] === 'left' && value['width'] === undefined) {
-                                        copy_properties = { 'pinned': 'left' };
-                                    } else if (value['pinned'] === null && value['width'] !== undefined) {
-                                        copy_properties = { 'width': value['width'] };
-                                    } else if (value['pinned'] !== null && value['width'] !== undefined) {
-                                        copy_properties = { 'pinned': 'left', 'width': value['width'] };
-                                    }
-
-                                    res_data.push(Object.assign(clone(col), copy_properties));
-                                } else {
-                                    res_data.push(clone(col));
-                                }
-                            }
-                        }
-                    });
-                });
+                return {
+                    headerName: savedCol.headerName || '',
+                    children
+                };
             }
-            return res_data.length < 1 ? default_columns : res_data;
-        }
-        return false;
+
+            if (savedCol.field) {
+                const col = applyColumnSettings(default_columns)(savedCol);
+                return col || null;
+            }
+
+            return null;
+        }).filter(Boolean);
+
+        return resultColumns.length > 0 ? resultColumns : default_columns;
+
     } catch (error) {
         console.error('Error fetching personal column:', error);
+        return default_columns;
     }
 }
+
+// 공통 설정 적용 함수
+function applyColumnSettings(default_columns) {
+    return function (savedCol) {
+        const matched = findColumnByField(savedCol.field, default_columns);
+        if (!matched) return null;
+
+        return {
+            ...matched,
+            ...(savedCol.hide !== undefined && { hide: savedCol.hide }),
+            ...(savedCol.pinned && { pinned: savedCol.pinned }),
+            ...(savedCol.width !== undefined && { width: savedCol.width })
+        };
+    };
+}
+
+// field 기준 컬럼 찾기
+function findColumnByField(field, columns) {
+    for (const col of columns) {
+        if (col.field === field) return col;
+
+        if (Array.isArray(col.children)) {
+            for (const child of col.children) {
+                if (child.field === field) return child;
+            }
+        }
+    }
+    return null;
+}
+
