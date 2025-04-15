@@ -103,7 +103,7 @@ class AIController extends Controller
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => "Write an SEO-friendly title (≤70 chars) and meta description (≤160 chars) for a product. Use product name, tags, and description. Make it natural, persuasive, and optimized for Google search. No keyword stuffing."
+                    'content' => "Write an SEO-friendly title (MAX 70 characters!) and meta description (MAX 160 characters!) for a product. Use product name, tags, and description. Make it natural, persuasive, and optimized for Google search. No keyword stuffing."
                 ],
                 [
                     'role' => 'user',
