@@ -22,9 +22,9 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
 
     const seo_grade_values = {
         excellent: [ 'Excellent', 'Polaris-Badge--toneSuccess' ],
-        medium: [ 'Medium', 'Polaris-Badge--toneHighlight' ],
-        poor: [ 'Poor', 'Polaris-Badge--toneWarning' ],
-        bad: [ 'Bad', 'Polaris-Badge--toneCritical' ]
+        medium: [ 'Medium', 'Polaris-Badge--toneAttention' ],
+        poor: [ 'Poor', 'Polaris-Badge--toneCritical' ],
+        bad: [ 'Bad', 'Polaris-Badge--toneDefault' ]
     };
 
     const GRADE_STATUS = grade.reduce((acc, key) => {
