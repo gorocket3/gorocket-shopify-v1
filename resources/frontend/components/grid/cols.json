@@ -12,6 +12,7 @@
     "product_category": "category",
     "seo_title": "seo_title",
     "seo_description": "seo_description",
+    "seo_grade": "seo_grade",
     "price": "price",
     "compare_at_price": "compare_at_price",
     "inventory_management": "inventory_management",

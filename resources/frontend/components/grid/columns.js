@@ -3,7 +3,8 @@ import { formatISOStringToReadableDate } from "../../utils/formats";
 import GridContentEditor from "./editor";
 
 export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback, editedCellCallback) {
-    const { status = [], tags = [], types = [], vendor = [] } = data || {};
+    const grades = ['excellent', 'medium', 'poor', 'bad'];
+    const { status = [], tags = [], types = [], vendor = [], grade = grades } = data || {};
 
     const product_status_values = {
         active: [ 'Active', 'Polaris-Badge--toneSuccess' ],
@@ -15,6 +16,21 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         acc[key] = {
             label: product_status_values[key]?.[0] || '-',
             className: product_status_values[key]?.[1] || '',
+        }
+        return acc;
+    }, {});
+
+    const seo_grade_values = {
+        excellent: [ 'Excellent', 'Polaris-Badge--toneSuccess' ],
+        medium: [ 'Medium', 'Polaris-Badge--toneHighlight' ],
+        poor: [ 'Poor', 'Polaris-Badge--toneWarning' ],
+        bad: [ 'Bad', 'Polaris-Badge--toneCritical' ]
+    };
+
+    const GRADE_STATUS = grade.reduce((acc, key) => {
+        acc[key] = {
+            label: seo_grade_values[key]?.[0] || '-',
+            className: seo_grade_values[key]?.[1] || '',
         }
         return acc;
     }, {});
@@ -421,6 +437,20 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
             cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
             onCellValueChanged: (e) => changeCellState('seo_description', e),
             editable: (p) => p.data.position < 2,
+        },
+        {
+            field: "seo_grade",
+            headerName: "SEO Grade",
+            width: 80,
+            filter: true,
+            filterParams: getDefaultFilterParams('set', {
+                values: grade,
+                valueFormatter: (p) => GRADE_STATUS[p.value]?.label || '-',
+            }),
+            cellStyle: cellMergeStyling,
+            cellClass: 'hd-grid-code',
+            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${GRADE_STATUS[p.value]?.className || ''} Polaris-Text--bold">${GRADE_STATUS[p.value]?.label || ''}</span>`,
+            editable: false
         },
         {
             field: "product_published_at",

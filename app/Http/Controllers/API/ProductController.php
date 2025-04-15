@@ -54,12 +54,12 @@ class ProductController extends Controller
             'category' => 'nullable|string|max:255',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:255',
+            'seo_grade' => 'nullable',
             'search_type' => 'nullable|in:created_at,updated_at',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
             'sort_dir' => 'nullable|in:asc,desc',
-            'grade' => 'nullable|string|in:excellent,medium,poor,bad',
             'product_img' => 'nullable|boolean'
         ]);
 
@@ -83,7 +83,7 @@ class ProductController extends Controller
         $query = Product::query()
             ->select('products.*')
             ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
-            ->leftJoin('ai_scores', 'products.id', '=', 'ai_scores.product_id')
+            ->leftJoin('ai_scores', 'products.product_id', '=', 'ai_scores.product_id')
             ->with(['variants.image', 'images', 'options', 'aiScore'])
             ->where('products.user_id', $shop->id)
             ->distinct('products.id');
@@ -182,12 +182,19 @@ class ProductController extends Controller
             ->when($filters['category'] ?? null, fn($q, $category) => $q->where('category', 'LIKE', "%{$category}%"))
             ->when($filters['seo_title'] ?? null, fn($q, $seoTitle) => $q->where('seo_title', 'LIKE', "%{$seoTitle}%"))
             ->when($filters['seo_description'] ?? null, fn($q, $seoDescription) => $q->where('seo_description', 'LIKE', "%{$seoDescription}%"))
-            ->when($filters['grade'] ?? null, function ($q, $grade) {
-                if ($grade === 'bad') {
-                    $q->whereNull('ai_scores.product_id');
-                } else {
-                    $q->where('ai_scores.grade', $grade);
-                }
+            ->when($filters['seo_grade'] ?? null, function ($q, $grade) {
+                $grades = is_array($grade) ? $grade : [$grade];
+
+                $q->where(function ($query) use ($grades) {
+                    if (in_array('bad', $grades)) {
+                        $query->whereNull('ai_scores.product_id');
+                    }
+
+                    $validGrades = array_filter($grades, fn($g) => $g !== 'bad');
+                    if (!empty($validGrades)) {
+                        $query->orWhereIn('ai_scores.grade', $validGrades);
+                    }
+                });
             })
             ->when(isset($filters['product_img']), function ($q) use ($filters) {
                 if ($filters['product_img']) {

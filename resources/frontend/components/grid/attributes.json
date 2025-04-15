@@ -11,6 +11,7 @@
     "handle": "URL Handle",
     "seo_title": "SEO Title",
     "seo_description": "SEO Description",
+    "seo_grade": "SEO Grade",
     "price": "Price",
     "inventory_quantity": "Inventory Quantity",
     "inventory_policy": "Inventory Policy",
