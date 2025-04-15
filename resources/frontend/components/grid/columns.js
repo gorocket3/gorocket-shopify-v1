@@ -155,40 +155,43 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         { field: "weight_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
         { field: "weight_unit_changed", hide: true, onCellValueChanged: onCellValueChangedForEditedField },
         {
-            field: "chk",
-            headerName: '',
-            pinned: "left",
-            checkboxSelection: (p) => p.data.position < 2,
-            headerCheckboxSelection: true,
-            width: 24,
-            sort: false,
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-        },
-        // {
-        //     field: "group_id",
-        //     headerName: "Product ID",
-        //     width: 120,
-        //     filter: 'agTextColumnFilter',
-        //     filterParams: {
-        //         closeOnApply: true,
-        //     },
-        //     cellStyle: cellMergeStyling,
-        //     cellClass: 'hd-grid-code',
-        //     cellRenderer: (p) => p.data.position > 1 ? '' : `<a href="shopify://admin/products/${p.value}" class="link">${p.value}</a>`,
-        // },
-        {
-            field: "product_img",
-            headerName: "Image",
-            pinned: "left",
-            width: 60,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', {values: ['true', 'false'], suppressSelectAll: true, suppressSorting: true, valueFormatter: (p) => p.value === 'true' ? 'Exists' : 'None'}),
-            valueGetter: (params) => !!params.data.product_img ? 'true' : 'false',
-            cellStyle: cellMergeStyling,
-            cellRenderer: (p) => {
-                if (p.data.position > 1) return '';
-                return `
+            headerName: 'Pinned',
+            children: [
+                {
+                    field: "chk",
+                    headerName: '',
+                    pinned: "left",
+                    checkboxSelection: (p) => p.data.position < 2,
+                    headerCheckboxSelection: true,
+                    width: 24,
+                    sort: false,
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                },
+                // {
+                //     field: "group_id",
+                //     headerName: "Product ID",
+                //     width: 120,
+                //     filter: 'agTextColumnFilter',
+                //     filterParams: {
+                //         closeOnApply: true,
+                //     },
+                //     cellStyle: cellMergeStyling,
+                //     cellClass: 'hd-grid-code',
+                //     cellRenderer: (p) => p.data.position > 1 ? '' : `<a href="shopify://admin/products/${p.value}" class="link">${p.value}</a>`,
+                // },
+                {
+                    field: "product_img",
+                    headerName: "Image",
+                    pinned: "left",
+                    width: 60,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', {values: ['true', 'false'], suppressSelectAll: true, suppressSorting: true, valueFormatter: (p) => p.value === 'true' ? 'Exists' : 'None'}),
+                    valueGetter: (params) => !!params.data.product_img ? 'true' : 'false',
+                    cellStyle: cellMergeStyling,
+                    cellRenderer: (p) => {
+                        if (p.data.position > 1) return '';
+                        return `
                     <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
                         <a href="shopify://admin/products/${p.data.group_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
                             ${!!p.data.product_img ? `
@@ -205,17 +208,23 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                         </a>
                     </div>
                 `;
-            },
+                    },
+                }
+
+            ]
         },
         {
-            field: "store_link",
-            headerName: "Store",
-            width: 40,
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => {
-                if (p.data.position > 1) return '';
-                return `
+            headerName: "Product Details",
+            children: [
+                {
+                    field: "store_link",
+                    headerName: "Store",
+                    width: 40,
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) => {
+                        if (p.data.position > 1) return '';
+                        return `
                     <div class="inline-block relative top-1.5 cursor-pointer">
                         <span class="Polaris-Icon Polaris-Icon--toneSubdued Polaris-hover">
                             <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
@@ -226,19 +235,19 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                         </span>
                     </div>
                 `;
-            },
-            onCellClicked: (p) => p.data.position > 1 ? null : onlineStoreLinkCallback(p.data.product_id),
-            tooltipValueGetter: (p) => ' View on Online Store. ',
-        },
-        {
-            field: "change_log",
-            headerName: "Changes",
-            width: 70,
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => {
-                if (p.data.position > 1) return '';
-                return `
+                    },
+                    onCellClicked: (p) => p.data.position > 1 ? null : onlineStoreLinkCallback(p.data.product_id),
+                    tooltipValueGetter: (p) => ' View on Online Store. ',
+                },
+                {
+                    field: "change_log",
+                    headerName: "Changes",
+                    width: 70,
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) => {
+                        if (p.data.position > 1) return '';
+                        return `
                    <div class="inline-block relative top-1.5 cursor-pointer">
                         <span class="Polaris-Icon Polaris-Icon--toneSubdued Polaris-hover Polaris-Icon--toneSuccess">
                             <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
@@ -249,248 +258,261 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                         </span>
                     </div>
                 `;
-            },
-            onCellClicked: (p) => p.data.position > 1 ? null : showChangesModal(p.data),
-            tooltipValueGetter: (p) => ' View on Product\'s Change History. ',
-        },
-        {
-            field: "product_status",
-            headerName: "Status",
-            width: 80,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', {
-                values: status,
-                valueFormatter: (p) => PRODUCT_STATUS[p.value]?.label || '-',
-            }),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-            cellClassRules: changedCellClassRules('product_status'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.className || ''} Polaris-Text--bold">${PRODUCT_STATUS[p.value]?.label || ''}</span>`,
-            onCellValueChanged: (e) => changeCellState('product_status', e),
-            editable: (p) => p.data.position < 2,
-            cellEditor: GridFieldEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridFieldEditor,
-                values: Object.entries(PRODUCT_STATUS).map(([ key, value ]) => ({ id: key, ...value })),
-                width: "80px",
-            },
-        },
-        {
-            field: "product_name",
-            headerName: "Product Name",
-            width: 200,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('product_name'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: (e) => changeCellState('product_name', e),
-            editable: (p) => p.data.position < 2,
-        },
-        {
-            field: "collections",
-            headerName: "Collection",
-            width: 120,
-            filter: true,
-            filterParams: getDefaultFilterParams('text'),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-left',
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-        },
-        {
-            field: "product_type",
-            headerName: "Product Type",
-            width: 120,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', { values: types }),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('product_type'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: (e) => changeCellState('product_type', e),
-            editable: (p) => p.data.position < 2,
-        },
-        {
-            // 카테고리 리스트 조회 후 선택하는 방식으로 변경 예정
-            field: "product_category",
-            headerName: "Category",
-            width: 120,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-left',
-            // cellClassRules: changedCellClassRules('product_category'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            // onCellValueChanged: (e) => changeCellState('product_category', e),
-            // editable: (p) => p.data.position < 2,
-        },
-        {
-            field: "product_tags",
-            headerName: "Tags",
-            width: 200,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text', {
-                suppressAndOrCondition: false,
-                defaultJoinOperator: "OR"
-            }),
-            cellStyle: cellMergeStyling,
-            cellClassRules: changedCellClassRules('product_tags'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : (!p.value ? '-' : `
+                    },
+                    onCellClicked: (p) => p.data.position > 1 ? null : showChangesModal(p.data),
+                    tooltipValueGetter: (p) => ' View on Product\'s Change History. ',
+                },
+                {
+                    field: "collections",
+                    headerName: "Collection",
+                    width: 120,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('text'),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-left',
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                },
+                {
+                    // 카테고리 리스트 조회 후 선택하는 방식으로 변경 예정
+                    field: "product_category",
+                    headerName: "Category",
+                    width: 120,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-left',
+                    // cellClassRules: changedCellClassRules('product_category'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    // onCellValueChanged: (e) => changeCellState('product_category', e),
+                    // editable: (p) => p.data.position < 2,
+                },
+                {
+                    field: "product_status",
+                    headerName: "Status",
+                    width: 80,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', {
+                        values: status,
+                        valueFormatter: (p) => PRODUCT_STATUS[p.value]?.label || '-',
+                    }),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    cellClassRules: changedCellClassRules('product_status'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${PRODUCT_STATUS[p.value]?.className || ''} Polaris-Text--bold">${PRODUCT_STATUS[p.value]?.label || ''}</span>`,
+                    onCellValueChanged: (e) => changeCellState('product_status', e),
+                    editable: (p) => p.data.position < 2,
+                    cellEditor: GridFieldEditor,
+                    cellEditorPopup: true,
+                    cellEditorParams: {
+                        cellEditor: GridFieldEditor,
+                        values: Object.entries(PRODUCT_STATUS).map(([ key, value ]) => ({ id: key, ...value })),
+                        width: "80px",
+                    },
+                },
+                {
+                    field: "product_tags",
+                    headerName: "Tags",
+                    width: 200,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text', {
+                        suppressAndOrCondition: false,
+                        defaultJoinOperator: "OR"
+                    }),
+                    cellStyle: cellMergeStyling,
+                    cellClassRules: changedCellClassRules('product_tags'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : (!p.value ? '-' : `
                 <div class="flex flex-wrap align-items-center gap-1 py-1">
                     ${p.value.split(', ').map((tag) => `<span class="grid-badge Polaris-Badge--toneInfo" style="display:inline-block;line-height:normal;">${tag || ''}</span>`).join('')}
                 </div>
             `),
-            onCellValueChanged: (e) => changeCellState('product_tags', e),
-            editable: (p) => p.data.position < 2,
-            // cellEditor: GridFieldMultipleEditor,
-            // cellEditorPopup: true,
-            // cellEditorParams: {
-            //     cellEditor: GridFieldMultipleEditor,
-            //     values: tags.map((tag) => ({ id: tag, label: tag })),
-            //     width: "120px",
-            // },
+                    onCellValueChanged: (e) => changeCellState('product_tags', e),
+                    editable: (p) => p.data.position < 2,
+                    // cellEditor: GridFieldMultipleEditor,
+                    // cellEditorPopup: true,
+                    // cellEditorParams: {
+                    //     cellEditor: GridFieldMultipleEditor,
+                    //     values: tags.map((tag) => ({ id: tag, label: tag })),
+                    //     width: "120px",
+                    // },
+                },
+                {
+                    field: "product_name",
+                    headerName: "Product Name",
+                    width: 200,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('product_name'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    onCellValueChanged: (e) => changeCellState('product_name', e),
+                    editable: (p) => p.data.position < 2,
+                },
+                {
+                    field: "product_body",
+                    headerName: "Product Body HTML",
+                    width: 300,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
+                    cellClassRules: changedCellClassRules('product_body'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    onCellValueChanged: (e) => changeCellState('product_body', e),
+                    editable: (p) => p.data.position < 2,
+                    cellEditor: GridContentEditor,
+                    cellEditorPopup: true,
+                    cellEditorParams: {
+                        cellEditor: GridContentEditor,
+                    },
+                },
+                {
+                    field: "product_type",
+                    headerName: "Product Type",
+                    width: 120,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: types }),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('product_type'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    onCellValueChanged: (e) => changeCellState('product_type', e),
+                    editable: (p) => p.data.position < 2,
+                },
+                {
+                    field: "vendor",
+                    headerName: "Vendor",
+                    width: 120,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: vendor }),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('vendor'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    onCellValueChanged: (e) => changeCellState('vendor', e),
+                    editable: (p) => p.data.position < 2,
+                    cellEditor: GridFieldEditor,
+                    cellEditorPopup: true,
+                    cellEditorParams: {
+                        cellEditor: GridFieldEditor,
+                        values: vendor.map((v) => ({ id: v, label: v })),
+                        width: "120px",
+                    },
+                },
+                {
+                    field: "handle",
+                    headerName: "URL Handle",
+                    width: 150,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('handle'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    onCellValueChanged: async (e) => {
+                        const rows = getAllRowsExceptCurrent(e).map(row => row.handle);
+                        if (e.data.prev.handle !== e.newValue && ([ ...new Set(rows) ].includes(e.newValue) || await checkIsHandleDuplicate(e.newValue))) {
+                            shopify.toast.show('The URL handle is already in use.', { isError: true });
+                            e.data[e.colDef.field] = e.oldValue;
+                            e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
+                            e.api.startEditingCell({ rowIndex: e.node.rowIndex, colKey: e.colDef.field });
+                            return;
+                        }
+                        changeCellState('handle', e);
+                    },
+                    editable: (p) => p.data.position < 2,
+                },
+                {
+                    field: "product_published_at",
+                    headerName: "Published At",
+                    width: 130,
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
+                        month_numeric: true,
+                        time: true
+                    }),
+                },
+                {
+                    field: "product_created_at",
+                    headerName: "Created At",
+                    width: 130,
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
+                        month_numeric: true,
+                        time: true
+                    }),
+                },
+                {
+                    field: "product_updated_at",
+                    headerName: "Updated At",
+                    width: 130,
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
+                        month_numeric: true,
+                        time: true
+                    }),
+                },
+            ]
         },
         {
-            field: "product_body",
-            headerName: "Product Body HTML",
-            width: 300,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
-            cellClassRules: changedCellClassRules('product_body'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: (e) => changeCellState('product_body', e),
-            editable: (p) => p.data.position < 2,
-            cellEditor: GridContentEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridContentEditor,
-            },
-        },
-        {
-            field: "vendor",
-            headerName: "Vendor",
-            width: 120,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', { values: vendor }),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('vendor'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: (e) => changeCellState('vendor', e),
-            editable: (p) => p.data.position < 2,
-            cellEditor: GridFieldEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridFieldEditor,
-                values: vendor.map((v) => ({ id: v, label: v })),
-                width: "120px",
-            },
-        },
-        {
-            field: "handle",
-            headerName: "URL Handle",
-            width: 150,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('handle'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: async (e) => {
-                const rows = getAllRowsExceptCurrent(e).map(row => row.handle);
-                if (e.data.prev.handle !== e.newValue && ([ ...new Set(rows) ].includes(e.newValue) || await checkIsHandleDuplicate(e.newValue))) {
-                    shopify.toast.show('The URL handle is already in use.', { isError: true });
-                    e.data[e.colDef.field] = e.oldValue;
-                    e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
-                    e.api.startEditingCell({ rowIndex: e.node.rowIndex, colKey: e.colDef.field });
-                    return;
+            headerName: "SEO",
+            children: [
+                {
+                    field: "seo_title",
+                    headerName: "Title",
+                    width: 200,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('seo_title'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    onCellValueChanged: (e) => changeCellState('seo_title', e),
+                    editable: (p) => p.data.position < 2,
+                },
+                {
+                    field: "seo_description",
+                    headerName: "Description",
+                    width: 250,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('seo_description'),
+                    cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
+                    onCellValueChanged: (e) => changeCellState('seo_description', e),
+                    editable: (p) => p.data.position < 2,
+                },
+                {
+                    field: "seo_grade",
+                    headerName: "Grade",
+                    width: 80,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', {
+                        values: grade,
+                        valueFormatter: (p) => GRADE_STATUS[p.value]?.label || '-',
+                    }),
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) =>
+                        p.data.position > 1
+                            ? ''
+                            : `<span class="grid-badge ${GRADE_STATUS[p.value]?.className || ''} Polaris-Text--bold">${GRADE_STATUS[p.value]?.label || ''}</span>`,
+                    editable: false
                 }
-                changeCellState('handle', e);
-            },
-            editable: (p) => p.data.position < 2,
+            ]
         },
         {
-            field: "seo_title",
-            headerName: "SEO Title",
-            width: 200,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('seo_title'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: (e) => changeCellState('seo_title', e),
-            editable: (p) => p.data.position < 2,
-        },
-        {
-            field: "seo_description",
-            headerName: "SEO Description",
-            width: 250,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellStyle: (p) => cellMergeStyling(p, { breakLine: true }),
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('seo_description'),
-            cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-            onCellValueChanged: (e) => changeCellState('seo_description', e),
-            editable: (p) => p.data.position < 2,
-        },
-        {
-            field: "seo_grade",
-            headerName: "SEO Grade",
-            width: 80,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', {
-                values: grade,
-                valueFormatter: (p) => GRADE_STATUS[p.value]?.label || '-',
-            }),
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : `<span class="grid-badge ${GRADE_STATUS[p.value]?.className || ''} Polaris-Text--bold">${GRADE_STATUS[p.value]?.label || ''}</span>`,
-            editable: false
-        },
-        {
-            field: "product_published_at",
-            headerName: "Published At",
-            width: 130,
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
-                month_numeric: true,
-                time: true
-            }),
-        },
-        {
-            field: "product_created_at",
-            headerName: "Created At",
-            width: 130,
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
-                month_numeric: true,
-                time: true
-            }),
-        },
-        {
-            field: "product_updated_at",
-            headerName: "Updated At",
-            width: 130,
-            cellStyle: cellMergeStyling,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
-                month_numeric: true,
-                time: true
-            }),
-        },
-        {
-            field: "option_img",
-            headerName: "Image",
-            width: 60,
-            cellRenderer: (p) => {
-                return `
+            headerName: "Variant Details",
+            children: [
+                {
+                    field: "option_img",
+                    headerName: "Image",
+                    width: 60,
+                    cellRenderer: (p) => {
+                        return `
                     <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
                         <a href="shopify://admin/products/${p.data.group_id}/variants/${p.data.variant_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
                             ${!!p.value ? `
@@ -507,202 +529,215 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                         </a>
                     </div>
                 `;
-            },
+                    },
+                },
+                {
+                    field: "option_name",
+                    headerName: "Name",
+                    width: 150,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellClass: 'hd-grid-left',
+                    // cellClassRules: changedCellClassRules('option_name'),
+                    // onCellValueChanged: (e) => changeCellState('option_name', e),
+                    // editable: true,
+                },
+                {
+                    field: "price",
+                    headerName: "Price($)",
+                    type: "currencyType",
+                    width: 90,
+                    filter: "agNumberColumnFilter",
+                    filterParams: getDefaultFilterParams('number'),
+                    cellClass: 'hd-grid-right',
+                    cellClassRules: changedCellClassRules('price'),
+                    cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
+                    onCellValueChanged: (e) => changeCellStateIfNumber('price', e),
+                    editable: true,
+                },
+                {
+                    field: "compare_at_price",
+                    headerName: "Compare At Price($)",
+                    type: 'currencyType',
+                    width: 150,
+                    filter: "agNumberColumnFilter",
+                    filterParams: getDefaultFilterParams('number'),
+                    cellClass: 'hd-grid-right',
+                    cellClassRules: changedCellClassRules('compare_at_price'),
+                    cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
+                    onCellValueChanged: (e) => changeCellStateIfNumber('compare_at_price', e),
+                    editable: true,
+                },
+                {
+                    field: "taxable",
+                    headerName: "Taxable",
+                    width: 80,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
+                    cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
+                    cellClass: 'hd-grid-code',
+                    cellClassRules: changedCellClassRules('taxable'),
+                    onCellValueChanged: (e) => changeCellState('taxable', e),
+                    editable: true,
+                    cellEditor: GridFieldEditor,
+                    cellEditorPopup: true,
+                    cellEditorParams: {
+                        cellEditor: GridFieldEditor,
+                        values: [ 'true', 'false' ].map((v) => ({ id: v, label: v })),
+                        width: "80px",
+                    },
+                },
+                {
+                    field: "barcode",
+                    headerName: "Barcode",
+                    width: 130,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellClass: 'hd-grid-code',
+                    cellClassRules: changedCellClassRules('barcode'),
+                    onCellValueChanged: (e) => changeCellState('barcode', e),
+                    editable: true,
+                },
+                {
+                    field: "sku",
+                    headerName: "sku",
+                    width: 120,
+                    filter: "agTextColumnFilter",
+                    filterParams: getDefaultFilterParams('text'),
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('sku'),
+                    onCellValueChanged: (e) => changeCellState('sku', e),
+                    editable: true,
+                },
+                {
+                    field: "created_at",
+                    headerName: "Created At",
+                    width: 130,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
+                        month_numeric: true,
+                        time: true
+                    }),
+                },
+                {
+                    field: "updated_at",
+                    headerName: "Updated At",
+                    width: 130,
+                    cellClass: 'hd-grid-code',
+                    cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
+                        month_numeric: true,
+                        time: true
+                    }),
+                }
+
+            ]
         },
         {
-            field: "option_name",
-            headerName: "Variant Name",
-            width: 150,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellClass: 'hd-grid-left',
-            // cellClassRules: changedCellClassRules('option_name'),
-            // onCellValueChanged: (e) => changeCellState('option_name', e),
-            // editable: true,
+            headerName: "Inventory",
+            children: [
+                {
+                    field: "inventory_management",
+                    headerName: "Management",
+                    width: 150,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
+                    cellStyle: (p) => p.value === 'true' ? { color: 'green' } : { color: '#666666' },
+                    cellClass: 'hd-grid-code',
+                },
+                {
+                    field: "inventory_quantity",
+                    headerName: "Quantity",
+                    width: 140,
+                    filter: "agNumberColumnFilter",
+                    filterParams: getDefaultFilterParams('number'),
+                    cellStyle: (p) => p.data.inventory_management !== 'true' ? { textDecoration: 'line-through' } : {},
+                    cellClass: 'hd-grid-right',
+                    cellClassRules: changedCellClassRules('inventory_quantity'),
+                    cellRenderer: (p) => numberWithCommas(p.value || 0),
+                    onCellValueChanged: (e) => changeCellStateIfNumber('inventory_quantity', e),
+                    editable: (p) => p.data.inventory_management === 'true',
+                    tooltipValueGetter: (p) => p.data.inventory_management === 'true'
+                        ? null
+                        : ' Inventory Quantity can only be modified when Inventory Management is set to "true". ',
+                },
+                {
+                    field: "inventory_policy",
+                    headerName: "Policy",
+                    width: 140,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: [ 'continue', 'deny' ], suppressSelectAll: true, suppressSorting: true }),
+                    cellClass: 'hd-grid-code',
+                    cellClassRules: changedCellClassRules('inventory_policy'),
+                    onCellValueChanged: (e) => changeCellState('inventory_policy', e),
+                    editable: true,
+                    cellEditor: GridFieldEditor,
+                    cellEditorPopup: true,
+                    cellEditorParams: {
+                        cellEditor: GridFieldEditor,
+                        values: [ 'continue', 'deny' ].map((v) => ({ id: v, label: v })),
+                        width: "80px",
+                    },
+                    // cellEditor: "agRichSelectCellEditor",
+                    // cellEditorParams: {
+                    //     values: [ 'continue', 'deny' ],
+                    // },
+                },
+            ]
         },
         {
-            field: "price",
-            headerName: "Price($)",
-            type: "currencyType",
-            width: 90,
-            filter: "agNumberColumnFilter",
-            filterParams: getDefaultFilterParams('number'),
-            cellClass: 'hd-grid-right',
-            cellClassRules: changedCellClassRules('price'),
-            cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
-            onCellValueChanged: (e) => changeCellStateIfNumber('price', e),
-            editable: true,
-        },
-        {
-            field: "compare_at_price",
-            headerName: "Compare At Price($)",
-            type: 'currencyType',
-            width: 150,
-            filter: "agNumberColumnFilter",
-            filterParams: getDefaultFilterParams('number'),
-            cellClass: 'hd-grid-right',
-            cellClassRules: changedCellClassRules('compare_at_price'),
-            cellRenderer: (p) => '$ ' + numberWithCommas(p.value || 0),
-            onCellValueChanged: (e) => changeCellStateIfNumber('compare_at_price', e),
-            editable: true,
-        },
-        {
-            field: "inventory_management",
-            headerName: "Inventory Management",
-            width: 150,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
-            cellStyle: (p) => p.value === 'true' ? { color: 'green' } : { color: '#666666' },
-            cellClass: 'hd-grid-code',
-        },
-        {
-            field: "inventory_quantity",
-            headerName: "Inventory Quantity",
-            width: 140,
-            filter: "agNumberColumnFilter",
-            filterParams: getDefaultFilterParams('number'),
-            cellStyle: (p) => p.data.inventory_management !== 'true' ? { textDecoration: 'line-through' } : {},
-            cellClass: 'hd-grid-right',
-            cellClassRules: changedCellClassRules('inventory_quantity'),
-            cellRenderer: (p) => numberWithCommas(p.value || 0),
-            onCellValueChanged: (e) => changeCellStateIfNumber('inventory_quantity', e),
-            editable: (p) => p.data.inventory_management === 'true',
-            tooltipValueGetter: (p) => p.data.inventory_management === 'true'
-                ? null
-                : ' Inventory Quantity can only be modified when Inventory Management is set to "true". ',
-        },
-        {
-            field: "inventory_policy",
-            headerName: "Inventory Policy",
-            width: 140,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', { values: [ 'continue', 'deny' ], suppressSelectAll: true, suppressSorting: true }),
-            cellClass: 'hd-grid-code',
-            cellClassRules: changedCellClassRules('inventory_policy'),
-            onCellValueChanged: (e) => changeCellState('inventory_policy', e),
-            editable: true,
-            cellEditor: GridFieldEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridFieldEditor,
-                values: [ 'continue', 'deny' ].map((v) => ({ id: v, label: v })),
-                width: "80px",
-            },
-            // cellEditor: "agRichSelectCellEditor",
-            // cellEditorParams: {
-            //     values: [ 'continue', 'deny' ],
-            // },
-        },
-        {
-            field: "taxable",
-            headerName: "Taxable",
-            width: 80,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
-            cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
-            cellClass: 'hd-grid-code',
-            cellClassRules: changedCellClassRules('taxable'),
-            onCellValueChanged: (e) => changeCellState('taxable', e),
-            editable: true,
-            cellEditor: GridFieldEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridFieldEditor,
-                values: [ 'true', 'false' ].map((v) => ({ id: v, label: v })),
-                width: "80px",
-            },
-        },
-        {
-            field: "barcode",
-            headerName: "Barcode",
-            width: 130,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellClass: 'hd-grid-code',
-            cellClassRules: changedCellClassRules('barcode'),
-            onCellValueChanged: (e) => changeCellState('barcode', e),
-            editable: true,
-        },
-        {
-            field: "sku",
-            headerName: "sku",
-            width: 120,
-            filter: "agTextColumnFilter",
-            filterParams: getDefaultFilterParams('text'),
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('sku'),
-            onCellValueChanged: (e) => changeCellState('sku', e),
-            editable: true,
-        },
-        {
-            field: "requires_shipping",
-            headerName: "requires_shipping",
-            width: 140,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
-            cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
-            cellClass: 'hd-grid-code',
-            cellClassRules: changedCellClassRules('requires_shipping'),
-            onCellValueChanged: (e) => changeCellState('requires_shipping', e),
-            editable: true,
-            cellEditor: GridFieldEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridFieldEditor,
-                values: [ 'true', 'false' ].map((v) => ({ id: v, label: v })),
-                width: "80px",
-            },
-        },
-        {
-            field: "weight",
-            headerName: "Weight",
-            type: 'currencyType',
-            width: 80,
-            filter: "agNumberColumnFilter",
-            filterParams: getDefaultFilterParams('number'),
-            cellClass: 'hd-grid-right',
-            cellClassRules: changedCellClassRules('weight'),
-            cellRenderer: (p) => numberWithCommas(p.value || 0),
-            onCellValueChanged: (e) => changeCellStateIfNumber('weight', e),
-            editable: true,
-        },
-        {
-            field: "weight_unit",
-            headerName: "Unit",
-            width: 60,
-            filter: true,
-            filterParams: getDefaultFilterParams('set', { values: [ 'g', 'kg', 'lb', 'oz' ] }),
-            cellClass: 'hd-grid-left',
-            cellClassRules: changedCellClassRules('weight_unit'),
-            onCellValueChanged: (e) => changeCellState('weight_unit', e),
-            editable: true,
-            cellEditor: GridFieldEditor,
-            cellEditorPopup: true,
-            cellEditorParams: {
-                cellEditor: GridFieldEditor,
-                values: [ 'g', 'kg', 'lb', 'oz' ].map((unit) => ({ id: unit, label: unit })),
-                width: "60px",
-            },
-        },
-        {
-            field: "created_at",
-            headerName: "Variant Created At",
-            width: 130,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
-                month_numeric: true,
-                time: true
-            }),
-        },
-        {
-            field: "updated_at",
-            headerName: "Variant Updated At",
-            width: 130,
-            cellClass: 'hd-grid-code',
-            cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
-                month_numeric: true,
-                time: true
-            }),
+            headerName: "Logistics",
+            children: [
+                {
+                    field: "requires_shipping",
+                    headerName: "requires_shipping",
+                    width: 140,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
+                    cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
+                    cellClass: 'hd-grid-code',
+                    cellClassRules: changedCellClassRules('requires_shipping'),
+                    onCellValueChanged: (e) => changeCellState('requires_shipping', e),
+                    editable: true,
+                    cellEditor: GridFieldEditor,
+                    cellEditorPopup: true,
+                    cellEditorParams: {
+                        cellEditor: GridFieldEditor,
+                        values: [ 'true', 'false' ].map((v) => ({ id: v, label: v })),
+                        width: "80px",
+                    },
+                },
+                {
+                    field: "weight",
+                    headerName: "Weight",
+                    type: 'currencyType',
+                    width: 80,
+                    filter: "agNumberColumnFilter",
+                    filterParams: getDefaultFilterParams('number'),
+                    cellClass: 'hd-grid-right',
+                    cellClassRules: changedCellClassRules('weight'),
+                    cellRenderer: (p) => numberWithCommas(p.value || 0),
+                    onCellValueChanged: (e) => changeCellStateIfNumber('weight', e),
+                    editable: true,
+                },
+                {
+                    field: "weight_unit",
+                    headerName: "Unit",
+                    width: 60,
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: [ 'g', 'kg', 'lb', 'oz' ] }),
+                    cellClass: 'hd-grid-left',
+                    cellClassRules: changedCellClassRules('weight_unit'),
+                    onCellValueChanged: (e) => changeCellState('weight_unit', e),
+                    editable: true,
+                    cellEditor: GridFieldEditor,
+                    cellEditorPopup: true,
+                    cellEditorParams: {
+                        cellEditor: GridFieldEditor,
+                        values: [ 'g', 'kg', 'lb', 'oz' ].map((unit) => ({ id: unit, label: unit })),
+                        width: "60px",
+                    },
+                }
+            ]
         }
     ];
 
