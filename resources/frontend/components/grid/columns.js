@@ -3,7 +3,7 @@ import { formatISOStringToReadableDate } from "../../utils/formats";
 import GridContentEditor from "./editor";
 
 export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback, editedCellCallback) {
-    const grades = ['excellent', 'medium', 'poor', 'bad'];
+    const grades = ['excellent', 'good', 'medium', 'poor', 'bad'];
     const { status = [], tags = [], types = [], vendor = [], grade = grades } = data || {};
 
     const product_status_values = {
@@ -22,6 +22,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
 
     const seo_grade_values = {
         excellent: [ 'Excellent', 'Polaris-Badge--toneSuccess' ],
+        good: [ 'Good', 'Polaris-Badge--toneInfo' ],
         medium: [ 'Medium', 'Polaris-Badge--toneAttention' ],
         poor: [ 'Poor', 'Polaris-Badge--toneCritical' ],
         bad: [ 'Bad', 'Polaris-Badge--toneDefault' ]

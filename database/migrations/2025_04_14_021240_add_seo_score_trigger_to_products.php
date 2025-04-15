@@ -31,31 +31,44 @@ return new class extends Migration
                 OR (OLD.seo_description IS NOT NULL AND NEW.seo_description IS NULL)
               ) THEN
 
-                IF (NEW.seo_title IS NOT NULL AND CHAR_LENGTH(NEW.seo_title) > 0) THEN
-                    SET title_score = title_score + 10;
+                IF (NEW.seo_title IS NOT NULL) THEN
+                    SET title_len = CHAR_LENGTH(NEW.seo_title);
+                    IF title_len >= 20 AND title_len < 35 THEN
+                        SET title_score = title_score + 5;
+                    ELSEIF title_len >= 35 AND title_len <= 50 THEN
+                        SET title_score = title_score + 15;
+                    ELSEIF title_len > 50 AND title_len <= 70 THEN
+                        SET title_score = title_score + 20;
+                    ELSEIF title_len > 70 THEN
+                        SET title_score = title_score + 10;
+                    END IF;
                 END IF;
 
-                IF (NEW.seo_title IS NOT NULL AND CHAR_LENGTH(NEW.seo_title) BETWEEN 35 AND 65) THEN
-                    SET title_score = title_score + 20;
-                END IF;
-
-                IF (NEW.seo_description IS NOT NULL AND CHAR_LENGTH(NEW.seo_description) > 0) THEN
-                    SET description_score = description_score + 10;
-                END IF;
-
-                IF (NEW.seo_description IS NOT NULL AND CHAR_LENGTH(NEW.seo_description) BETWEEN 100 AND 160) THEN
-                    SET description_score = description_score + 20;
+                IF (NEW.seo_description IS NOT NULL) THEN
+                    SET desc_len = CHAR_LENGTH(NEW.seo_description);
+                    IF desc_len >= 50 AND desc_len < 100 THEN
+                        SET description_score = description_score + 10;
+                    ELSEIF desc_len >= 100 AND desc_len <= 130 THEN
+                        SET description_score = description_score + 15;
+                    ELSEIF desc_len > 130 AND desc_len <= 160 THEN
+                        SET description_score = description_score + 20;
+                    ELSEIF desc_len > 160 THEN
+                        SET description_score = description_score + 5;
+                    END IF;
                 END IF;
 
                 SET total_score = title_score + description_score;
 
                 IF total_score >= 60 THEN
                     SET grade = "excellent";
+                ELSEIF total_score >= 45 THEN
+                    SET grade = "good";
                 ELSEIF total_score >= 30 THEN
                     SET grade = "medium";
                 ELSE
                     SET grade = "poor";
                 END IF;
+
 
                 INSERT INTO ai_scores (
                     user_id, product_id, title_score, description_score, total_score, grade, checked_at, created_at, updated_at
