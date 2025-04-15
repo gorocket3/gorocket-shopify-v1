@@ -20,6 +20,8 @@ return new class extends Migration
               DECLARE description_score INT DEFAULT 0;
               DECLARE total_score INT DEFAULT 0;
               DECLARE grade VARCHAR(20);
+              DECLARE title_len INT DEFAULT 0;
+              DECLARE desc_len INT DEFAULT 0;
 
               IF (
                 (OLD.seo_title IS NOT NULL AND NEW.seo_title IS NOT NULL AND OLD.seo_title <> NEW.seo_title)
@@ -30,6 +32,14 @@ return new class extends Migration
                 OR (OLD.seo_description IS NULL AND NEW.seo_description IS NOT NULL)
                 OR (OLD.seo_description IS NOT NULL AND NEW.seo_description IS NULL)
               ) THEN
+
+                IF (NEW.seo_title IS NOT NULL AND CHAR_LENGTH(NEW.seo_title) > 0) THEN
+                    SET title_score = title_score + 10;
+                END IF;
+
+                IF (NEW.seo_description IS NOT NULL AND CHAR_LENGTH(NEW.seo_description) > 0) THEN
+                    SET description_score = description_score + 10;
+                END IF;
 
                 IF (NEW.seo_title IS NOT NULL) THEN
                     SET title_len = CHAR_LENGTH(NEW.seo_title);
