@@ -530,7 +530,9 @@ function getFilterParams(data, defaultFilter) {
         }
 
         if (col.filterType === 'text') {
-            if (col.type === 'contains') {
+            if (col.type === 'blank') {
+                params.push(paramsKey + '=__BLANK__');
+            } else if (col.type === 'contains') {
                 params.push(paramsKey + '=' + col.filter);
             }
             if (col.operator === 'OR') {

@@ -128,7 +128,17 @@ class ProductController extends Controller
     private function applyFilters(mixed $query, array $filters): void
     {
         $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('products.title', 'LIKE', "%{$title}%"))
-            ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_text', 'LIKE', "%{$content}%"))
+            ->when($filters['content'] ?? null, function ($q) use ($filters) {
+                $content = $filters['content'];
+                if ($content === '__BLANK__') {
+                    $q->where(function ($query) {
+                        $query->whereNull('body_html')->orWhere('body_html', '');
+                    });
+                } else {
+                    $q->where('body_text', 'LIKE', "%{$content}%");
+                }
+            })
+
             ->when($filters['collection'] ?? null, function ($q, $collection) {
                 if (is_array($collection)) {
                     $q->whereIn('collection', $collection);
@@ -178,7 +188,16 @@ class ProductController extends Controller
                     }
                 });
             })
-            ->when($filters['handle'] ?? null, fn($q, $handle) => $q->where('handle', 'LIKE', "%{$handle}%"))
+            ->when($filters['handle'] ?? null, function ($q) use ($filters) {
+                $handle = $filters['handle'];
+                if ($handle === '__BLANK__') {
+                    $q->where(function ($query) {
+                        $query->whereNull('handle')->orWhere('handle', '');
+                    });
+                } else {
+                    $q->where('handle', 'LIKE', "%{$handle}%");
+                }
+            })
             ->when($filters['option_name'] ?? null, fn($q, $optionName) => $q->where('product_variants.title', 'LIKE', "%{$optionName}%"))
             ->when($filters['price_min'] ?? null, fn($q, $priceMin) => $q->where('price', '>=', $priceMin))
             ->when($filters['price_max'] ?? null, fn($q, $priceMax) => $q->where('price', '<=', $priceMax))
@@ -197,8 +216,26 @@ class ProductController extends Controller
             ->when($filters['inventory_quantity_max'] ?? null, fn($q, $inventoryQuantityMax) => $q->where('inventory_quantity', '<=', $inventoryQuantityMax))
             ->when($filters['inventory_policy'] ?? null, fn($q, $inventoryPolicy) => $q->where('inventory_policy', $inventoryPolicy))
             ->when(isset($filters['taxable']), fn($q) => $q->where('taxable', $filters['taxable']))
-            ->when($filters['barcode'] ?? null, fn($q, $barcode) => $q->where('barcode', 'LIKE', "%{$barcode}%"))
-            ->when($filters['sku'] ?? null, fn($q, $sku) => $q->where('sku', 'LIKE', "%{$sku}%"))
+            ->when($filters['barcode'] ?? null, function ($q) use ($filters) {
+                $barcode = $filters['barcode'];
+                if ($barcode === '__BLANK__') {
+                    $q->where(function ($query) {
+                        $query->whereNull('barcode')->orWhere('barcode', '');
+                    });
+                } else {
+                    $q->where('barcode', 'LIKE', "%{$barcode}%");
+                }
+            })
+            ->when(isset($filters['sku']), function ($q) use ($filters) {
+                $sku = $filters['sku'];
+                if ($sku === '__BLANK__') {
+                    $q->where(function ($query) {
+                        $query->whereNull('sku')->orWhere('sku', '');
+                    });
+                } else {
+                    $q->where('sku', 'LIKE', "%{$sku}%");
+                }
+            })
             ->when(isset($filters['requires_shipping']), fn($q) => $q->where('requires_shipping', $filters['requires_shipping']))
             ->when($filters['weight_min'] ?? null, fn($q, $weightMin) => $q->where('weight', '>=', $weightMin))
             ->when($filters['weight_max'] ?? null, fn($q, $weightMax) => $q->where('weight', '<=', $weightMax))
@@ -209,8 +246,26 @@ class ProductController extends Controller
                     $q->where('weight_unit', $weightUnit);
                 }
             })
-            ->when($filters['seo_title'] ?? null, fn($q, $seoTitle) => $q->where('seo_title', 'LIKE', "%{$seoTitle}%"))
-            ->when($filters['seo_description'] ?? null, fn($q, $seoDescription) => $q->where('seo_description', 'LIKE', "%{$seoDescription}%"))
+            ->when($filters['seo_title'] ?? null, function ($q) use ($filters) {
+                $seoTitle = $filters['seo_title'];
+                if ($seoTitle === '__BLANK__') {
+                    $q->where(function ($query) {
+                        $query->whereNull('seo_title')->orWhere('seo_title', '');
+                    });
+                } else {
+                    $q->where('seo_title', 'LIKE', "%{$seoTitle}%");
+                }
+            })
+            ->when($filters['seo_description'] ?? null, function ($q) use ($filters) {
+                $seoDescription = $filters['seo_description'];
+                if ($seoDescription === '__BLANK__') {
+                    $q->where(function ($query) {
+                        $query->whereNull('seo_description')->orWhere('seo_description', '');
+                    });
+                } else {
+                    $q->where('seo_description', 'LIKE', "%{$seoDescription}%");
+                }
+            })
             ->when($filters['seo_grade'] ?? null, function ($q, $grade) {
                 $grades = is_array($grade) ? $grade : [$grade];
                 $q->where(function ($query) use ($grades) {

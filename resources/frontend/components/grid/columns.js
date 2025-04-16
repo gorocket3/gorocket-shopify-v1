@@ -118,7 +118,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         };
 
         if (type === 'text') {
-            params.filterOptions = [ "contains" ];
+            params.filterOptions = ["contains", "blank"];
+            params.defaultOption = 'contains';
             params.suppressAndOrCondition = true;
         } else if (type === 'number') {
             params.filterOptions = [ "inRange", "equals" ];
