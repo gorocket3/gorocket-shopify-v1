@@ -301,7 +301,8 @@ export default function ProductsPage() {
         if (productAction.progress === 100) {
             setTimeout(() => {
                 resetProductAction();
-                searchClick();
+                if (productAction.type !== 'update') searchClick();
+                else if (info.selectableCount < 1) hideSaveBar();
                 shopify.toast.show('The operation completed successfully.');
             }, 1000);
         }

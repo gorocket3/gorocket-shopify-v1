@@ -83,7 +83,6 @@ export function searchProducts() {
                 product_status: item.parent.status,
                 vendor: item.parent.vendor,
                 handle: item.parent.handle,
-                prev_handle: item.parent.handle,
                 seo_title: item.parent.seo_title,
                 seo_description: item.parent.seo_description,
                 seo_grade: item.parent.ai_score?.grade ?? 'bad',
@@ -174,7 +173,9 @@ export function getProductsToUpdate() {
 
 export async function saveProducts(rows, limitCallback, errorCallback = null) {
     try {
+        gx.gridOptions.api.showLoadingOverlay();
         await fetchData({ method: 'POST', url: '/api/products/edit', body: { "products": rows } });
+        resetGridNodes();
     } catch (e) {
         if (e?.status === 429) {
             shopify.toast.show('Update request limit exceeded.', {
@@ -186,6 +187,8 @@ export async function saveProducts(rows, limitCallback, errorCallback = null) {
             shopify.toast.show('An error occurred while updating the product. Please try again.', { isError: true });
         }
         if (errorCallback) errorCallback();
+    } finally {
+        gx.gridOptions.api.hideOverlay();
     }
 }
 
@@ -429,6 +432,37 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
     });
 
     searchProducts();
+}
+
+function resetGridNodes() {
+    const nodes = gx.gridOptions.api.getSelectedNodes();
+
+    nodes.forEach((node) => {
+        node.data.prev = { ...node.data };
+
+        if (node.data.product_status_changed) node.setDataValue("product_status_changed", false);
+        if (node.data.product_name_changed) node.setDataValue("product_name_changed", false);
+        if (node.data.product_type_changed) node.setDataValue("product_type_changed", false);
+        if (node.data.product_tags_changed) node.setDataValue("product_tags_changed", false);
+        if (node.data.product_body_changed) node.setDataValue("product_body_changed", false);
+        if (node.data.vendor_changed) node.setDataValue("vendor_changed", false);
+        if (node.data.handle_changed) node.setDataValue("handle_changed", false);
+        if (node.data.seo_title_changed) node.setDataValue("seo_title_changed", false);
+        if (node.data.seo_description_changed) node.setDataValue("seo_description_changed", false);
+        if (node.data.price_changed) node.setDataValue("price_changed", false);
+        if (node.data.inventory_quantity_changed) node.setDataValue("inventory_quantity_changed", false);
+        if (node.data.inventory_policy_changed) node.setDataValue("inventory_policy_changed", false);
+        if (node.data.compare_at_price_changed) node.setDataValue("compare_at_price_changed", false);
+        if (node.data.taxable_changed) node.setDataValue("taxable_changed", false);
+        if (node.data.barcode_changed) node.setDataValue("barcode_changed", false);
+        if (node.data.sku_changed) node.setDataValue("sku_changed", false);
+        if (node.data.requires_shipping_changed) node.setDataValue("requires_shipping_changed", false);
+        if (node.data.weight_changed) node.setDataValue("weight_changed", false);
+        if (node.data.weight_unit_changed) node.setDataValue("weight_unit_changed", false);
+    });
+
+    gx.gridOptions.api.deselectAll();
+    gx.gridOptions.api.clearRangeSelection();
 }
 
 async function getInitialData() {
