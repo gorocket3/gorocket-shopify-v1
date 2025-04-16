@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { getPlanConfirmationUrl } from "./api";
 import { showError } from "./toasts";
 
+const storageKey = 'shopify-gorocket-editor';
+
 export function useEffectWithoutInitialState(callback, state) {
     const [ init, setInit ] = useState(true);
 
@@ -26,11 +28,18 @@ export async function goToChargesPage(planId = 2) {
 export function initStorage() {
     const host = new URLSearchParams(location.search).get("host");
     const sessionValue = { host };
-    sessionStorage.setItem("shopify-gorocket-editor", JSON.stringify(sessionValue));
+    sessionStorage.setItem(storageKey, JSON.stringify(sessionValue));
+}
+
+export function setStorage(key, value, type = 'session') {
+    const storage = type === 'session' ? sessionStorage : localStorage;
+    const info = JSON.parse(storage.getItem(storageKey)) || {};
+    info[key] = value;
+    storage.setItem(storageKey, JSON.stringify(info));
 }
 
 export function getStorage(key, type = 'session') {
     const storage = type === 'session' ? sessionStorage : localStorage;
-    const info = JSON.parse(storage.getItem('shopify-gorocket-editor')) || {};
+    const info = JSON.parse(storage.getItem(storageKey)) || {};
     return info[key] || '';
 }

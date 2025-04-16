@@ -12,18 +12,20 @@ import {
     InlineGrid,
     InlineStack,
     Link as PolarisLink,
+    MediaCard,
     Page,
     ProgressBar,
     SkeletonBodyText,
     SkeletonDisplayText,
     Text,
-    Tooltip
+    Tooltip,
+    VideoThumbnail
 } from "@shopify/polaris";
 import { XCircleIcon } from "@shopify/polaris-icons";
 import ProgressNotifier from "../components/common/progress-notifier";
 import { getDashboardData, getMyPlanData, getPlanData, getTotalProductCount, syncProducts } from "../utils/api";
 import { formatNumberWithCommas } from "../utils/formats";
-import { goToChargesPage, useEffectWithoutInitialState } from "../utils/hooks";
+import { getStorage, goToChargesPage, setStorage, useEffectWithoutInitialState } from "../utils/hooks";
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -39,8 +41,7 @@ export default function HomePage() {
         aiSeoLimit: 0,
     });
     const [ allPlans, setAllPlans ] = useState([]);
-    const [ introCard, setIntroCard ] = useState({ dismissed: false });
-    const setIntroCardDismissed = (dismissed) => setIntroCard((card) => ({ ...card, dismissed }));
+    const [ introCard, setIntroCard ] = useState({ banner1: true, banner2: true });
 
     const customActionInterval = useRef();
     const [ customActionDuration, setCustomActionDuration ] = useState(1);
@@ -63,6 +64,10 @@ export default function HomePage() {
     }));
 
     async function initDashboard() {
+        const banner1 = getStorage('index-banner1', 'local') !== 'dismiss';
+        const banner2 = getStorage('index-banner2', 'local') !== 'dismiss';
+        setIntroCard((card) => ({ ...card, banner1, banner2 }));
+
         const dashboardData = await getDashboardData(); // shopId, plan, totalProductCount, syncData
         const planData = await getMyPlanData(); // shopId, planId, editableLimit, editableCount, selectableLimit, aiSeoLimit, aiSeoCount
 
@@ -91,6 +96,18 @@ export default function HomePage() {
             resetCustomAction();
         }
     }
+
+    useEffectWithoutInitialState(() => {
+        if (!introCard.banner1) {
+            setStorage('index-banner1', 'dismiss', 'local');
+        }
+    }, [ introCard.banner1 ]);
+
+    useEffectWithoutInitialState(() => {
+        if (!introCard.banner2) {
+            setStorage('index-banner2', 'dismiss', 'local');
+        }
+    }, [ introCard.banner2 ]);
 
     useEffectWithoutInitialState(() => {
         if (!!info.syncData?.syncing) {
@@ -140,16 +157,39 @@ export default function HomePage() {
         >
             <ProgressNotifier syncCallback={(d) => updateCustomAction(d?.progress || 0)}/>
             <BlockStack gap="200">
-                {!introCard.dismissed &&
+                {introCard.banner1 &&
                     <CalloutCard
                         title="Connect and manage your products"
                         illustration="https://cdn-icons-png.flaticon.com/128/7603/7603938.png"
                         primaryAction={{ content: 'Manage Products', onAction: () => navigate('/products') }}
-                        onDismiss={() => setIntroCardDismissed(true)}
+                        // onDismiss={() => setIntroCard((card) => ({ ...card, banner1: false }))}
                     >
                         <p>Connect Shopify products and manage them with GoRocket Editor.</p>
                     </CalloutCard>
                 }
+                {introCard.banner2 && (
+                    <Box>
+                        <MediaCard
+                            size="small"
+                            title="Getting Started with GoRocket Editor"
+                            primaryAction={{
+                                content: 'Learn more',
+                                onAction: () => window.open('https://youtu.be/zt2i6OD8T0w?si=2x10QGgHLLsD3yxR', '_blank'),
+                            }}
+                            description={`A quick guide to using GoRocket Editor for managing your Shopify product content. Learn how to edit descriptions, manage tags, and customize HTML—step by step.`}
+                            popoverActions={[ {
+                                content: 'Dismiss',
+                                onAction: () => setIntroCard((card) => ({ ...card, banner2: false }))
+                            } ]}
+                        >
+                            <VideoThumbnail
+                                videoLength={256}
+                                thumbnailUrl="http://i3.ytimg.com/vi/zt2i6OD8T0w/hqdefault.jpg?width=1850"
+                                onClick={() => window.open('https://youtu.be/zt2i6OD8T0w?si=2x10QGgHLLsD3yxR', '_blank')}
+                            />
+                        </MediaCard>
+                    </Box>
+                )}
                 {!info.plan ? (
                     <InlineGrid gap="200" columns={{ xs: 1, md: 2, lg: 4 }}>
                         <Card>
