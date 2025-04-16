@@ -98,6 +98,18 @@ class ProductController extends Controller
         $paginatedIds = $productIdQuery->paginate($perPage);
         $productIds = $paginatedIds->pluck('product_id');
 
+        if ($productIds->isEmpty()) {
+            return response()->json([
+                'data' => [],
+                'current_page' => $paginatedIds->currentPage(),
+                'last_page' => $paginatedIds->lastPage(),
+                'per_page' => $paginatedIds->perPage(),
+                'total' => $paginatedIds->total(),
+                'from' => $paginatedIds->firstItem(),
+                'to' => $paginatedIds->lastItem()
+            ]);
+        }
+
         $products = Product::with([
             'variants.image',
             'images',
