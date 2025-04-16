@@ -86,9 +86,7 @@ class ProductController extends Controller
 
         $productIdQuery = Product::query()
             ->select('products.product_id')
-            ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
-            ->where('products.user_id', $shop->id)
-            ->groupBy('products.product_id');
+            ->where('products.user_id', $shop->id);
 
         $this->applyFilters($productIdQuery, $validated);
         if ($startDate && $endDate) {
@@ -114,6 +112,8 @@ class ProductController extends Controller
             'last_page' => $paginatedIds->lastPage(),
             'per_page' => $paginatedIds->perPage(),
             'total' => $paginatedIds->total(),
+            'from' => $paginatedIds->firstItem(),
+            'to' => $paginatedIds->lastItem()
         ]);
     }
 
