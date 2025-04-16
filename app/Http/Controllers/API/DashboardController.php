@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $totalProductCount = $shop->products()->count();
 
         $syncController = app(SyncController::class);
-        $response = $syncController->getSyncStatus($shop->id);
+        $response = $syncController->getSyncStatus();
 
         return response()->json([
             'shop_id'             => $shop->id,

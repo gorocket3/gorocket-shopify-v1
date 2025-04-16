@@ -81,27 +81,40 @@ class ProductController extends Controller
             'grams' => 'product_variants.grams'
         ];
 
-        $query = Product::query()
-            ->select('products.*')
+        $sortBy = $validated['sort_by'] ?? 'created_at';
+        $sortField = $sortableFields[$sortBy] ?? 'products.created_at';
+
+        $productIdQuery = Product::query()
+            ->select('products.product_id')
             ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
-            ->leftJoin('ai_scores', 'products.product_id', '=', 'ai_scores.product_id')
-            ->with(['variants.image', 'images', 'options', 'aiScore'])
             ->where('products.user_id', $shop->id)
-            ->distinct('products.id');
+            ->groupBy('products.product_id');
 
-        $this->applyFilters($query, $validated);
+        $this->applyFilters($productIdQuery, $validated);
         if ($startDate && $endDate) {
-            $query->whereBetween("products.$searchType", [$startDate, $endDate]);
+            $productIdQuery->whereBetween("products.$searchType", [$startDate, $endDate]);
         }
+        $productIdQuery->orderBy($sortField, $sortDir);
+        $paginatedIds = $productIdQuery->paginate($perPage);
+        $productIds = $paginatedIds->pluck('product_id');
 
-        if (isset($validated['sort_by'], $sortableFields[$validated['sort_by']])) {
-            $query->orderBy($sortableFields[$validated['sort_by']], $sortDir);
-        } else {
-            $query->orderBy('products.created_at', 'desc');
-        }
-        $products = $query->paginate($perPage);
+        $products = Product::with([
+            'variants.image',
+            'images',
+            'options',
+            'aiScore'
+        ])
+        ->whereIn('product_id', $productIds)
+        ->orderByRaw("FIELD(product_id, " . $productIds->implode(',') . ")")
+        ->get();
 
-        return response()->json($products);
+        return response()->json([
+            'data' => $products,
+            'current_page' => $paginatedIds->currentPage(),
+            'last_page' => $paginatedIds->lastPage(),
+            'per_page' => $paginatedIds->perPage(),
+            'total' => $paginatedIds->total(),
+        ]);
     }
 
     /**
