@@ -16,11 +16,68 @@ class CompositionController extends Controller
      */
     public function init(): JsonResponse
     {
+        $shop = Auth::user();
+
+        $init = Product::where('user_id', $shop->id)
+            ->select(['collections', 'category', 'product_type', 'vendor', 'status', 'tags'])
+            ->get();
+
         return response()->json([
-            'product_type' => $this->product_type()->getData(true),
-            'tags'         => $this->tags()->getData(true),
-            'status'       => $this->status()->getData(true),
-            'vendor'       => $this->vendor()->getData(true)
+            'collection' => [
+                'collections' => $init->pluck('collections')->unique()->values()
+            ],
+            'category' => [
+                'categories' => $init->pluck('category')->unique()->values()
+            ],
+            'product_type' => [
+                'product_types' => $init->pluck('product_type')->unique()->values()
+            ],
+            'vendor' => [
+                'vendor' => $init->pluck('vendor')->unique()->values()
+            ],
+            'status' => [
+                'status' => collect(['active', 'draft', 'archived'])->merge($init->pluck('status')->unique())->unique()->values()
+            ],
+            'tags' => [
+                'tags' => $init->pluck('tags')->filter()->flatMap(fn($tagString) => explode(',', $tagString))
+                    ->map(fn($tag) => trim($tag))->unique()->values()
+            ]
+        ]);
+    }
+
+    /**
+     * Get all categories
+     *
+     * @return JsonResponse
+     */
+    public function category(): JsonResponse
+    {
+        $shop = Auth::user();
+
+        $categories = Product::where('user_id', $shop->id)
+            ->groupBy('category')
+            ->pluck('category');
+
+        return response()->json([
+            'categories' => $categories
+        ]);
+    }
+
+    /**
+     * Get all collection
+     *
+     * @return JsonResponse
+     */
+    public function collection(): JsonResponse
+    {
+        $shop = Auth::user();
+
+        $collections = Product::where('user_id', $shop->id)
+            ->groupBy('collections')
+            ->pluck('collections');
+
+        return response()->json([
+            'collections' => $collections
         ]);
     }
 
@@ -58,21 +115,6 @@ class CompositionController extends Controller
         return response()->json([
             'vendor' => $vendors
         ]);
-    }
-
-    /**
-     * Get all collection
-     *
-     * @return JsonResponse
-     */
-    public function collection(): JsonResponse
-    {
-        $shop = Auth::user();
-
-        $endpoint = '/admin/api/' . env('SHOPIFY_API_VERSION') . '/custom_collections.json';
-        $response = $shop->api()->rest('GET', $endpoint);
-
-        return response()->json($response['body']['custom_collections']);
     }
 
     /**

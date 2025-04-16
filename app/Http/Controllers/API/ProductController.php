@@ -29,6 +29,8 @@ class ProductController extends Controller
             'per_page' => 'integer|min:1|max:1000',
             'title' => 'nullable|string|max:512',
             'content' => 'nullable|string',
+            'collection' => 'nullable',
+            'category' => 'nullable',
             'product_type' => 'nullable',
             'vendor' => 'nullable',
             'status' => 'nullable',
@@ -51,7 +53,6 @@ class ProductController extends Controller
             'weight_min' => 'nullable|numeric',
             'weight_max' => 'nullable|numeric|gte:weight_min',
             'weight_unit' => 'nullable',
-            'category' => 'nullable|string|max:255',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:255',
             'seo_grade' => 'nullable',
@@ -113,6 +114,20 @@ class ProductController extends Controller
     {
         $query->when($filters['title'] ?? null, fn($q, $title) => $q->where('products.title', 'LIKE', "%{$title}%"))
             ->when($filters['content'] ?? null, fn($q, $content) => $q->where('body_text', 'LIKE', "%{$content}%"))
+            ->when($filters['collection'] ?? null, function ($q, $collection) {
+                if (is_array($collection)) {
+                    $q->whereIn('collection', $collection);
+                } else {
+                    $q->where('collection', $collection);
+                }
+            })
+            ->when($filters['category'] ?? null, function ($q, $category) {
+                if (is_array($category)) {
+                    $q->whereIn('category', $category);
+                } else {
+                    $q->where('category', $category);
+                }
+            })
             ->when($filters['product_type'] ?? null, function ($q, $type) {
                 if (is_array($type)) {
                     $q->whereIn('product_type', $type);
@@ -179,17 +194,14 @@ class ProductController extends Controller
                     $q->where('weight_unit', $weightUnit);
                 }
             })
-            ->when($filters['category'] ?? null, fn($q, $category) => $q->where('category', 'LIKE', "%{$category}%"))
             ->when($filters['seo_title'] ?? null, fn($q, $seoTitle) => $q->where('seo_title', 'LIKE', "%{$seoTitle}%"))
             ->when($filters['seo_description'] ?? null, fn($q, $seoDescription) => $q->where('seo_description', 'LIKE', "%{$seoDescription}%"))
             ->when($filters['seo_grade'] ?? null, function ($q, $grade) {
                 $grades = is_array($grade) ? $grade : [$grade];
-
                 $q->where(function ($query) use ($grades) {
                     if (in_array('bad', $grades)) {
                         $query->whereNull('ai_scores.product_id');
                     }
-
                     $validGrades = array_filter($grades, fn($g) => $g !== 'bad');
                     if (!empty($validGrades)) {
                         $query->orWhereIn('ai_scores.grade', $validGrades);
