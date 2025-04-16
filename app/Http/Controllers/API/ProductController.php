@@ -86,7 +86,9 @@ class ProductController extends Controller
 
         $productIdQuery = Product::query()
             ->select('products.product_id')
-            ->where('products.user_id', $shop->id);
+            ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
+            ->where('products.user_id', $shop->id)
+            ->groupBy('products.product_id');
 
         $this->applyFilters($productIdQuery, $validated);
         if ($startDate && $endDate) {
