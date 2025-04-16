@@ -15,7 +15,7 @@ import {
     Text,
 } from "@shopify/polaris";
 import { CheckIcon, StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
-import { getPlanData } from "../utils/api";
+import { getPlanData, isFreePlan } from "../utils/api";
 import { formatNumberWithCommas } from "../utils/formats";
 import { goToChargesPage } from "../utils/hooks";
 
@@ -121,6 +121,12 @@ export default function PlanPage() {
                                                         plan_name: plan.name,
                                                     },
                                                     {
+                                                        title: "Export Products",
+                                                        type: "success",
+                                                        content: !isFreePlan(plan.id),
+                                                        plan_name: plan.name,
+                                                    },
+                                                    {
                                                         title: "History Retention",
                                                         type: "text",
                                                         content: plan.limits.history_days === null ? 'Unlimited' : plan.limits.history_days + ' days',
@@ -129,15 +135,13 @@ export default function PlanPage() {
                                                     {
                                                         title: "Shopify History Access",
                                                         type: "success",
-                                                        content: plan.id !== 1,
+                                                        content: !isFreePlan(plan.id),
                                                         plan_name: plan.name,
                                                     },
                                                 ]}
                                                 renderItem={(item, idx) => {
                                                     const { title, type, content, plan_name } = item;
-
-                                                    if (type === 'success' && !content) return null;
-
+                                                    // if (type === 'success' && !content) return null;
                                                     return (
                                                         <ResourceItem
                                                             id={idx}

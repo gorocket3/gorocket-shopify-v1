@@ -75,6 +75,7 @@ export default function ProductsPage() {
 
     const [ info, setInfo ] = useState({
         shopId: null,
+        planId: null,
         editableLimit: null,
         editableCount: 0,
         selectableLimit: null,
@@ -143,6 +144,7 @@ export default function ProductsPage() {
         setInfo((info) => ({
             ...info,
             shopId: planData.shopId,
+            planId: planData.planId,
             editableLimit: planData.editableLimit,
             editableCount: planData.editableCount,
             selectableLimit: planData.selectableLimit,
@@ -282,6 +284,7 @@ export default function ProductsPage() {
 
     useEffectWithoutInitialState(() => {
         initGrid({
+            plan_id: info.planId,
             plan_selected_limit: info.selectableLimit,
             default_per_page: searchPerPage,
             show_changes: (prd) => setHistoryInfo((info) => ({ ...info, product: prd, loading: true, firstLoading: true })),

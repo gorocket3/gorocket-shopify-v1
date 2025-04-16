@@ -74,6 +74,9 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
             if (!!column.editable) {
                 column.headerClass = column.hasOwnProperty("headerClass") ? `${column.headerClass} ag-header-cell-editable` : 'ag-header-cell-editable';
             }
+            if (column.hasOwnProperty("children")) {
+                column.children = getCustomColumns(column.children);
+            }
             return column;
         });
         return applied_columns;

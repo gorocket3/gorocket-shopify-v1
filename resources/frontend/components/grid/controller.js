@@ -1,4 +1,4 @@
-import { getCompositionData } from "../../utils/api";
+import { getCompositionData, isFreePlan } from "../../utils/api";
 import fetchData from "../../utils/fetch";
 import { formatNumberWithCommas } from "../../utils/formats";
 import { showError } from "../../utils/toasts";
@@ -9,7 +9,7 @@ let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, s
 let editedCellCount = 0;
 let filterLoading = false;
 
-export async function initGrid({ plan_selected_limit, default_per_page, show_changes, start_grid, set_selectable_count }) {
+export async function initGrid({ plan_id, plan_selected_limit, default_per_page, show_changes, start_grid, set_selectable_count }) {
     pApp = new App('', { gridId: "#div-gd" });
 
     // const is_mobile = document.body.offsetWidth <= 1007;
@@ -20,7 +20,7 @@ export async function initGrid({ plan_selected_limit, default_per_page, show_cha
     gridDiv = document.querySelector(pApp.options.gridId);
 
     initData = await getInitialData();
-    defaultData = { plan_selected_limit, per_page: default_per_page };
+    defaultData = { plan_id, plan_selected_limit, per_page: default_per_page };
     showChangesCallback = show_changes;
     startGridCallback = start_grid;
     setSelectableCount = set_selectable_count;
@@ -375,6 +375,19 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
             }
             return false;
         },
+        getContextMenuItems: (params) => {
+            return [
+                // ...(params.defaultItems || []),
+                "copy",
+                "copyWithHeaders",
+                "paste",
+                "separator",
+                isFreePlan(defaultData.plan_id) ? {
+                    name: "Export (Not available on current plan)",
+                    disabled: true,
+                } : "export",
+            ];
+        },
         floatingFilter: true,
         undoRedoCellEditing: true,
         undoRedoCellEditingLimit: 100,
@@ -453,12 +466,12 @@ function addEditedCellCount(num, reset = false) {
     }
 }
 
-function getFilterParams(data, defaultData) {
+function getFilterParams(data, defaultFilter) {
     let params = [];
 
-    for (const key in defaultData) {
+    for (const key in defaultFilter) {
         const paramsKey = COLUMN_PARAMS[key];
-        params.push(paramsKey + '=' + defaultData[key]);
+        params.push(paramsKey + '=' + defaultFilter[key]);
     }
 
     for (const key in data) {

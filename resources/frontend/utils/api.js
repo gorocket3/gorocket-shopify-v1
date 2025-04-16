@@ -150,3 +150,7 @@ export async function getCompositionData() {
         return null;
     }
 }
+
+export function isFreePlan(planId) {
+    return planId === 1;
+}
