@@ -533,12 +533,15 @@ function getFilterParams(data, defaultFilter) {
             if (col.type === 'blank') {
                 params.push(paramsKey + '=__BLANK__');
             } else if (col.type === 'contains') {
-                params.push(paramsKey + '=' + col.filter);
-            }
-            if (col.operator === 'OR') {
+                params.push(paramsKey + '=' + col.filter.replaceAll('&', ''));
+            } else if ([ 'AND', 'OR' ].includes(col.operator)) {
                 if (col.condition1) {
-                    const val = [col.condition1.filter, col.condition2?.filter].filter(Boolean).join(',');
+                    const val = [ col.condition1.filter.replaceAll('&', ''), col.condition2?.filter.replaceAll('&', '') ].filter(Boolean).join(',');
                     params.push(paramsKey + '=' + val);
+
+                    if (key === 'product_tags') {
+                        params.push('tag_match=' + (col.operator === 'AND' ? 'all' : 'any'));
+                    }
                 }
             }
         }
@@ -582,7 +585,7 @@ function setCustomFilter(filters) {
                 if (arr.length > 1) {
                     filters[key] = {
                         filterType: "text",
-                        operator: "OR",
+                        operator: "AND",
                         condition1: {
                             filterType: "text",
                             type: "contains",

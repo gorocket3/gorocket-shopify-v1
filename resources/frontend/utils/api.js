@@ -139,6 +139,8 @@ export async function getProductAiSeoContent({ productId, title, description, ta
 export async function getCompositionData() {
     try {
         const {
+            collection: { collections },
+            category: { categories },
             product_type: { product_types },
             tags: { tags },
             status: { status },
