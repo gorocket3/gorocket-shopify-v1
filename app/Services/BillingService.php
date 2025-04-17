@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Log;
 use Osiset\ShopifyApp\Services\ChargeHelper;
 use App\Models\User;
+use Throwable;
 
 class BillingService
 {
@@ -25,6 +26,7 @@ class BillingService
 
     /**
      * Check the billing status of all shops.
+     * @throws Throwable
      */
     public function checkBillingStatus(): void
     {
@@ -41,9 +43,17 @@ class BillingService
                 continue;
             }
 
-            $this->chargeHelper->useCharge($charge->getReference());
+            try {
+                $this->chargeHelper->useCharge($charge->getReference());
+                $chargeData = $this->chargeHelper->retrieve($shop);
+            } catch (Throwable $e) {
+                if (str_contains($e->getMessage(), 'Not Found')) {
+                    Log::warning("[COMMAND][BILLING] Shop {$shop->name}: Charge ID {$charge->charge_id} not found on Shopify. Skipping.");
+                    continue;
+                }
+                throw $e;
+            }
 
-            $chargeData = $this->chargeHelper->retrieve($shop);
             if (isset($chargeData['status'])) {
                 $newStatus = strtoupper($chargeData['status']);
 
