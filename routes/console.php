@@ -11,7 +11,8 @@ Artisan::command('billing:check', function () {
     $billingChecker = app(BillingService::class);
     $billingChecker->checkBillingStatus();
     $this->info('Billing status check completed.');
-})->purpose('Check billing status for all shops')->twiceDaily(0, 12);
+})->purpose('Check billing status for all shops')->dailyAt('04:00');
+
 
 /**
  * Daily database backup at 2 AM.
@@ -19,7 +20,7 @@ Artisan::command('billing:check', function () {
 Artisan::command('backup:database', function () {
     Artisan::call('backup:run --only-db');
     $this->info('Database backup completed.');
-})->purpose('Backup the database daily')->dailyAt('02:00');
+})->purpose('Backup the database daily')->dailyAt('07:00');
 
 /**
  * Horizon metrics snapshot every minute
