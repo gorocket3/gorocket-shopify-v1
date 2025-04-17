@@ -30,55 +30,53 @@ class BillingService
      */
     public function checkBillingStatus(): void
     {
-        $shops = User::all();
-
-        foreach ($shops as $shop) {
-            $plan = $shop->plan;
-            if ($plan === null) {
-                continue;
-            }
-
-            $charge = $this->chargeHelper->chargeForPlan($plan->getId(), $shop);
-            if (!$charge) {
-                continue;
-            }
-
-            try {
-                $this->chargeHelper->useCharge($charge->getReference());
-                $chargeData = $this->chargeHelper->retrieve($shop);
-            } catch (Throwable $e) {
-                if (str_contains($e->getMessage(), 'Not Found')) {
-                    Log::warning("[COMMAND][BILLING] Shop {$shop->name}: Charge ID {$charge->charge_id} not found on Shopify. Skipping.");
+        User::query()->whereNull('deleted_at')->chunk(100, function ($shops) {
+            foreach ($shops as $shop) {
+                $plan = $shop->plan;
+                if ($plan === null) {
                     continue;
                 }
-                throw $e;
-            }
 
-            if (isset($chargeData['status'])) {
-                $newStatus = strtoupper($chargeData['status']);
-
-                if (strtoupper($charge->status) !== $newStatus) {
-                    $charge->update([
-                        'status' => $newStatus,
-                        'updated_at' => now()
-                    ]);
-
-                    Log::info("[COMMAND][BILLING] Shop {$shop->name}: Charge ID {$charge->charge_id} status updated to '{$newStatus}'.");
+                $charge = $this->chargeHelper->chargeForPlan($plan->getId(), $shop);
+                if (!$charge) {
+                    continue;
                 }
 
-                if ($newStatus === 'CANCELLED' && $charge->expires_on && now()->greaterThan($charge->expires_on) && $shop->plan_id !== 1)
-                {
-                    $shop->update([
-                        'plan_id' => 1,
-                        'shopify_freemium' => 1
-                    ]);
-
-                    Log::info("[COMMAND][BILLING] Shop {$shop->name}: Plan expired and moved to free plan.");
+                try {
+                    $this->chargeHelper->useCharge($charge->getReference());
+                    $chargeData = $this->chargeHelper->retrieve($shop);
+                } catch (Throwable $e) {
+                    if (str_contains($e->getMessage(), 'Not Found')) {
+                        Log::warning("[COMMAND][BILLING] Shop {$shop->name}: Charge ID {$charge->charge_id} not found on Shopify. Skipping.");
+                        return;
+                    }
+                    throw $e;
                 }
 
-            } else {
-                Log::warning("[COMMAND][BILLING] Shop {$shop->name}: Failed to retrieve status for Charge ID {$charge->charge_id}.");
+                if (isset($chargeData['status'])) {
+                    $newStatus = strtoupper($chargeData['status']);
+
+                    if (strtoupper($charge->status) !== $newStatus) {
+                        $charge->update([
+                            'status' => $newStatus,
+                            'updated_at' => now()
+                        ]);
+
+                        Log::info("[COMMAND][BILLING] Shop {$shop->name}: Charge ID {$charge->charge_id} status updated to '{$newStatus}'.");
+                    }
+
+                    if ($newStatus === 'CANCELLED' && $charge->expires_on && now()->greaterThan($charge->expires_on) && $shop->plan_id !== 1) {
+                        $shop->update([
+                            'plan_id' => 1,
+                            'shopify_freemium' => 1
+                        ]);
+
+                        Log::info("[COMMAND][BILLING] Shop {$shop->name}: Plan expired and moved to free plan.");
+                    }
+                } else {
+                    Log::warning("[COMMAND][BILLING] Shop {$shop->name}: Failed to retrieve status for Charge ID {$charge->charge_id}.");
+                }
             }
-        }
+        });
     }
 }

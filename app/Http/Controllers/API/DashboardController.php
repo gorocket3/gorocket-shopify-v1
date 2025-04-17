@@ -13,13 +13,18 @@ class DashboardController extends Controller
         $shop = Auth::user();
 
         $plan = $shop->plan;
-        if ($plan) {
+        if ($plan && $plan->id !== 1) {
             $activeCharge = $shop->charges()->where('status', 'ACTIVE')->first();
             if ($activeCharge) {
-                $plan->status = $activeCharge->status;
+                $plan->status = strtoupper($activeCharge->status);
                 $plan->billing_on = $activeCharge->billing_on;
             } else {
-                $cancelledCharge = $shop->charges()->where('status', 'CANCELLED')->whereNotNull('expires_on')->orderByDesc('expires_on')->first();
+                $cancelledCharge = $shop->charges()->where('status', 'CANCELLED')
+                    ->whereNotNull('expires_on')
+                    ->where('expires_on', '>', now())
+                    ->orderByDesc('expires_on')
+                    ->first();
+
                 if ($cancelledCharge) {
                     $plan->status = $cancelledCharge->status;
                     $plan->billing_on = $cancelledCharge->expires_on;
