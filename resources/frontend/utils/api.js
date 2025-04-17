@@ -146,7 +146,10 @@ export async function getCompositionData() {
             status: { status },
             vendor: { vendor }
         } = await fetchData({ method: 'GET', url: '/api/composition/init' });
-        return { types: product_types, tags, status, vendor };
+
+        const grades = [ 'excellent', 'good', 'medium', 'poor', 'bad' ];
+
+        return { collections, categories, types: product_types, tags, status, vendor, grades };
     } catch (e) {
         console.error(e);
         return null;

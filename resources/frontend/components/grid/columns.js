@@ -3,8 +3,15 @@ import { formatISOStringToReadableDate, formatTitleCase } from "../../utils/form
 import GridContentEditor from "./editor";
 
 export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback, editedCellCallback) {
-    const grades = ['excellent', 'good', 'medium', 'poor', 'bad'];
-    const { status = [], tags = [], types = [], vendor = [], grade = grades } = data || {};
+    const {
+        collections = [],
+        categories = [],
+        status = [],
+        tags = [],
+        types = [],
+        vendor = [],
+        grades = []
+    } = data || {};
 
     const product_status_values = {
         active: [ 'Active', 'Polaris-Badge--toneSuccess' ],
@@ -28,7 +35,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         bad: [ 'Bad', 'Polaris-Badge--toneDefault' ]
     };
 
-    const GRADE_STATUS = grade.reduce((acc, key) => {
+    const GRADE_STATUS = grades.reduce((acc, key) => {
         acc[key] = {
             label: seo_grade_values[key]?.[0] || '-',
             className: seo_grade_values[key]?.[1] || '',
@@ -295,7 +302,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     headerName: "Collection",
                     width: 120,
                     filter: true,
-                    filterParams: getDefaultFilterParams('text'),
+                    filterParams: getDefaultFilterParams('set', { values: collections }),
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-left',
                     cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
@@ -305,8 +312,8 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     field: "product_category",
                     headerName: "Category",
                     width: 120,
-                    filter: "agTextColumnFilter",
-                    filterParams: getDefaultFilterParams('text'),
+                    filter: true,
+                    filterParams: getDefaultFilterParams('set', { values: categories }),
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-left',
                     // cellClassRules: changedCellClassRules('product_category'),
@@ -519,7 +526,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     width: 80,
                     filter: true,
                     filterParams: getDefaultFilterParams('set', {
-                        values: grade,
+                        values: grades,
                         valueFormatter: (p) => GRADE_STATUS[p.value]?.label || '-',
                     }),
                     cellStyle: cellMergeStyling,
@@ -541,30 +548,30 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     width: 60,
                     filter: true,
                     filterParams: getDefaultFilterParams('set', {
-                        values: [ 'true', 'false' ],
+                        values: [ 'exists', 'none' ],
                         suppressSelectAll: true,
                         suppressSorting: true,
-                        valueFormatter: (p) => p.value === 'true' ? 'Exists' : 'None'
+                        valueFormatter: (p) => formatTitleCase(p.value)
                     }),
-                    valueGetter: (params) => !!params.data.product_img ? 'true' : 'false',
+                    valueGetter: (params) => !!params.data.option_img ? 'exists' : 'none',
                     cellRenderer: (p) => {
                         return `
-                    <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
-                        <a href="shopify://admin/products/${p.data.group_id}/variants/${p.data.variant_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
-                            ${!!p.data.option_img ? `
-                                <img alt="${p.data.product_name}" src="${p.data.option_img}">
-                            ` : `
-                                <span class="Polaris-Icon">
-                                    <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path d="M12.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
-                                        <path fill-rule="evenodd" d="M9.018 3.5h1.964c.813 0 1.469 0 2 .043.546.045 1.026.14 1.47.366a3.75 3.75 0 0 1 1.64 1.639c.226.444.32.924.365 1.47.043.531.043 1.187.043 2v1.964c0 .813 0 1.469-.043 2-.045.546-.14 1.026-.366 1.47a3.75 3.75 0 0 1-1.639 1.64c-.444.226-.924.32-1.47.365-.531.043-1.187.043-2 .043h-1.964c-.813 0-1.469 0-2-.043-.546-.045-1.026-.14-1.47-.366a3.75 3.75 0 0 1-1.64-1.639c-.226-.444-.32-.924-.365-1.47-.043-.531-.043-1.187-.043-2v-1.964c0-.813 0-1.469.043-2 .045-.546.14-1.026.366-1.47a3.75 3.75 0 0 1 1.639-1.64c.444-.226.924-.32 1.47-.365.531-.043 1.187-.043 2-.043Zm-1.877 1.538c-.454.037-.715.107-.912.207a2.25 2.25 0 0 0-.984.984c-.1.197-.17.458-.207.912-.037.462-.038 1.057-.038 1.909v1.428l.723-.867a1.75 1.75 0 0 1 2.582-.117l2.695 2.695 1.18-1.18a1.75 1.75 0 0 1 2.604.145l.216.27v-2.374c0-.852 0-1.447-.038-1.91-.037-.453-.107-.714-.207-.911a2.25 2.25 0 0 0-.984-.984c-.197-.1-.458-.17-.912-.207-.462-.037-1.056-.038-1.909-.038h-1.9c-.852 0-1.447 0-1.91.038Zm-2.103 7.821a7.12 7.12 0 0 1-.006-.08.746.746 0 0 0 .044-.049l1.8-2.159a.25.25 0 0 1 .368-.016l3.226 3.225a.75.75 0 0 0 1.06 0l1.71-1.71a.25.25 0 0 1 .372.021l1.213 1.516c-.021.06-.045.114-.07.165-.216.423-.56.767-.984.983-.197.1-.458.17-.912.207-.462.037-1.056.038-1.909.038h-1.9c-.852 0-1.447 0-1.91-.038-.453-.037-.714-.107-.911-.207a2.25 2.25 0 0 1-.984-.984c-.1-.197-.17-.458-.207-.912Z"/>
-                                    </svg>
-                                </span>
-                            `}
-                        </a>
-                    </div>
-                `;
+                            <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
+                                <a href="shopify://admin/products/${p.data.group_id}/variants/${p.data.variant_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
+                                    ${!!p.data.option_img ? `
+                                        <img alt="${p.data.option_name}" src="${p.data.option_img}">
+                                    ` : `
+                                        <span class="Polaris-Icon">
+                                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path d="M12.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                                                <path fill-rule="evenodd" d="M9.018 3.5h1.964c.813 0 1.469 0 2 .043.546.045 1.026.14 1.47.366a3.75 3.75 0 0 1 1.64 1.639c.226.444.32.924.365 1.47.043.531.043 1.187.043 2v1.964c0 .813 0 1.469-.043 2-.045.546-.14 1.026-.366 1.47a3.75 3.75 0 0 1-1.639 1.64c-.444.226-.924.32-1.47.365-.531.043-1.187.043-2 .043h-1.964c-.813 0-1.469 0-2-.043-.546-.045-1.026-.14-1.47-.366a3.75 3.75 0 0 1-1.64-1.639c-.226-.444-.32-.924-.365-1.47-.043-.531-.043-1.187-.043-2v-1.964c0-.813 0-1.469.043-2 .045-.546.14-1.026.366-1.47a3.75 3.75 0 0 1 1.639-1.64c.444-.226.924-.32 1.47-.365.531-.043 1.187-.043 2-.043Zm-1.877 1.538c-.454.037-.715.107-.912.207a2.25 2.25 0 0 0-.984.984c-.1.197-.17.458-.207.912-.037.462-.038 1.057-.038 1.909v1.428l.723-.867a1.75 1.75 0 0 1 2.582-.117l2.695 2.695 1.18-1.18a1.75 1.75 0 0 1 2.604.145l.216.27v-2.374c0-.852 0-1.447-.038-1.91-.037-.453-.107-.714-.207-.911a2.25 2.25 0 0 0-.984-.984c-.197-.1-.458-.17-.912-.207-.462-.037-1.056-.038-1.909-.038h-1.9c-.852 0-1.447 0-1.91.038Zm-2.103 7.821a7.12 7.12 0 0 1-.006-.08.746.746 0 0 0 .044-.049l1.8-2.159a.25.25 0 0 1 .368-.016l3.226 3.225a.75.75 0 0 0 1.06 0l1.71-1.71a.25.25 0 0 1 .372.021l1.213 1.516c-.021.06-.045.114-.07.165-.216.423-.56.767-.984.983-.197.1-.458.17-.912.207-.462.037-1.056.038-1.909.038h-1.9c-.852 0-1.447 0-1.91-.038-.453-.037-.714-.107-.911-.207a2.25 2.25 0 0 1-.984-.984c-.1-.197-.17-.458-.207-.912Z"/>
+                                            </svg>
+                                        </span>
+                                    `}
+                                </a>
+                            </div>
+                        `;
                     },
                 },
                 {
@@ -609,7 +616,11 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     headerName: "Taxable",
                     width: 80,
                     filter: true,
-                    filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
+                    filterParams: getDefaultFilterParams('set', {
+                        values: [ 'true', 'false' ],
+                        suppressSelectAll: true,
+                        suppressSorting: true
+                    }),
                     cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
                     cellClass: 'hd-grid-code',
                     cellClassRules: changedCellClassRules('taxable'),
@@ -676,7 +687,11 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     headerName: "Management",
                     width: 150,
                     filter: true,
-                    filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
+                    filterParams: getDefaultFilterParams('set', {
+                        values: [ 'true', 'false' ],
+                        suppressSelectAll: true,
+                        suppressSorting: true
+                    }),
                     cellStyle: (p) => p.value === 'true' ? { color: 'green' } : { color: '#666666' },
                     cellClass: 'hd-grid-code',
                 },
@@ -701,7 +716,11 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     headerName: "Policy",
                     width: 140,
                     filter: true,
-                    filterParams: getDefaultFilterParams('set', { values: [ 'continue', 'deny' ], suppressSelectAll: true, suppressSorting: true }),
+                    filterParams: getDefaultFilterParams('set', {
+                        values: [ 'continue', 'deny' ],
+                        suppressSelectAll: true,
+                        suppressSorting: true
+                    }),
                     cellClass: 'hd-grid-code',
                     cellClassRules: changedCellClassRules('inventory_policy'),
                     onCellValueChanged: (e) => changeCellState('inventory_policy', e),
@@ -728,7 +747,11 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     headerName: "requires_shipping",
                     width: 140,
                     filter: true,
-                    filterParams: getDefaultFilterParams('set', { values: [ 'true', 'false' ], suppressSelectAll: true, suppressSorting: true }),
+                    filterParams: getDefaultFilterParams('set', {
+                        values: [ 'true', 'false' ],
+                        suppressSelectAll: true,
+                        suppressSorting: true
+                    }),
                     cellStyle: (p) => [ true, 'true' ].includes(p.value) ? { color: 'green' } : { color: '#666666' },
                     cellClass: 'hd-grid-code',
                     cellClassRules: changedCellClassRules('requires_shipping'),
