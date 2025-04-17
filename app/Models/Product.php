@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static whereIn(string $string, mixed $productIds)
  * @method static insert(mixed[] $toArray)
  * @method static insertOrIgnore(mixed[] $toArray)
+ * @method static select(string $string)
  */
 class Product extends BaseModel
 {

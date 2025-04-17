@@ -1,5 +1,6 @@
 {
     "per_page": "per_page",
+    "change_log": "logs_count",
     "product_img": "product_img",
     "product_name": "title",
     "product_body": "content",

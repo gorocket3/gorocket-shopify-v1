@@ -277,17 +277,18 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     field: "change_log",
                     headerName: "Changes",
                     width: 70,
-                    sortable: false,
+                    filter: "agNumberColumnFilter",
+                    filterParams: getDefaultFilterParams('number'),
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
+                    valueGetter: (p) => p.data.logs_count ?? 0,
                     cellRenderer: (p) => {
                         if (p.data.position > 1) return '';
 
                         const count = p.data.logs_count ?? 0;
                         const hasLog = count > 0;
-
                         const iconColorClass = hasLog ? 'Polaris-Icon--toneSuccess' : 'Polaris-Icon--toneSubdued';
-                        const badge = hasLog ? `<span class="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[9px] font-medium rounded-full px-[5px] py-[1px] leading-tight shadow-sm border border-white z-10">${count}</span>` : '';
+                        const badge = hasLog ? `<span class="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[9px] font-medium rounded-full px-[5px] py-[1px] leading-tight shadow-sm border border-white z-1">${count}</span>` : '';
 
                         return `
                             <div class="inline-block relative top-1.5 cursor-pointer">
@@ -302,7 +303,6 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                             </div>
                         `;
                     },
-
                     onCellClicked: (p) => p.data.position > 1 ? null : showChangesModal(p.data),
                     tooltipValueGetter: (p) => ' View on Product\'s Change History. ',
                 },

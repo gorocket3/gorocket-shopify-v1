@@ -27,6 +27,8 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             'per_page' => 'integer|min:1|max:1000',
+            'logs_count_min' => 'nullable|integer|min:0',
+            'logs_count_max' => 'nullable|integer|min:0|gte:logs_count_min',
             'title' => 'nullable|string|max:512',
             'content' => 'nullable|string',
             'collection' => 'nullable',
@@ -61,8 +63,8 @@ class ProductController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
             'sort_dir' => 'nullable|in:asc,desc',
-            'product_img' => 'nullable|boolean',
-            'option_img' => 'nullable|boolean'
+            'product_img' => 'nullable|in:exists,none',
+            'option_img' => 'nullable|in:exists,none'
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
@@ -85,13 +87,11 @@ class ProductController extends Controller
         $sortBy = $validated['sort_by'] ?? 'created_at';
         $sortField = $sortableFields[$sortBy] ?? 'products.created_at';
 
-        $productIdQuery = Product::query()
-            ->select('products.product_id')
-            ->where('products.user_id', $shop->id);
-
+        $productIdQuery = Product::select('products.product_id')->where('products.user_id', $shop->id);
         $joinedVariants = false;
+        $shouldGroupBy = false;
+
         if ($this->needsJoin($validated, [
-            'option_img',
             'option_name',
             'price_min',
             'price_max',
@@ -111,17 +111,28 @@ class ProductController extends Controller
         ])) {
             $productIdQuery->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id');
             $joinedVariants = true;
+            $shouldGroupBy = true;
         }
 
         if ($this->needsJoin($validated, ['option_img'])) {
+            if (!$joinedVariants) {
+                $productIdQuery->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id');
+                $shouldGroupBy = true;
+            }
             $productIdQuery->leftJoin('product_images', 'product_variants.image_id', '=', 'product_images.image_id');
+        }
+
+        if ($this->needsJoin($validated, ['logs_count_min', 'logs_count_max'])) {
+            $productIdQuery->leftJoin('change_logs', 'products.product_id', '=', 'change_logs.product_id');
+            $productIdQuery->selectRaw('COUNT(change_logs.id) as logs_count');
+            $shouldGroupBy = true;
         }
 
         if ($this->needsJoin($validated, ['seo_grade'])) {
             $productIdQuery->leftJoin('ai_scores', 'products.product_id', '=', 'ai_scores.product_id');
         }
 
-        if ($joinedVariants) {
+        if ($shouldGroupBy) {
             $productIdQuery->groupBy('products.product_id');
         }
 
@@ -349,19 +360,24 @@ class ProductController extends Controller
                 });
             })
             ->when(isset($filters['product_img']), function ($q) use ($filters) {
-                if ($filters['product_img']) {
+                if ($filters['product_img'] === 'exists') {
                     $q->whereNotNull('products.featured_image');
                 } else {
                     $q->whereNull('products.featured_image');
                 }
             })
             ->when(isset($filters['option_img']), function ($q) use ($filters) {
-                if ($filters['option_img']) {
+                if ($filters['option_img'] === 'exists') {
                     $q->whereNotNull('product_images.src');
-                } else {
-                    $q->whereNull('product_images.src');
+                } elseif ($filters['option_img'] === 'none') {
+                    $q->where(function ($query) {
+                        $query->whereNull('product_images.src')
+                            ->orWhereNull('product_variants.image_id');
+                    });
                 }
-            });
+            })
+            ->when($filters['logs_count_min'] ?? null, fn($q, $min) => $q->having('logs_count', '>=', $min))
+            ->when($filters['logs_count_max'] ?? null, fn($q, $max) => $q->having('logs_count', '<=', $max));
     }
 
     /**
