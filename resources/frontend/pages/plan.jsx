@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import {
     Badge,
@@ -22,17 +22,10 @@ import { goToChargesPage } from "../utils/hooks";
 export default function PlanPage() {
     const navigate = useNavigate();
 
-    const [ info, setInfo ] = useState({ shopId: null, plan: null });
-
-    async function initPlan() {
-        const planData = await getPlanData(); // shopId, plans
-
-        setInfo((info) => ({ ...info, ...(planData || {}) }));
-    }
-
-    useEffect(() => {
-        initPlan();
-    }, []);
+    const { data: info, isLoading } = useQuery({
+        queryKey: [ 'getPlans' ],
+        queryFn: getPlanData,
+    });
 
     return (
         <Page
@@ -41,7 +34,7 @@ export default function PlanPage() {
             backAction={{ onAction: () => navigate(-1) }}
         >
             <Box paddingBlockEnd="400">
-                {!info.plans ? (
+                {isLoading ? (
                     <InlineGrid columns={{ xs: 1, lg: 3 }} gap="400">
                         {[ ...Array(3) ].map((_, index) => (
                             <Card key={index}>
@@ -54,6 +47,10 @@ export default function PlanPage() {
                             </Card>
                         ))}
                     </InlineGrid>
+                ) : (!info || info.plans.length < 1) ? (
+                    <Box padding="400">
+                        <Text as="h2" variant="headingMd" tone="subdued">No Plan Data</Text>
+                    </Box>
                 ) : (
                     <InlineGrid columns={{ xs: 1, lg: info.plans.length }} gap="400">
                         {info.plans.map((plan, index) => (
