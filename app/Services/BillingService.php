@@ -46,21 +46,26 @@ class BillingService
             $chargeData = $this->chargeHelper->retrieve($shop);
             if (isset($chargeData['status'])) {
                 $newStatus = strtoupper($chargeData['status']);
+
                 if (strtoupper($charge->status) !== $newStatus) {
                     $charge->update([
                         'status' => $newStatus,
                         'updated_at' => now()
                     ]);
 
-                    if (strtoupper('active') !== $newStatus) {
-                        $shop->update([
-                            'plan_id' => 1,
-                            'shopify_freemium' => 1
-                        ]);
-                    }
-
                     Log::info("[COMMAND][BILLING] Shop {$shop->name}: Charge ID {$charge->charge_id} status updated to '{$newStatus}'.");
                 }
+
+                if ($newStatus === 'CANCELLED' && $charge->expires_on && now()->greaterThan($charge->expires_on) && $shop->plan_id !== 1)
+                {
+                    $shop->update([
+                        'plan_id' => 1,
+                        'shopify_freemium' => 1
+                    ]);
+
+                    Log::info("[COMMAND][BILLING] Shop {$shop->name}: Plan expired and moved to free plan.");
+                }
+
             } else {
                 Log::warning("[COMMAND][BILLING] Shop {$shop->name}: Failed to retrieve status for Charge ID {$charge->charge_id}.");
             }
