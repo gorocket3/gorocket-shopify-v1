@@ -8,11 +8,15 @@ use App\Models\ChangeLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Osiset\ShopifyApp\Actions\CancelCharge;
 use Osiset\ShopifyApp\Actions\GetPlanUrl;
+use Osiset\ShopifyApp\Objects\Values\ChargeReference;
 use Osiset\ShopifyApp\Objects\Values\NullablePlanId;
 use Osiset\ShopifyApp\Objects\Values\PlanId;
 use Osiset\ShopifyApp\Objects\Values\ShopId;
+use Osiset\ShopifyApp\Services\ChargeHelper;
 use Osiset\ShopifyApp\Storage\Models\Plan;
+use Throwable;
 
 class PlanController extends Controller
 {
@@ -26,20 +30,36 @@ class PlanController extends Controller
         $shop = Auth::user();
 
         $currentPlanId = $shop->plan_id;
+        $latestCharge = $shop->charges()->where('plan_id', $currentPlanId)->orderByDesc('created_at')->first();
+
+        $currentValidPlanId = 1;
+        $status = null;
+        $billingOn = null;
+        if ($latestCharge) {
+            $status = strtoupper($latestCharge->status);
+            if ($status === 'ACTIVE') {
+                $currentValidPlanId = $currentPlanId;
+                $billingOn = $latestCharge->billing_on;
+            } elseif ($status === 'CANCELLED' && $latestCharge->expires_on && now()->lt($latestCharge->expires_on)) {
+                $billingOn = $latestCharge->expires_on;
+            }
+        }
 
         $plans = Plan::select('id', 'name', 'price', 'interval', 'terms')
             ->get()
-            ->map(function ($plan) use ($currentPlanId) {
+            ->map(function ($plan) use ($currentValidPlanId, $currentPlanId, $billingOn, $status) {
                 $planName = $plan->name;
 
                 return [
-                    'id'         => $plan->id,
-                    'name'       => $plan->name,
-                    'price'      => $plan->price,
-                    'interval'   => str_replace('_', ' ', $plan->interval),
-                    'terms'      => $plan->terms,
-                    'user_plan'  => $plan->id == $currentPlanId,
-                    'limits'     => [
+                    'id'        => $plan->id,
+                    'name'      => $plan->name,
+                    'price'     => $plan->price,
+                    'interval'  => str_replace('_', ' ', $plan->interval),
+                    'terms'     => $plan->terms,
+                    'user_plan' => $plan->id == $currentValidPlanId,
+                    'status'    => ($plan->id == $currentPlanId) ? $status : null,
+                    'billing_on' => ($plan->id == $currentPlanId) ? $billingOn : null,
+                    'limits'    => [
                         'edit_limit'        => config("plans.edit_limits.{$planName}"),
                         'ai_limit'          => config("plans.ai_limits.{$planName}"),
                         'history_days'      => config("plans.history_days.{$planName}"),
@@ -57,6 +77,7 @@ class PlanController extends Controller
     /**
      * Get Plan Info
      *
+     * @param Request $request
      * @return JsonResponse
      */
     public function info(Request $request): JsonResponse
@@ -118,5 +139,41 @@ class PlanController extends Controller
         return response()->json([
             'confirmation_url' => $confirmationUrl
         ]);
+    }
+
+    /**
+     * Cancel Current Plan
+     *
+     * @param CancelCharge $cancelChargeAction
+     * @return JsonResponse
+     */
+    public function cancel(CancelCharge  $cancelChargeAction): JsonResponse
+    {
+        $shop = Auth::user();
+
+        try {
+            $chargesResponse = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/recurring_application_charges.json');
+            $activeCharge = collect($chargesResponse['body']['recurring_application_charges'] ?? [])->firstWhere('status', 'active');
+
+            if (! $activeCharge) {
+                return response()->json([
+                    'message' => 'No active plan to cancel.',
+                ]);
+            }
+            $shop->api()->rest('DELETE', "/admin/api/".env('SHOPIFY_API_VERSION')."/recurring_application_charges/{$activeCharge['id']}.json");
+
+            $cancelChargeAction(new ChargeReference($activeCharge['id']));
+
+            $charge = $shop->charges()->where('charge_id', $activeCharge['id'])->orderByDesc('created_at')->first();
+            $chargeHelper = app(ChargeHelper::class)->useCharge($charge->getReference());
+
+            return response()->json([
+                'message' => 'Your plan has been cancelled.',
+                'active_until' => $charge->expires_on ?? $chargeHelper->periodEndDate(),
+                'remaining_days' => $chargeHelper->remainingDaysForPeriod()
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['message' => 'Failed to cancel plan.', 'error' => $e->getMessage()], 500);
+        }
     }
 }

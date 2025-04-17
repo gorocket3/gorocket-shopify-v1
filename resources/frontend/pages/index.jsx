@@ -230,21 +230,18 @@ export default function HomePage() {
                                 </InlineGrid>
                                 <InlineStack gap="200" blockAlign="center">
                                     <Text as="p" variant="headingXl">{info.plan.name}</Text>
-                                    {false ?
+                                    {!!info.plan.billing_on && (
                                         <Box paddingBlockStart={100}>
-                                            <Badge tone="critical">
-                                                <Text as="span" variant="bodyXs" fontWeight="semibold">Trial D-?</Text>
+                                            <Badge tone={info.plan.status === 'CANCELLED' ? 'critical' : 'info'}>
+                                                <Text as="span" variant="bodyXs" fontWeight="semibold">
+                                                    {info.plan.status === 'CANCELLED'
+                                                        ? `Ends ${info.plan.billing_on.substring(0, 10).replaceAll('-', '.')}`
+                                                        : `Renews ${info.plan.billing_on.substring(0, 10).replaceAll('-', '.')}`
+                                                    }
+                                                </Text>
                                             </Badge>
                                         </Box>
-                                        : (!!info.plan.billing_on &&
-                                            <Box paddingBlockStart={100}>
-                                                <Badge tone="info">
-                                                    <Text as="span" variant="bodyXs"
-                                                          fontWeight="semibold">Until {info.plan.billing_on.substring(0, 10).replaceAll('-', '.')}</Text>
-                                                </Badge>
-                                            </Box>
-                                        )
-                                    }
+                                    )}
                                 </InlineStack>
                             </BlockStack>
                         </Card>

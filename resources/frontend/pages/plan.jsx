@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,8 +15,9 @@ import {
     ResourceList, SkeletonBodyText, SkeletonDisplayText,
     Text,
 } from "@shopify/polaris";
-import { CheckIcon, StatusActiveIcon, XCircleIcon } from "@shopify/polaris-icons";
-import { getPlanData, isFreePlan } from "../utils/api";
+import {AlertCircleIcon, CheckIcon, StatusActiveIcon, XCircleIcon} from "@shopify/polaris-icons";
+import {getPlanData, isFreePlan} from "../utils/api";
+import { ConfirmModal } from "../components/common/confirm-modal";
 import { formatNumberWithCommas } from "../utils/formats";
 import { goToChargesPage } from "../utils/hooks";
 
@@ -26,6 +28,9 @@ export default function PlanPage() {
         queryKey: [ 'getPlans' ],
         queryFn: getPlanData,
     });
+
+    // Confirm Modal
+    const [confirmType, setConfirmType] = useState(null);
 
     return (
         <Page
@@ -59,31 +64,48 @@ export default function PlanPage() {
                                     <BlockStack gap="200">
                                         <BlockStack gap="200">
                                             <InlineStack gap="200" blockAlign="center">
-                                                <Text as="h2" variant="headingLg">
-                                                    {plan.name}
-                                                </Text>
-                                                {plan.user_plan &&
+                                                <Text as="h2" variant="headingLg">{plan.name}</Text>
+                                                {plan.user_plan && (
                                                     <Badge tone="success">
-                                                        <Text as="span" variant="bodyXs" fontWeight="semibold">IN
-                                                            USE</Text>
+                                                        <Text as="span" variant="bodyXs" fontWeight="semibold">IN USE</Text>
                                                     </Badge>
-                                                }
-                                                {plan.id === 2 &&
+                                                )}
+                                                {plan.status === 'CANCELLED' && !plan.user_plan && (
+                                                    <Badge tone="warning">
+                                                        <Text as="span" variant="bodyXs" fontWeight="semibold">
+                                                            CANCELLED - Ends {plan.billing_on?.substring(0, 10).replaceAll('-', '.')}
+                                                        </Text>
+                                                    </Badge>
+                                                )}
+                                                {plan.id === 3 && (
                                                     <Badge tone="critical">
-                                                        <Text as="span" variant="bodyXs"
-                                                              fontWeight="semibold">RECOMMENDED</Text>
+                                                        <Text as="span" variant="bodyXs" fontWeight="semibold">RECOMMENDED</Text>
                                                     </Badge>
-                                                }
+                                                )}
                                             </InlineStack>
                                             <Text as='p' variant="heading2xl">
                                                 ${plan.price}
                                                 <Text as='span' variant="bodySm">/{plan.interval}</Text>
                                             </Text>
                                             <Box minHeight="32px">
-                                                {(plan.id !== 1 && !plan.user_plan) && (
-                                                    <Button onClick={() => goToChargesPage(plan.id)}
-                                                            variant="primary"
-                                                            size="large" fullWidth={true}>
+                                                {plan.id === 1 && !plan.user_plan && (
+                                                    <Button
+                                                        onClick={() => setConfirmType('cancel_plan')}
+                                                        variant="primary"
+                                                        tone="critical"
+                                                        size="large"
+                                                        fullWidth
+                                                    >
+                                                        Cancel Current Plan
+                                                    </Button>
+                                                )}
+                                                {plan.id !== 1 && !plan.user_plan && (
+                                                    <Button
+                                                        onClick={() => goToChargesPage(plan.id, navigate)}
+                                                        variant="primary"
+                                                        size="large"
+                                                        fullWidth
+                                                    >
                                                         Subscribe Now
                                                     </Button>
                                                 )}
@@ -181,6 +203,26 @@ export default function PlanPage() {
                     </InlineGrid>
                 )}
             </Box>
+            <ConfirmModal
+                open={!!confirmType}
+                onClose={() => setConfirmType(null)}
+                primaryText="Yes, Cancel Plan"
+                cancelText="Keep Current Plan"
+                primaryTone="critical"
+                onPrimary={async () => {
+                    setConfirmType(null);
+                    await goToChargesPage(1, navigate);
+                }}
+            >
+                <InlineStack gap="100" blockAlign="center">
+                    <Box>
+                        <Icon source={AlertCircleIcon} tone="critical" />
+                    </Box>
+                    <Text as="p" variant="bodyMd">
+                        Cancel your plan now? You’ll still have access until the end of your billing period.
+                    </Text>
+                </InlineStack>
+            </ConfirmModal>
         </Page>
     );
 }

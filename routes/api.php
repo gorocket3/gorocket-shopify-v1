@@ -63,6 +63,7 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('plans', [PlanController::class, 'index'])->name('plans.list');
     Route::get('plans/info', [PlanController::class, 'info'])->name('plans.info');
     Route::post('plans/confirm', [PlanController::class, 'confirm'])->name('plans.confirm');
+    Route::post('plans/cancel', [PlanController::class, 'cancel'])->name('plans.cancel');
 
     // History
     Route::get('history', [HistoryController::class, 'index'])->name('history.list');

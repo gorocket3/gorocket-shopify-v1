@@ -14,9 +14,17 @@ class DashboardController extends Controller
 
         $plan = $shop->plan;
         if ($plan) {
-            $plan->billing_on = $shop->charges()
-                ->where('status', 'ACTIVE')
-                ->value('billing_on');
+            $activeCharge = $shop->charges()->where('status', 'ACTIVE')->first();
+            if ($activeCharge) {
+                $plan->status = $activeCharge->status;
+                $plan->billing_on = $activeCharge->billing_on;
+            } else {
+                $cancelledCharge = $shop->charges()->where('status', 'CANCELLED')->whereNotNull('expires_on')->orderByDesc('expires_on')->first();
+                if ($cancelledCharge) {
+                    $plan->status = $cancelledCharge->status;
+                    $plan->billing_on = $cancelledCharge->expires_on;
+                }
+            }
         }
 
         $totalProductCount = $shop->products()->count();
@@ -28,7 +36,7 @@ class DashboardController extends Controller
             'shop_id'             => $shop->id,
             'plan'                => $plan,
             'total_product_count' => $totalProductCount,
-            'sync_data'           => $response->getData(),
+            'sync_data'           => $response->getData()
         ]);
     }
 }

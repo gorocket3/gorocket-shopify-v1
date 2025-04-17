@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getPlanConfirmationUrl } from "./api";
-import { showError } from "./toasts";
+import { getPlanConfirmationUrl, cancelPlan } from "./api";
+import {showError, showInfo} from "./toasts";
 
 const storageKey = 'shopify-gorocket-editor';
 
@@ -16,12 +16,27 @@ export function useEffectWithoutInitialState(callback, state) {
     }, state);
 }
 
-export async function goToChargesPage(planId = 2) {
-    try {
-        const { url } = await getPlanConfirmationUrl({ planId, host: getStorage('host') });
-        window.open(url, "_top");
-    } catch (e) {
-        showError('Failed to get confirmation URL. Please try again.');
+export async function goToChargesPage(planId = 2, navigate) {
+    if (planId === 1) {
+        const result = await cancelPlan();
+        if (result) {
+            const until = result.active_until?.split(' ')[0]?.replace(/-/g, '.');
+            const days = result.remaining_days;
+
+            showInfo(`Your plan was cancelled. Ends ${until} (${days} day${days > 1 ? 's' : ''} left).`);
+            setTimeout(() => {
+                navigate('/');
+            }, 2000);
+        } else {
+            showError('Failed to cancel your plan. Please try again.');
+        }
+    } else {
+        try {
+            const { url } = await getPlanConfirmationUrl({ planId, host: getStorage('host') });
+            window.open(url, "_top");
+        } catch (e) {
+            showError('Failed to get confirmation URL. Please try again.');
+        }
     }
 }
 
