@@ -199,7 +199,6 @@ class ProductController extends Controller
         return false;
     }
 
-
     /**
      * Apply filters to the query
      *
