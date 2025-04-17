@@ -58,9 +58,6 @@ class ProductController extends Controller
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:255',
             'seo_grade' => 'nullable',
-            'search_type' => 'nullable|in:created_at,updated_at',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
             'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
             'sort_dir' => 'nullable|in:asc,desc',
             'product_img' => 'nullable|in:exists,none',
@@ -68,11 +65,7 @@ class ProductController extends Controller
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
-        $searchType = $validated['search_type'] ?? 'created_at';
         $sortDir = $validated['sort_dir'] ?? 'desc';
-
-        $startDate = isset($validated['start_date']) ? $validated['start_date'] . ' 00:00:00' : null;
-        $endDate = isset($validated['end_date']) ? $validated['end_date'] . ' 23:59:59' : null;
 
         $sortableFields = [
             'title' => 'products.title',
@@ -137,9 +130,6 @@ class ProductController extends Controller
         }
 
         $this->applyFilters($productIdQuery, $validated);
-        if ($startDate && $endDate) {
-            $productIdQuery->whereBetween("products.$searchType", [$startDate, $endDate]);
-        }
         $productIdQuery->orderBy($sortField, $sortDir);
         $paginatedIds = $productIdQuery->paginate($perPage);
         $productIds = $paginatedIds->pluck('product_id');
