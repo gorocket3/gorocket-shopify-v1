@@ -772,7 +772,7 @@ export default function ProductsPage() {
                             await resetColumns();
                             break;
                         case 'delete_product':
-                            deleteAfterConfirm();
+                            await deleteAfterConfirm();
                             break;
                     }
                 }}
