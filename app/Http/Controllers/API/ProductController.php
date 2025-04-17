@@ -369,10 +369,9 @@ class ProductController extends Controller
             ->when(isset($filters['option_img']), function ($q) use ($filters) {
                 if ($filters['option_img'] === 'exists') {
                     $q->whereNotNull('product_images.src');
-                } elseif ($filters['option_img'] === 'none') {
+                } else {
                     $q->where(function ($query) {
-                        $query->whereNull('product_images.src')
-                            ->orWhereNull('product_variants.image_id');
+                        $query->whereNull('product_images.src')->orWhereNull('product_variants.image_id');
                     });
                 }
             })
