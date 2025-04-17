@@ -61,7 +61,8 @@ class ProductController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'sort_by' => 'nullable|in:title,status,created_at,updated_at,price,inventory_quantity,grams',
             'sort_dir' => 'nullable|in:asc,desc',
-            'product_img' => 'nullable|boolean'
+            'product_img' => 'nullable|boolean',
+            'option_img' => 'nullable|boolean'
         ]);
 
         $perPage = $validated['per_page'] ?? 50;
@@ -87,6 +88,8 @@ class ProductController extends Controller
         $productIdQuery = Product::query()
             ->select('products.product_id')
             ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
+            ->leftJoin('product_images', 'product_variants.image_id', '=', 'product_images.image_id')
+            ->leftJoin('ai_scores', 'products.product_id', '=', 'ai_scores.product_id')
             ->where('products.user_id', $shop->id)
             ->groupBy('products.product_id');
 
@@ -295,6 +298,13 @@ class ProductController extends Controller
                     $q->whereNotNull('products.featured_image');
                 } else {
                     $q->whereNull('products.featured_image');
+                }
+            })
+            ->when(isset($filters['option_img']), function ($q) use ($filters) {
+                if ($filters['option_img']) {
+                    $q->whereNotNull('product_images.src');
+                } else {
+                    $q->whereNull('product_images.src');
                 }
             });
     }

@@ -8,6 +8,7 @@
     "product_status": "status",
     "product_tags": "tags",
     "handle": "handle",
+    "option_img": "option_img",
     "option_name": "option_name",
     "product_category": "category",
     "seo_title": "seo_title",
