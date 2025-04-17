@@ -54,7 +54,7 @@ class BillingService
 
                     if (strtoupper('active') !== $newStatus) {
                         $shop->update([
-                            'plan_id' => null,
+                            'plan_id' => 1,
                             'shopify_freemium' => 1
                         ]);
                     }
