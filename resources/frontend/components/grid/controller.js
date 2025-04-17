@@ -73,6 +73,7 @@ export function searchProducts() {
             const cur_data = {
                 ...item,
                 group_id: item.parent.product_id,
+                logs_count: item.parent.logs_count,
                 product_name: item.parent.title,
                 collections: item.parent.collections,
                 product_type: item.parent.product_type,

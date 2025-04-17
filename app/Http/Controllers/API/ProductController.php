@@ -87,11 +87,43 @@ class ProductController extends Controller
 
         $productIdQuery = Product::query()
             ->select('products.product_id')
-            ->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id')
-            ->leftJoin('product_images', 'product_variants.image_id', '=', 'product_images.image_id')
-            ->leftJoin('ai_scores', 'products.product_id', '=', 'ai_scores.product_id')
-            ->where('products.user_id', $shop->id)
-            ->groupBy('products.product_id');
+            ->where('products.user_id', $shop->id);
+
+        $joinedVariants = false;
+        if ($this->needsJoin($validated, [
+            'option_img',
+            'option_name',
+            'price_min',
+            'price_max',
+            'compare_at_price_min',
+            'compare_at_price_max',
+            'inventory_management',
+            'inventory_quantity_min',
+            'inventory_quantity_max',
+            'inventory_policy',
+            'requires_shipping',
+            'sku',
+            'barcode',
+            'weight_min',
+            'weight_max',
+            'weight_unit',
+            'sort_by'
+        ])) {
+            $productIdQuery->leftJoin('product_variants', 'products.product_id', '=', 'product_variants.product_id');
+            $joinedVariants = true;
+        }
+
+        if ($this->needsJoin($validated, ['option_img'])) {
+            $productIdQuery->leftJoin('product_images', 'product_variants.image_id', '=', 'product_images.image_id');
+        }
+
+        if ($this->needsJoin($validated, ['seo_grade'])) {
+            $productIdQuery->leftJoin('ai_scores', 'products.product_id', '=', 'ai_scores.product_id');
+        }
+
+        if ($joinedVariants) {
+            $productIdQuery->groupBy('products.product_id');
+        }
 
         $this->applyFilters($productIdQuery, $validated);
         if ($startDate && $endDate) {
@@ -119,6 +151,7 @@ class ProductController extends Controller
             'options',
             'aiScore'
         ])
+        ->withCount('logs')
         ->whereIn('product_id', $productIds)
         ->orderByRaw("FIELD(product_id, " . $productIds->implode(',') . ")")
         ->get();
@@ -133,6 +166,28 @@ class ProductController extends Controller
             'to' => $paginatedIds->lastItem()
         ]);
     }
+
+    /**
+     * Check if the query needs a join based on the validated filters
+     *
+     * @param array $validated
+     * @param array $keys
+     * @return bool
+     */
+    private function needsJoin(array $validated, array $keys): bool
+    {
+        foreach ($keys as $key) {
+            if ($key === 'sort_by') {
+                if (isset($validated['sort_by']) && in_array($validated['sort_by'], ['price', 'inventory_quantity', 'grams'])) {
+                    return true;
+                }
+            } elseif (isset($validated[$key])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Apply filters to the query
