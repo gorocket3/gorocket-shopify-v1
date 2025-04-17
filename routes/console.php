@@ -2,6 +2,7 @@
 
 use App\Services\BillingService;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 
 /**
@@ -11,6 +12,7 @@ Artisan::command('billing:check', function () {
     $billingChecker = app(BillingService::class);
     $billingChecker->checkBillingStatus();
     $this->info('Billing status check completed.');
+    Log::info('[SCHEDULE] Billing status check completed.');
 })->purpose('Check billing status for all shops')->dailyAt('04:00');
 
 
@@ -20,6 +22,7 @@ Artisan::command('billing:check', function () {
 Artisan::command('backup:database', function () {
     Artisan::call('backup:run --only-db');
     $this->info('Database backup completed.');
+    Log::info('[SCHEDULE] Database backup completed.');
 })->purpose('Backup the database daily')->dailyAt('07:00');
 
 /**
