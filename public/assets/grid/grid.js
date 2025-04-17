@@ -91,6 +91,7 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
             // suppressSizeToFit: false,
             autoHeight: true,
             sortable: true,
+            floatingFilter: true,
             suppressKeyboardEvent: setArrowKeyboardEvent,
         },
         enableRangeSelection: true,

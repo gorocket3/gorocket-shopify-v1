@@ -363,7 +363,6 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
     gx = new HDGrid(gridDiv, my_columns, {
-        enableCellSpan: true,
         suppressRowTransform: true,
         rowClassRules: {
             "even": "data.parent_index % 2 !== 0",
@@ -393,7 +392,6 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
                 } : "export",
             ];
         },
-        floatingFilter: true,
         undoRedoCellEditing: true,
         undoRedoCellEditingLimit: 100,
         tooltipShowDelay: 200,

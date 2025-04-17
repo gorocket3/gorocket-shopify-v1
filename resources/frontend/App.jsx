@@ -16,7 +16,7 @@ export default function App() {
     return (
         <PolarisProvider>
             <QueryClientProvider client={queryClient}>
-                <BrowserRouter>
+                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                     <NavMenu>
                         <Link to="/" rel="home"/>
                         <Link to="/products">{t("NavigationMenu.products")}</Link>
