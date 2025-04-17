@@ -367,6 +367,7 @@ async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
         rowClassRules: {
             "even": "data.parent_index % 2 !== 0",
         },
+        suppressDragLeaveHidesColumns: true,
         suppressFieldDotNotation: true,
         suppressCopyRowsToClipboard: true,
         suppressClearOnFillReduction: true,

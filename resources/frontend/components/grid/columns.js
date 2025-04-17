@@ -1,5 +1,5 @@
 import fetchData from "../../utils/fetch";
-import { formatISOStringToReadableDate } from "../../utils/formats";
+import { formatISOStringToReadableDate, formatTitleCase } from "../../utils/formats";
 import GridContentEditor from "./editor";
 
 export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback, editedCellCallback) {
@@ -177,11 +177,13 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                 {
                     field: "chk",
                     headerName: '',
+                    suppressMovable: true,
                     pinned: "left",
+                    lockPosition: "left",
                     checkboxSelection: (p) => p.data.position < 2,
                     headerCheckboxSelection: true,
                     width: 24,
-                    sort: false,
+                    sortable: false,
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
                 },
@@ -200,16 +202,19 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                 {
                     field: "product_img",
                     headerName: "Image",
+                    suppressMovable: true,
                     pinned: "left",
+                    lockPosition: "left",
                     width: 60,
+                    sortable: false,
                     filter: true,
                     filterParams: getDefaultFilterParams('set', {
-                        values: [ 'true', 'false' ],
+                        values: [ 'exists', 'none' ],
                         suppressSelectAll: true,
                         suppressSorting: true,
-                        valueFormatter: (p) => p.value === 'true' ? 'Exists' : 'None'
+                        valueFormatter: (p) => formatTitleCase(p.value)
                     }),
-                    valueGetter: (params) => !!params.data.product_img ? 'true' : 'false',
+                    valueGetter: (params) => !!params.data.product_img ? 'exists' : 'none',
                     cellStyle: cellMergeStyling,
                     cellRenderer: (p) => {
                         if (p.data.position > 1) return '';
@@ -232,7 +237,6 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                         `;
                     },
                 }
-
             ]
         },
         {
@@ -242,6 +246,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     field: "store_link",
                     headerName: "Store",
                     width: 40,
+                    sortable: false,
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
                     cellRenderer: (p) => {
@@ -265,6 +270,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                     field: "change_log",
                     headerName: "Changes",
                     width: 70,
+                    sortable: false,
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
                     cellRenderer: (p) => {
