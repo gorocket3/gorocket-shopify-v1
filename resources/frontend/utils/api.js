@@ -159,3 +159,15 @@ export async function getCompositionData() {
 export function isFreePlan(planId) {
     return planId === 1;
 }
+
+export async function cancelPlan() {
+    try {
+        return await fetchData({
+            method: 'POST',
+            url: '/api/plans/cancel',
+        });
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
