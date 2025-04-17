@@ -39,3 +39,27 @@ export function formatNumberWithCommas(value) {
 export function formatTitleCase(str) {
     return (str || '').replace(/\b\w/g, (match) => match.toUpperCase());
 }
+
+export function formatHistories(logs) {
+    const groupedLogs = {};
+
+    logs.forEach(log => {
+        const dateKey = log.created_at.split('T')[0];
+        if (!groupedLogs[dateKey]) {
+            groupedLogs[dateKey] = {
+                created_at: dateKey,
+                logs: []
+            };
+        }
+
+        if (typeof log.old_values === 'string') {
+            log.old_values = JSON.parse(log?.old_values || '{}');
+        }
+        if (typeof log.new_values === 'string') {
+            log.new_values = JSON.parse(log?.new_values || '{}');
+        }
+        groupedLogs[dateKey].logs.push(log);
+    });
+
+    return Object.values(groupedLogs);
+}

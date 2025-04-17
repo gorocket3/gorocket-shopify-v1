@@ -8,8 +8,9 @@ import HistoryPage from "./pages/history";
 import PlanPage from "./pages/plan";
 import ProductsPage from "./pages/products";
 
+const queryClient = new QueryClient();
+
 export default function App() {
-    const queryClient = new QueryClient();
     const { t } = useTranslation();
 
     return (

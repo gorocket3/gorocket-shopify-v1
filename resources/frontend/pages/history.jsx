@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import {
     Badge,
     BlockStack,
     Box,
+    Button,
     Card,
     Icon,
     InlineGrid,
@@ -27,31 +29,44 @@ import {
     MinusIcon,
     PlusIcon,
     ProductIcon,
+    RefreshIcon,
     VariantIcon,
 } from "@shopify/polaris-icons";
 import 'quill/dist/quill.snow.css';
 import productAttributes from "../components/grid/attributes.json";
 import { FeaturedImage } from "../components/history/featured-image";
 import { HtmlViewer } from "../components/history/html-viewer";
-import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
+import {
+    formatNumberWithCommas,
+    formatISOStringToReadableDate,
+    formatTitleCase,
+    formatHistories
+} from "../utils/formats";
 import { getHistoryData } from "../utils/api";
+import { useEffectWithoutInitialState } from "../utils/hooks";
+
+const QUERY_META_KEY = 'get-history-meta';
 
 export default function HistoryPage() {
     const navigate = useNavigate();
 
+    const queryClient = useQueryClient();
+    const lastQuery = queryClient.getQueryData([ QUERY_META_KEY ]) || {};
+
     const [ info, setInfo ] = useState({
-        shopId: null,
-        tabId: 0,
-        page: 1,
-        lastPage: 1,
-        from: 0,
-        to: 0,
-        perPage: 10,
-        total: 0,
-        loading: true,
-        firstLoading: true,
+        tabId: lastQuery.tabId || 0,
+        page: lastQuery.page || 1,
+        lastPage: lastQuery.lastPage || 1,
+        from: lastQuery.from || 0,
+        to: lastQuery.to || 0,
+        perPage: lastQuery.perPage || 10,
+        total: lastQuery.total || 0,
+        histories: lastQuery.histories || [],
+        loading: (lastQuery.histories || []).length < 1,
+        firstLoading: (lastQuery.histories || []).length < 1,
+        initLoading: !lastQuery.histories,
+        refreshLoading: false,
     });
-    const [ histories, setHistories ] = useState([]);
 
     async function setHistoryData() {
         const {
@@ -64,33 +79,41 @@ export default function HistoryPage() {
             perPage: info.perPage
         }); // data, page, lastPage, from, to, perPage, total
 
-        setHistories(formatHistories(data || []));
-        setInfo((info) => ({ ...info, ...(pageInfo || {}), loading: false, firstLoading: false }));
+        setInfo((info) => ({
+            ...info, ...(pageInfo || {}),
+            histories: formatHistories(data || []),
+            loading: false,
+            firstLoading: false,
+            initLoading: false,
+            refreshLoading: false,
+        }));
     }
 
-    function formatHistories(logs) {
-        const groupedLogs = {};
-
-        logs.forEach(log => {
-            const dateKey = log.created_at.split('T')[0];
-            if (!groupedLogs[dateKey]) {
-                groupedLogs[dateKey] = {
-                    created_at: dateKey,
-                    logs: []
-                };
-            }
-
-            log.old_values = JSON.parse(log.old_values || '{}');
-            log.new_values = JSON.parse(log.new_values || '{}');
-            groupedLogs[dateKey].logs.push(log);
+    useEffectWithoutInitialState(() => {
+        queryClient.setQueryData([ QUERY_META_KEY ], {
+            tabId: info.tabId,
+            page: info.page,
+            lastPage: info.lastPage,
+            from: info.from,
+            to: info.to,
+            perPage: info.perPage,
+            total: info.total,
+            histories: info.histories
         });
+    }, [ info.histories ]);
 
-        return Object.values(groupedLogs);
-    }
-
-    useEffect(() => {
+    useEffectWithoutInitialState(() => {
         setHistoryData();
     }, [ info.page, info.tabId ]);
+
+    useEffectWithoutInitialState(() => {
+        if (info.refreshLoading) setHistoryData();
+    }, [ info.refreshLoading ]);
+
+    useEffect(() => {
+        if (info.initLoading) setHistoryData();
+        else setInfo(i => ({ ...i, loading: false, firstLoading: false }));
+    }, []);
 
     return (
         <Page
@@ -99,14 +122,19 @@ export default function HistoryPage() {
         >
             <Box paddingBlockEnd="200">
                 <Card padding="100">
-                    <Tabs tabs={[
-                        { id: 'all-history-filter-1', content: 'All' },
-                        { id: 'shopify-history-filter-1', content: 'In Shopify' },
-                        { id: 'gorocket-history-filter-1', content: 'Via App' },
-                    ]} selected={info.tabId} onSelect={(num) => setInfo((i => ({ ...i, page: 1, tabId: num, loading: true, firstLoading: true })))}/>
+                    <InlineGrid columns="1fr auto" gap="200" alignItems="center">
+                        <Tabs tabs={[
+                            { id: 'all-history-filter-1', content: 'All' },
+                            { id: 'shopify-history-filter-1', content: 'In Shopify' },
+                            { id: 'gorocket-history-filter-1', content: 'Via App' },
+                        ]} selected={info.tabId} onSelect={(num) => setInfo((i => ({ ...i, page: 1, tabId: num, loading: true, firstLoading: true })))}/>
+                        <Box paddingInlineEnd="300">
+                            <Button icon={RefreshIcon} onClick={() => setInfo(i => ({ ...i, refreshLoading: true }))} loading={info.refreshLoading}/>
+                        </Box>
+                    </InlineGrid>
                 </Card>
             </Box>
-            {info.firstLoading ? (
+            {(info.initLoading || info.firstLoading) ? (
                 <Card padding="600">
                     <BlockStack gap="800">
                         <Box paddingBlock="400">
@@ -140,7 +168,7 @@ export default function HistoryPage() {
                     <Box paddingBlockStart="600">
                         <ResourceList
                             resourceName={{ singular: 'log', plural: 'logs' }}
-                            items={histories}
+                            items={info.histories}
                             loading={info.loading}
                             emptyState={
                                 <Box padding="600" paddingBlockEnd="1000">
