@@ -41,6 +41,7 @@ import {
     RedoIcon,
     SearchIcon,
     SettingsIcon,
+    SortIcon,
     UndoIcon,
     VariantIcon,
     XCircleIcon
@@ -495,6 +496,7 @@ export default function ProductsPage() {
                                         }))}
                                     />
                                 </Popover>
+                                {/*<Button icon={SortIcon} onClick={() => null}></Button>*/}
                                 <Popover
                                     active={gridCustomPopoverActive}
                                     activator={<Button icon={SettingsIcon}
@@ -520,7 +522,7 @@ export default function ProductsPage() {
                                     />
                                 </Popover>
                                 <Button id="search_product"
-                                        variant="secondary"
+                                        variant="primary"
                                         icon={SearchIcon}
                                         accessibilityLabel="Search"
                                         disabled={productAction.inProgress}
