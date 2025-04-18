@@ -20,8 +20,8 @@ export default function App() {
                     <NavMenu>
                         <Link to="/" rel="home"/>
                         <Link to="/products">{t("NavigationMenu.products")}</Link>
-                        <Link to="/plan">{t("NavigationMenu.plan")}</Link>
                         <Link to="/history">{t("NavigationMenu.history")}</Link>
+                        <Link to="/plan">{t("NavigationMenu.plan")}</Link>
                     </NavMenu>
                     <Routes>
                         <Route path="/" element={<HomePage/>}/>

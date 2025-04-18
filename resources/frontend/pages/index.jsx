@@ -151,8 +151,8 @@ export default function HomePage() {
             title="Gorocket Editor"
             secondaryActions={[
                 { content: 'Products', onAction: () => navigate('/products') },
-                { content: 'Plan', onAction: () => navigate('/plan') },
                 { content: 'History', onAction: () => navigate('/history') },
+                { content: 'Plan', onAction: () => navigate('/plan') }
             ]}
         >
             <ProgressNotifier syncCallback={(d) => updateCustomAction(d?.progress || 0)}/>
