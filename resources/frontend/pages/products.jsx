@@ -9,6 +9,7 @@ import {
     Button,
     ButtonGroup,
     Card,
+    ChoiceList,
     Divider,
     Icon,
     InlineGrid,
@@ -19,6 +20,7 @@ import {
     ProgressBar,
     ResourceItem,
     ResourceList,
+    Scrollable,
     SkeletonBodyText,
     SkeletonDisplayText,
     SkeletonTabs,
@@ -30,6 +32,8 @@ import {
 import {
     AlertCircleIcon,
     AlertTriangleIcon,
+    ArrowDownIcon,
+    ArrowUpIcon,
     CheckCircleIcon,
     DeleteIcon,
     EditIcon,
@@ -64,12 +68,23 @@ import {
     getSelectedSeoContents,
     setSeoContentFromAI,
     clearGlobalData,
+    updateSortData,
 } from "../components/grid/controller";
 import { ConfirmModal } from "../components/common/confirm-modal";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
 import { getHistoryData, getMyPlanData, getProductAiSeoContent } from "../utils/api";
 import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
+
+const SORT_OPTIONS = [
+    { label: 'Published At', value: 'publish_at' },
+    { label: 'Created At', value: 'created_at' },
+    { label: 'Updated At', value: 'updated_at' },
+    { label: 'Price', value: 'price' },
+    { label: 'Compare At Price', value: 'compare_at_price' },
+    { label: 'Inventory Quantity', value: 'inventory_quantity' },
+    { label: 'Weight', value: 'grams' },
+];
 
 export default function ProductsPage() {
     const navigate = useNavigate();
@@ -138,6 +153,12 @@ export default function ProductsPage() {
     // AI SEO
     const [ aiSeo, setAiSeo ] = useState({ rows: null, loading: false });
     const resetAiSeo = () => setAiSeo({ rows: null, loading: false });
+
+    // Sort
+    const [ sort, setSort ] = useState({ open: false, by: SORT_OPTIONS[0].value, desc: false });
+    const toggleSortOpen = (open) => setSort((s) => ({ ...s, open: !s.open }));
+    const setSortBy = (by) => setSort((s) => ({ ...s, by }));
+    const setSortDesc = (desc) => setSort((s) => ({ ...s, desc }));
 
     async function initProducts() {
         const planData = await getMyPlanData();
@@ -297,6 +318,10 @@ export default function ProductsPage() {
     useEffectWithoutInitialState(() => {
         updatePerPage(searchPerPage);
     }, [ searchPerPage ]);
+
+    useEffectWithoutInitialState(() => {
+        updateSortData({ sortBy: sort.by, sortDesc: sort.desc });
+    }, [ sort.by, sort.desc ]);
 
     useEffectWithoutInitialState(() => {
         if (productAction.progress === 100) {
@@ -496,12 +521,38 @@ export default function ProductsPage() {
                                         }))}
                                     />
                                 </Popover>
-                                {/*<Button icon={SortIcon} onClick={() => null}></Button>*/}
+                                <Popover
+                                    active={sort.open}
+                                    activator={<Button icon={SortIcon} onClick={toggleSortOpen}></Button>}
+                                    onClose={toggleSortOpen}
+                                >
+                                    <Scrollable shadow style={{ height: '300px' }} focusable scrollbarGutter="stable" scrollbarWidth="thin">
+                                        <Box padding="300">
+                                            <ChoiceList
+                                                title={<Text as="span" variant="headingMd" fontWeight="regular">Sort by</Text>}
+                                                choices={SORT_OPTIONS}
+                                                selected={sort.by}
+                                                onChange={(v) => setSortBy(v)}
+                                            />
+                                        </Box>
+                                        <Divider/>
+                                        <Box paddingBlock="200" paddingInline="150">
+                                            <BlockStack gap="100">
+                                                <Button icon={ArrowUpIcon} variant="tertiary" textAlign="left"
+                                                        pressed={!sort.desc} onClick={() => setSortDesc(false)}>
+                                                    <Text as="span" fontWeight="regular">Ascending</Text>
+                                                </Button>
+                                                <Button icon={ArrowDownIcon} variant="tertiary" textAlign="left"
+                                                        pressed={sort.desc} onClick={() => setSortDesc(true)}>
+                                                    <Text as="span" fontWeight="regular">Descending</Text>
+                                                </Button>
+                                            </BlockStack>
+                                        </Box>
+                                    </Scrollable>
+                                </Popover>
                                 <Popover
                                     active={gridCustomPopoverActive}
-                                    activator={<Button icon={SettingsIcon}
-                                                       onClick={toggleGridCustomPopover}
-                                                       disclosure></Button>}
+                                    activator={<Button icon={SettingsIcon} onClick={toggleGridCustomPopover}></Button>}
                                     onClose={toggleGridCustomPopover}
                                 >
                                     <ActionList

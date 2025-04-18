@@ -38,8 +38,20 @@ export function updatePerPage(perPage) {
     searchProducts();
 }
 
+export function updateSortData({ sortBy, sortDesc }) {
+    if (defaultData) {
+        defaultData.sort_by = sortBy;
+        defaultData.sort_dir = sortDesc ? 'desc' : 'asc';
+    }
+    searchProducts();
+}
+
 export function searchProducts() {
-    let params = getFilterParams(filterData, { per_page: defaultData?.per_page || 25 });
+    let params = getFilterParams(filterData, {
+        per_page: defaultData?.per_page || 25,
+        sort_by: defaultData?.sort_by || '',
+        sort_dir: defaultData?.sort_dir || ''
+    });
 
     if (gx) gx.gridOptions.api.hidePopupMenu();
     if (gx) gx.Request('/api/products', params, 1, function (v) {

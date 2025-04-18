@@ -1,3 +1,11 @@
 .Polaris-Icon {
     display: flex;
 }
+
+.Polaris-Button--pressed.Polaris-Button--pressed {
+    background-color: rgba(0,0,0,.08);
+}
+
+.Polaris-Button--pressed:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
