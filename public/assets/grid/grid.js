@@ -418,6 +418,8 @@ function HDGrid(gridDiv, columns, optionMixin = {}) {
             // 	},
             // },
         ],
+
+        loadingOverlayComponent: CustomLoadingOverlay,
     };
 
     Object.keys(optionMixin).forEach((key) => {
@@ -724,18 +726,38 @@ HDGrid.prototype.CalAggregation = function () { // 2022-07-08 동적으로 컬�
 };
 
 HDGrid.prototype.ShowLoadingLayer = function () {
-
-    //console.log(this.gridDiv);
-
     if ($('#is_loading_layer').length > 0) {
         $("#is_loading_layer").remove();
     } else {
-        var html = "<div id=\"is_loading_layer\" style=\"";
-        html += "position:fixed;top:50%;left:50%;z-index:3000;width:200px;margin-left:-100px;";
-        html += "padding:15px 20px;background:#000;border:1px solid #666;box-sizing:content-box;opacity:0.6;color:#fff;text-align:center;font-size:12px;\"";
-        html += ">";
-        html += "Loading the next page...";
-        html += "</div>";
+        let html = `
+            <div id="is_loading_layer" style="position: fixed;top: 50%;left: 50%;z-index: 3000;width: 230px;margin-left: -115px;">
+                <div class="ag-overlay-loading-center" role="presentation" style="padding: 12px;border: 1px solid #c9c9c9; background: white;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div role="presentation" style="height:150px; width:180px;">
+                            <div class="Polaris-LegacyCard">
+                                <div class="Polaris-LegacyCard__Section Polaris-LegacyCard__FirstSectionPadding">
+                                    <div class="Polaris-TextContainer">
+                                        <div class="Polaris-SkeletonDisplayText__DisplayText Polaris-SkeletonDisplayText--sizeSmall"></div>
+                                        <div class="Polaris-SkeletonBodyText__SkeletonBodyTextContainer">
+                                            <div class="Polaris-SkeletonBodyText"></div>
+                                            <div class="Polaris-SkeletonBodyText"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="Polaris-LegacyCard__Section Polaris-LegacyCard__LastSectionPadding">
+                                    <div class="Polaris-SkeletonBodyText__SkeletonBodyTextContainer">
+                                        <div class="Polaris-SkeletonBodyText"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div aria-live="polite" aria-atomic="true">
+                            <p style="font-size: 16px;">Loading next page...</p>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        `;
         $("body").append(html);
     }
 };

@@ -26,7 +26,8 @@
     <script src="/assets/grid/function.js?v=2025033115"></script>
     <script src="/assets/grid/init.js?v=2025033115"></script>
     <script src="/assets/grid/grid_field_editor.js?v=2025033115"></script>
-    <script src="/assets/grid/grid.js?v=2025041718"></script>
+    <script src="/assets/grid/loading_overlay.js?v=2025041811"></script>
+    <script src="/assets/grid/grid.js?v=2025041811"></script>
     <link rel="stylesheet" href="/assets/grid/grid.css?v=2025041612">
     <!-- // AG-GRID -->
 
