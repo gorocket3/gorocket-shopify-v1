@@ -85,7 +85,7 @@ export default function PlanPage() {
                                             </InlineStack>
                                             <Text as='p' variant="heading2xl">
                                                 ${plan.price}
-                                                <Text as='span' variant="bodySm">/{plan.interval}</Text>
+                                                <Text as='span' variant="bodySm"> / month</Text>
                                             </Text>
                                             <Box minHeight="32px">
                                                 {plan.id === 1 && !plan.user_plan && (
