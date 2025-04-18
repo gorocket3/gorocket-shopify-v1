@@ -814,7 +814,7 @@ export default function ProductsPage() {
                 onClose={() => setConfirmType(null)}
                 size="small"
                 primaryText={confirmType === 'save_columns' ? 'Save' : (confirmType === 'reset_columns' ? 'Reset' : (confirmType === 'delete_product' ? 'Delete' : ''))}
-                primaryTone={confirmType === 'delete_product' ? 'critical' : ''}
+                primaryTone={confirmType === 'reset_columns' ? 'critical' : ''}
                 onPrimary={async () => {
                     setConfirmType(null);
 

@@ -337,7 +337,7 @@ export function getSelectedSeoContents() {
     const rows = gx.gridOptions.api.getSelectedRows();
 
     if (rows.length < 1) {
-        showError('Please select the product(s) for which you want to generate AI SEO information.');
+        showInfo('Please select the product(s) for which you want to generate AI SEO information.');
         return null;
     }
 
