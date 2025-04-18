@@ -48,6 +48,7 @@ import {
     SortIcon,
     UndoIcon,
     VariantIcon,
+    ViewIcon,
     XCircleIcon
 } from "@shopify/polaris-icons";
 import ProgressNotifier from "../components/common/progress-notifier";
@@ -505,12 +506,13 @@ export default function ProductsPage() {
                                 <Popover
                                     active={searchPerPagePopoverActive}
                                     activator={
-                                        <Button onClick={toggleSearchPerPagePopover} disclosure>
-                                            <Text as="span" fontWeight="regular">view</Text> {searchPerPage}
-                                        </Button>
+                                        <Button icon={ViewIcon} onClick={toggleSearchPerPagePopover}>{searchPerPage}</Button>
                                     }
                                     onClose={toggleSearchPerPagePopover}
                                 >
+                                    <Box padding="300" paddingBlockEnd="050" paddingInlineEnd="800">
+                                        <Text as="span" variant="headingMd" fontWeight="regular" alignment="start">Per page</Text>
+                                    </Box>
                                     <ActionList
                                         actionRole="menuitem"
                                         onActionAnyItem={toggleSearchPerPagePopover}
