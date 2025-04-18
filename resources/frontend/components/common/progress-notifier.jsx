@@ -72,7 +72,7 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
     useEffectWithoutInitialState(() => {
         if (loadingToast.dismiss) {
             shopify.toast.hide(loadingToast.id);
-            shopify.toast.show('Additional data processed successfully.', { duration: 2000 });
+            shopify.toast.show('Additional data processed successfully.  Please refresh the product.', { duration: 2000 });
         }
     }, [ loadingToast.dismiss ]);
 
