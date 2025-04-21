@@ -135,6 +135,16 @@ export default function HomePage() {
     }, [ customAction.in_progress ]);
 
     useEffectWithoutInitialState(() => {
+        if (customAction.in_progress) {
+            const interval = setInterval(() => {
+                setTotalProductCount();
+            }, 2500);
+
+            return () => clearInterval(interval);
+        }
+    }, [customAction.in_progress]);
+
+    useEffectWithoutInitialState(() => {
         if (customAction.complete) setTotalProductCount();
     }, [ customAction.complete ]);
 
