@@ -24,8 +24,6 @@ return new class extends Migration
 
             $table->unique(['product_id', 'user_id']);
             $table->index('grade');
-
-            $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
         });
     }
 
