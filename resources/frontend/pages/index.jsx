@@ -44,6 +44,7 @@ export default function HomePage() {
     const [ introCard, setIntroCard ] = useState({ banner1: true, banner2: true });
 
     const customActionInterval = useRef();
+    const productCountInterval = useRef();
     const [ customActionDuration, setCustomActionDuration ] = useState(1);
     const [ customAction, setCustomAction ] = useState({ type: '', progress: 0, in_progress: false, complete: false });
     const startCustomAction = (type, progress = 0) => setCustomAction((action) => ({
@@ -136,11 +137,14 @@ export default function HomePage() {
 
     useEffectWithoutInitialState(() => {
         if (customAction.in_progress) {
-            const interval = setInterval(() => {
+            productCountInterval.current = setInterval(() => {
                 setTotalProductCount();
             }, 2500);
-
-            return () => clearInterval(interval);
+        } else {
+            if (productCountInterval.current) {
+                clearInterval(productCountInterval.current);
+                productCountInterval.current = null;
+            }
         }
     }, [customAction.in_progress]);
 
