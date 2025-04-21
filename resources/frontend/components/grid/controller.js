@@ -1,7 +1,7 @@
 import { getCompositionData, isFreePlan } from "../../utils/api";
 import fetchData from "../../utils/fetch";
 import { formatNumberWithCommas } from "../../utils/formats";
-import { showError } from "../../utils/toasts";
+import { showError, showInfo } from "../../utils/toasts";
 import getInitialColumns from "./columns";
 import COLUMN_PARAMS from "./cols.json";
 
@@ -133,12 +133,12 @@ export function searchProducts() {
 export function getProductsToUpdate() {
     let selectedRows = gx.gridOptions.api.getSelectedRows();
     if (selectedRows.length < 1) {
-        shopify.toast.show('Please select the product(s) to save.', { isError: true });
+        showError('Please select the product(s) to save.');
         return null;
     }
 
     if (editedCellCount > defaultData.plan_selected_limit) {
-        shopify.toast.show('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')', { isError: true });
+        showError('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')');
         return null;
     }
 
@@ -193,13 +193,12 @@ export async function saveProducts(rows, limitCallback, errorCallback = null) {
         resetGridNodes();
     } catch (e) {
         if (e?.status === 429) {
-            shopify.toast.show('Update request limit exceeded.', {
-                isError: true,
+            showError('Update request limit exceeded.', {
                 action: 'Upgrade Plan',
                 onAction: limitCallback
             });
         } else {
-            shopify.toast.show('An error occurred while updating the product. Please try again.', { isError: true });
+            showError('An error occurred while updating the product. Please try again.');
         }
         if (errorCallback) errorCallback();
     } finally {
@@ -210,7 +209,7 @@ export async function saveProducts(rows, limitCallback, errorCallback = null) {
 export function getProductsToRemove() {
     let rows = gx.gridOptions.api.getSelectedRows();
     if (rows.length < 1) {
-        shopify.toast.show('Please select the product(s) to delete.', { isError: true });
+        showError('Please select the product(s) to delete.');
         return null;
     }
 
@@ -258,9 +257,9 @@ export async function connectProducts(errorCallback = null) {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
         if (e?.status === 429) {
-            shopify.toast.show('Connect request limit exceeded. (Once every 30 minutes)', { isError: true });
+            showError('Connect request limit exceeded. (Once every 30 minutes)');
         } else {
-            shopify.toast.show('An error occurred while connecting products. Please try again.', { isError: true });
+            showError('An error occurred while connecting products. Please try again.');
         }
         if (errorCallback) errorCallback();
     }
@@ -308,7 +307,7 @@ export async function saveColumns(e) {
         }
 
         const res = await response.json();
-        shopify.toast.show('Column information has been saved.');
+        showInfo('Column information has been saved.');
     } catch (error) {
         console.error('Error saving personal column:', error);
     }
@@ -327,7 +326,7 @@ export async function resetColumns(e) {
         //     throw new Error(`HTTP error! Status: ${response.status}`);
         // }
 
-        shopify.toast.show('Column information has been reset.');
+        showInfo('Column information has been reset.');
         gx.gridOptions.api.destroy();
         refreshGrid(initData, defaultData, showChangesCallback, showSeoLogsCallback, startGridCallback);
     } catch (error) {
@@ -506,7 +505,7 @@ async function openOnlineStoreLink(product_id) {
         window.open(preview_url, '_blank');
     } catch (error) {
         console.error(error);
-        shopify.toast.show('Incorrect product information.', { isError: true });
+        showError('Incorrect product information.');
     } finally {
         gx.HideCustomLoadingLayer();
     }
@@ -522,7 +521,7 @@ function addEditedCellCount(num, reset = false) {
     }
 
     if (editedCellCount > defaultData.plan_selected_limit) {
-        shopify.toast.show('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')', { isError: true });
+        showError('You have reached the edit limit for your current plan. (Maximum: ' + formatNumberWithCommas(defaultData.plan_selected_limit) + ')');
     }
 }
 

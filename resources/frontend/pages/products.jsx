@@ -78,6 +78,7 @@ import { SeoLogModal } from "../components/products/seo-log-modal";
 import { getHistoryData, getMyPlanData, generateProductAiSeoContent } from "../utils/api";
 import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
+import { showInfo } from "../utils/toasts";
 
 const SORT_OPTIONS = [
     { label: 'Published At', value: 'publish_at' },
@@ -375,7 +376,7 @@ export default function ProductsPage() {
                 resetProductAction();
                 if (productAction.type !== 'update') searchClick();
                 else if (info.selectableCount < 1) hideSaveBar();
-                shopify.toast.show('The operation completed successfully.');
+                showInfo('The operation completed successfully.');
             }, 1000);
         }
     }, [ productAction.progress ]);

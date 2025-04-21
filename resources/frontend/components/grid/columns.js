@@ -1,5 +1,6 @@
 import fetchData from "../../utils/fetch";
 import { formatISOStringToReadableDate, formatTitleCase } from "../../utils/formats";
+import { showError } from "../../utils/toasts";
 import GridContentEditor from "./editor";
 
 export default function getInitialColumns(data, showChangesModal, showSeoLogsModal, onlineStoreLinkCallback, editedCellCallback) {
@@ -95,7 +96,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
 
     const changeCellStateIfNumber = (field, e) => {
         if (isNaN(e.newValue * 1)) {
-            shopify.toast.show('Please enter in numeric format.', { isError: true });
+            showError('Please enter in numeric format.');
             e.data[e.colDef.field] = e.oldValue;
             e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
             return;
@@ -455,7 +456,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     onCellValueChanged: async (e) => {
                         const rows = getAllRowsExceptCurrent(e).map(row => row.handle);
                         if (e.data.prev.handle !== e.newValue && ([ ...new Set(rows) ].includes(e.newValue) || await checkIsHandleDuplicate(e.newValue))) {
-                            shopify.toast.show('The URL handle is already in use.', { isError: true });
+                            showError('The URL handle is already in use.');
                             e.data[e.colDef.field] = e.oldValue;
                             e.api.refreshCells({ columns: [ e.colDef.field ], rosNodes: [ e.node ] });
                             e.api.startEditingCell({ rowIndex: e.node.rowIndex, colKey: e.colDef.field });
