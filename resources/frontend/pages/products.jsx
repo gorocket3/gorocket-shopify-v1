@@ -529,18 +529,24 @@ export default function ProductsPage() {
                                     Product Variants
                                 </Text>
                                 <InlineStack gap="200">
-                                    <Badge size="large"
-                                           tone={(info.editableCount / info.editableLimit) >= 1 ? 'critical' : ((info.editableCount / info.editableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
-                                        <Text as="strong" fontWeight="bold">{info.editableCount}</Text>/{formatNumberWithCommas(info.editableLimit || 0)} edited
-                                    </Badge>
-                                    <Badge size="large"
-                                           tone={(info.selectableCount / info.selectableLimit) >= 1 ? 'critical' : ((info.selectableCount / info.selectableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
-                                        <Text as="strong" fontWeight="bold">{info.selectableCount}</Text>/{formatNumberWithCommas(info.selectableLimit || 0)} selected
-                                    </Badge>
-                                    <Badge size="large"
-                                           tone={(info.aiSeoCount / info.aiSeoLimit) >= 1 ? 'critical' : ((info.aiSeoCount / info.aiSeoLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
-                                        <Text as="strong" fontWeight="bold">{info.aiSeoCount}</Text>/{formatNumberWithCommas(info.aiSeoLimit || 0)} seo generated
-                                    </Badge>
+                                    <UpgradePlanTooltip active={(info.editableCount / info.editableLimit) * 10 >= 8}>
+                                        <Badge size="large"
+                                               tone={(info.editableCount / info.editableLimit) >= 1 ? 'critical' : ((info.editableCount / info.editableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                                            <Text as="strong" fontWeight="bold">{info.editableCount}</Text>/{formatNumberWithCommas(info.editableLimit || 0)} edited
+                                        </Badge>
+                                    </UpgradePlanTooltip>
+                                    <UpgradePlanTooltip active={(info.selectableCount / info.selectableLimit) * 10 >= 8}>
+                                        <Badge size="large"
+                                               tone={(info.selectableCount / info.selectableLimit) >= 1 ? 'critical' : ((info.selectableCount / info.selectableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                                            <Text as="strong" fontWeight="bold">{info.selectableCount}</Text>/{formatNumberWithCommas(info.selectableLimit || 0)} selected
+                                        </Badge>
+                                    </UpgradePlanTooltip>
+                                    <UpgradePlanTooltip active={(info.aiSeoCount / info.aiSeoLimit) * 10 >= 8}>
+                                        <Badge size="large"
+                                               tone={(info.aiSeoCount / info.aiSeoLimit) >= 1 ? 'critical' : ((info.aiSeoCount / info.aiSeoLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                                            <Text as="strong" fontWeight="bold">{info.aiSeoCount}</Text>/{formatNumberWithCommas(info.aiSeoLimit || 0)} seo generated
+                                        </Badge>
+                                    </UpgradePlanTooltip>
                                 </InlineStack>
                             </InlineStack>
                             <InlineStack gap="200" align="end" blockAlign="center">
@@ -903,5 +909,26 @@ export default function ProductsPage() {
                 ) : ''}
             </ConfirmModal>
         </Page>
+    );
+}
+
+function UpgradePlanTooltip({ children, active }) {
+    return (
+        <Tooltip active={active} width="wide"
+                 content={(
+                     <Box padding="100">
+                         <InlineGrid gap="200" columns="auto 1fr">
+                             <Box>
+                                 <Icon source={AlertTriangleIcon} tone="warning"/>
+                             </Box>
+                             <Text as="p">
+                                 You’re close to the limit for your current plan. Upgrade
+                                 plan to keep going without restrictions.
+                             </Text>
+                         </InlineGrid>
+                     </Box>
+                 )}>
+            {children}
+        </Tooltip>
     );
 }

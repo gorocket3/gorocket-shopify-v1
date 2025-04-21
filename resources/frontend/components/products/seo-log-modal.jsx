@@ -11,7 +11,8 @@ import {
     SkeletonDisplayText,
     SkeletonBodyText,
     InlineStack,
-    Badge
+    Badge,
+    EmptySearchResult
 } from "@shopify/polaris";
 import { getProductAiSeoLogs } from "../../utils/api";
 import { formatISOStringToReadableDate, formatNumberWithCommas } from "../../utils/formats";
@@ -86,7 +87,7 @@ export function SeoLogModal({ seoLog, setSeoLog, onApply }) {
                         stickyHeader={true}
                         totals={[ '' ]}
                         totalsName={{ singular: `Totals ${seoLog.total}`, plural: `Totals ${seoLog.total}` }}
-                        pagination={{
+                        pagination={seoLog.currentLogs.length > 0 && {
                             hasPrevious: seoLog.page > 1,
                             hasNext: seoLog.page < seoLog.lastPage,
                             onPrevious: () => setSeoLogPage(Math.max(seoLog.page - 1, 1)),
@@ -108,6 +109,14 @@ export function SeoLogModal({ seoLog, setSeoLog, onApply }) {
                                     </BlockStack>
                                 </Box>
                             </>
+                        ) ] ] : seoLog.currentLogs.length < 1 ? [ [ (
+                            <Box paddingBlock="400">
+                                <EmptySearchResult
+                                    title="No Data exists to Display"
+                                    description="This product has no AI SEO generation log."
+                                    withIllustration
+                                />
+                            </Box>
                         ) ] ] : seoLog.currentLogs.map(item => {
                             const { createdAt, title, description } = item[0];
                             return [

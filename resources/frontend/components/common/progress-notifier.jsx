@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Pusher from "pusher-js";
 import { getSyncStatusData } from "../../utils/api";
 import { useEffectWithoutInitialState } from "../../utils/hooks";
+import { showInfo } from "../../utils/toasts";
 
 export default function ProgressNotifier({ syncCallback, updateCallback, deleteCallback }) {
     const [ info, setInfo ] = useState({ shopId: null, syncing: false, progress: 0, bulking: null, channelName: null });
@@ -62,7 +63,7 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
 
     useEffectWithoutInitialState(() => {
         if (!loadingToast.id && (info.progress === 100 || info.bulking === 1)) {
-            const tst = shopify.toast.show('Processing additional data... This may take a few minutes.');
+            const tst = showInfo('Processing additional data... This may take a few minutes.');
             setLoadingToast((lt) => ({ ...lt, id: tst }));
         } else if (loadingToast.id && info.bulking === 100) {
             setLoadingToast((lt) => ({ ...lt, id: null, dismiss: true }));
@@ -72,7 +73,7 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
     useEffectWithoutInitialState(() => {
         if (loadingToast.dismiss) {
             shopify.toast.hide(loadingToast.id);
-            shopify.toast.show('Additional data processed successfully.  Please refresh the product.', { duration: 2000 });
+            showInfo('Additional data processed successfully.  Please refresh the product.', { duration: 2000 });
         }
     }, [ loadingToast.dismiss ]);
 
