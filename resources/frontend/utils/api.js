@@ -123,7 +123,21 @@ export async function syncProducts() {
     }
 }
 
-export async function getProductAiSeoContent({ productId, title, description, tags, productType }) {
+export async function getProductAiSeoLogs({ productId, perPage, page }) {
+    try {
+        const params = `per_page=${perPage}&page=${page}&product_id=${productId}`;
+        const { data, current_page, last_page, from, to, per_page, total } = await fetchData({
+            method: 'GET',
+            url: '/api/usage?' + params
+        });
+        return { data, page: current_page, lastPage: last_page, from, to, perPage: per_page, total };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
+export async function generateProductAiSeoContent({ productId, title, description, tags, productType }) {
     try {
         const { product_id: seoProductId, title: seoTitle, description: seoDescription } = await fetchData({
             method: 'POST',

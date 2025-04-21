@@ -153,6 +153,7 @@ class ProductController extends Controller
             'aiScore'
         ])
         ->withCount('logs')
+        ->withCount('aiGeneration')
         ->whereIn('product_id', $productIds)
         ->orderByRaw("FIELD(product_id, " . $productIds->implode(',') . ")")
         ->get();

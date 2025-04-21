@@ -70,10 +70,12 @@ import {
     setSeoContentFromAI,
     clearGlobalData,
     updateSortData,
+    setSeoContentFromLog,
 } from "../components/grid/controller";
 import { ConfirmModal } from "../components/common/confirm-modal";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
-import { getHistoryData, getMyPlanData, getProductAiSeoContent } from "../utils/api";
+import { SeoLogModal } from "../components/products/seo-log-modal";
+import { getHistoryData, getMyPlanData, generateProductAiSeoContent } from "../utils/api";
 import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
 
@@ -154,6 +156,33 @@ export default function ProductsPage() {
     // AI SEO
     const [ aiSeo, setAiSeo ] = useState({ rows: null, loading: false });
     const resetAiSeo = () => setAiSeo({ rows: null, loading: false });
+
+    // AI SEO Log
+    const [ seoLog, setSeoLog ] = useState({
+        productId: null,
+        productName: null,
+        thumbnail: null,
+        currentSeo: null,
+        logs: {},
+        currentLogs: [],
+        page: 1,
+        lastPage: 1,
+        from: 0,
+        to: 0,
+        perPage: 10,
+        total: 0,
+        loading: false
+    });
+    const openSeoLog = ({ productId, productName, thumbnail, title, description }) => setSeoLog((log) => ({
+        ...log,
+        productId,
+        productName,
+        thumbnail,
+        currentSeo: { title, description },
+        logs: {},
+        currentLogs: [],
+        loading: true
+    }));
 
     // Sort
     const [ sort, setSort ] = useState({ open: false, by: SORT_OPTIONS[0].value, desc: false });
@@ -269,7 +298,7 @@ export default function ProductsPage() {
             const result = await Promise.all(
                 data.map(async (item) => {
                     const { productId, title, description, tags, productType } = item;
-                    const res = await getProductAiSeoContent({ productId, title, description, tags, productType });
+                    const res = await generateProductAiSeoContent({ productId, title, description, tags, productType });
                     return {
                         seoProductId: res.seoProductId,
                         seoTitle: res.seoTitle || '',
@@ -305,12 +334,28 @@ export default function ProductsPage() {
         });
     }
 
+    function applyAiSeoFromLog({ productId, title, description }) {
+        setSeoContentFromLog({ productId, seoTitle: title, seoDescription: description });
+    }
+
     useEffectWithoutInitialState(() => {
         initGrid({
             plan_id: info.planId,
             plan_selected_limit: info.selectableLimit,
             default_per_page: searchPerPage,
-            show_changes: (prd) => setHistoryInfo((info) => ({ ...info, product: prd, loading: true, firstLoading: true })),
+            show_changes: (prd) => setHistoryInfo((info) => ({
+                ...info,
+                product: prd,
+                loading: true,
+                firstLoading: true
+            })),
+            show_seo_logs: (prd) => openSeoLog({
+                productId: prd.product_id,
+                productName: prd.product_name,
+                thumbnail: prd.product_img,
+                title: prd.seo_title,
+                description: prd.seo_description
+            }),
             start_grid: () => setGridSetUp(true),
             set_selectable_count: setSelectableCount,
         });
@@ -591,12 +636,13 @@ export default function ProductsPage() {
                 </Card>
             </div>
             <AiSeoModal open={!!aiSeo.rows && aiSeo.rows.length > 0} onClose={resetAiSeo} contents={aiSeo.rows || []} onGenerate={generateAiSeo} generateLoading={aiSeo.loading} onApply={applyAiSeo}/>
+            <SeoLogModal seoLog={seoLog} setSeoLog={setSeoLog} onApply={applyAiSeoFromLog}/>
             <Modal
                 variant="large"
                 open={!!historyInfo.product}
                 onHide={() => setHistoryInfo((info) => ({ ...info, product: null }))}
             >
-                <TitleBar title={'The Snowboard' + '\'s change history'}></TitleBar>
+                <TitleBar title={`${historyInfo.product?.product_name || ''}'s change history`}></TitleBar>
                 <Tabs tabs={[
                     { id: 'all-history-filter-1', content: 'All' },
                     { id: 'shopify-history-filter-1', content: 'In Shopify' },

@@ -5,11 +5,11 @@ import { showError } from "../../utils/toasts";
 import getInitialColumns from "./columns";
 import COLUMN_PARAMS from "./cols.json";
 
-let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, startGridCallback, setSelectableCount;
+let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, showSeoLogsCallback, startGridCallback, setSelectableCount;
 let editedCellCount = 0;
 let filterLoading = false;
 
-export async function initGrid({ plan_id, plan_selected_limit, default_per_page, show_changes, start_grid, set_selectable_count }) {
+export async function initGrid({ plan_id, plan_selected_limit, default_per_page, show_changes, show_seo_logs, start_grid, set_selectable_count }) {
     pApp = new App('', { gridId: "#div-gd" });
 
     // const is_mobile = document.body.offsetWidth <= 1007;
@@ -22,9 +22,10 @@ export async function initGrid({ plan_id, plan_selected_limit, default_per_page,
     initData = await getInitialData();
     defaultData = { plan_id, plan_selected_limit, per_page: default_per_page };
     showChangesCallback = show_changes;
+    showSeoLogsCallback = show_seo_logs;
     startGridCallback = start_grid;
     setSelectableCount = set_selectable_count;
-    refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
+    refreshGrid(initData, defaultData, showChangesCallback, showSeoLogsCallback, startGridCallback);
 }
 
 export function clearGlobalData() {
@@ -96,6 +97,7 @@ export function searchProducts() {
                 product_status: item.parent.status,
                 vendor: item.parent.vendor,
                 handle: item.parent.handle,
+                seo_logs_count: item.parent.ai_generation_count,
                 seo_title: item.parent.seo_title,
                 seo_description: item.parent.seo_description,
                 seo_grade: item.parent.ai_score?.grade ?? 'bad',
@@ -327,7 +329,7 @@ export async function resetColumns(e) {
 
         shopify.toast.show('Column information has been reset.');
         gx.gridOptions.api.destroy();
-        refreshGrid(initData, defaultData, showChangesCallback, startGridCallback);
+        refreshGrid(initData, defaultData, showChangesCallback, showSeoLogsCallback, startGridCallback);
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
@@ -366,12 +368,24 @@ export async function setSeoContentFromAI(data, callback) {
     callback();
 }
 
+export function setSeoContentFromLog({ productId, seoTitle, seoDescription }, callback = null) {
+    gx.gridOptions.api.forEachNode((node) => {
+        if (node.data.position > 1) return;
+
+        if (productId === node.data.product_id) {
+            node.setDataValue('seo_title', seoTitle);
+            node.setDataValue('seo_description', seoDescription);
+        }
+    });
+    if (callback) callback();
+}
+
 /*
     Private Function
 */
 
-async function refreshGrid(data, defaultData, showChangesModal, startGrid) {
-    const default_columns = [ ...getInitialColumns(data, showChangesModal, openOnlineStoreLink, addEditedCellCount) ];
+async function refreshGrid(data, defaultData, showChangesModal, showSeoLogsModal, startGrid) {
+    const default_columns = [ ...getInitialColumns(data, showChangesModal, showSeoLogsModal, openOnlineStoreLink, addEditedCellCount) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
     gx = new HDGrid(gridDiv, my_columns, {

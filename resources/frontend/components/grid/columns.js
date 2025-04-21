@@ -2,7 +2,7 @@ import fetchData from "../../utils/fetch";
 import { formatISOStringToReadableDate, formatTitleCase } from "../../utils/formats";
 import GridContentEditor from "./editor";
 
-export default function getInitialColumns(data, showChangesModal, onlineStoreLinkCallback, editedCellCallback) {
+export default function getInitialColumns(data, showChangesModal, showSeoLogsModal, onlineStoreLinkCallback, editedCellCallback) {
     const {
         collections = [],
         categories = [],
@@ -288,7 +288,7 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
                         const count = p.data.logs_count ?? 0;
                         const hasLog = count > 0;
                         const iconColorClass = hasLog ? 'Polaris-Icon--toneSuccess' : 'Polaris-Icon--toneSubdued';
-                        const badge = hasLog ? `<span class="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[9px] font-medium rounded-full px-[5px] py-[1px] leading-tight shadow-sm border border-white z-1">${count}</span>` : '';
+                        const badge = hasLog ? `<span class="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[9px] font-medium rounded-full px-[5px] py-[1px] leading-tight shadow-sm border border-white z-1">${count > 99 ? '99+' : count}</span>` : '';
 
                         return `
                             <div class="inline-block relative top-1.5 cursor-pointer">
@@ -503,6 +503,37 @@ export default function getInitialColumns(data, showChangesModal, onlineStoreLin
         {
             headerName: "SEO",
             children: [
+                {
+                    field: "seo_logs",
+                    headerName: "Logs",
+                    width: 70,
+                    cellStyle: cellMergeStyling,
+                    cellClass: 'hd-grid-code',
+                    valueGetter: (p) => p.data.seo_logs_count ?? 0,
+                    cellRenderer: (p) => {
+                        if (p.data.position > 1) return '';
+
+                        const count = p.data.seo_logs_count ?? 0;
+                        const hasLog = count > 0;
+                        const iconColorClass = hasLog ? 'Polaris-Icon--toneMagic' : 'Polaris-Icon--toneSubdued';
+                        const badge = hasLog ? `<span class="absolute -top-1.5 -right-1.5 bg-violet-500 text-white text-[9px] font-medium rounded-full px-[5px] py-[1px] leading-tight shadow-sm border border-white z-1">${count > 99 ? '99+' : count}</span>` : '';
+
+                        return `
+                            <div class="inline-block relative top-1.5 cursor-pointer">
+                                <span class="Polaris-Icon Polaris-hover ${iconColorClass}">
+                                    <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Change Log Icon</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="20" height="20">
+                                        <path d="M7.75 12a.75.75 0 0 0-1.5 0v1.293c0 .331.132.65.366.884l.854.853a.75.75 0 0 0 1.06-1.06l-.78-.78v-1.19Z"/>
+                                        <path fill-rule="evenodd" d="M14.25 17h-4.421a4.5 4.5 0 1 1-3.579-7.938v-3.312a2.75 2.75 0 0 1 2.75-2.75h3a.75.75 0 0 1 .53.22l4.25 4.25c.141.14.22.331.22.53v6.25a2.75 2.75 0 0 1-2.75 2.75Zm-6.5-11.25c0-.69.56-1.25 1.25-1.25h2.25v2.5c0 .966.784 1.75 1.75 1.75h2.5v5.5c0 .69-.56 1.25-1.25 1.25h-3.218a4.501 4.501 0 0 0-3.282-6.438v-3.312Zm6.69 1.5-1.69-1.69v1.44c0 .138.112.25.25.25h1.44Zm-7.44 9.25a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                    </svg>
+                                    ${badge}
+                                </span>
+                            </div>
+                        `;
+                    },
+                    onCellClicked: (p) => p.data.position > 1 ? null : showSeoLogsModal(p.data),
+                    tooltipValueGetter: (p) => ' View AI SEO Generation History. ',
+                },
                 {
                     field: "seo_title",
                     headerName: "Title",

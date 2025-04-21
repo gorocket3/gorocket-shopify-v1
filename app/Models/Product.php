@@ -113,4 +113,12 @@ class Product extends BaseModel
     {
         return $this->hasOne(AIScore::class, 'product_id', 'product_id');
     }
+
+    /**
+     * Get the AI generation associated with the product.
+     */
+    public function aiGeneration(): hasMany
+    {
+        return $this->hasMany(AIGeneration::class, 'product_id', 'product_id');
+    }
 }
