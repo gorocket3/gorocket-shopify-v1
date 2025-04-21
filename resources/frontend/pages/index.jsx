@@ -347,6 +347,9 @@ export default function HomePage() {
                                                     <ProgressBar progress={Math.max(customAction.progress, 3)}
                                                                  tone="success"/>
                                                 </Box>
+                                                <Text as="span" variant="bodySm" tone="success" fontWeight="bold" style={{ minWidth: '32px', textAlign: 'right', letterSpacing: '-0.2px' }}>
+                                                    {Math.round(Math.max(customAction.progress, 3))}%
+                                                </Text>
                                                 {customActionDuration >= 180 && (
                                                     <div style={{ cursor: 'pointer' }}
                                                          onClick={() => resetCustomAction()}>
