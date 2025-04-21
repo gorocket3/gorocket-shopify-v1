@@ -18,9 +18,9 @@ class ShopRedactJob implements ShouldQueue
     /**
      * The shop's myshopify domain.
      *
-     * @var ShopDomain
+     * @var string
      */
-    public ShopDomain $shopDomain;
+    public string $shopDomain;
 
     /**
      * The webhook data.
@@ -32,10 +32,10 @@ class ShopRedactJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param ShopDomain $shopDomain
+     * @param string $shopDomain
      * @param object $data
      */
-    public function __construct(ShopDomain $shopDomain, object $data)
+    public function __construct(string $shopDomain, object $data)
     {
         $this->shopDomain = $shopDomain;
         $this->data = $data;
@@ -47,16 +47,14 @@ class ShopRedactJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $shop = User::where('name', $this->shopDomain->toNative())->first();
-
+            $shop = User::where('name', $this->shopDomain)->first();
             if ($shop) {
-                $shop->delete();
-                Log::info("[GDPR] shop/redact - {$this->shopDomain->toNative()}");
+                Log::info("[GDPR] shop/redact - {$this->shopDomain}");
             } else {
-                Log::warning("[GDPR] shop/redact - {$this->shopDomain->toNative()} - Shop not found");
+                Log::warning("[GDPR] shop/redact - {$this->shopDomain} - Shop not found");
             }
         } catch (Exception $e) {
-            Log::error("[GDPR] shop/redact - {$this->shopDomain->toNative()} - Error: {$e->getMessage()}");
+            Log::error("[GDPR] shop/redact - {$this->shopDomain} - Error: {$e->getMessage()}");
         }
     }
 }

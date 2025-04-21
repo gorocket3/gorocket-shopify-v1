@@ -17,9 +17,9 @@ class CustomersDataRequestJob implements ShouldQueue
     /**
      * Shop's myshopify domain
      *
-     * @var ShopDomain
+     * @var string
      */
-    public ShopDomain $shopDomain;
+    public string $shopDomain;
 
     /**
      * The webhook data
@@ -31,12 +31,12 @@ class CustomersDataRequestJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param ShopDomain $shopDomain The shop's myshopify domain
-     * @param object     $data       The webhook data (JSON decoded)
+     * @param string $shopDomain The shop's myshopify domain
+     * @param object $data       The webhook data (JSON decoded)
      *
      * @return void
      */
-    public function __construct(ShopDomain $shopDomain, object $data)
+    public function __construct(string $shopDomain, object $data)
     {
         $this->shopDomain = $shopDomain;
         $this->data = $data;
@@ -49,6 +49,6 @@ class CustomersDataRequestJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info("[GDPR] customers/data_request - {$this->shopDomain->toNative()}");
+        Log::info("[GDPR] customers/data_request - {$this->shopDomain}");
     }
 }
