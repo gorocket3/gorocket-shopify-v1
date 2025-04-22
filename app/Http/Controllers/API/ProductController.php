@@ -223,7 +223,9 @@ class ProductController extends Controller
                 if (is_array($collection)) {
                     $q->whereIn('collections', $collection);
                 } elseif (is_null($collection)) {
-                    $q->whereNull('collections')->orWhere('collections', '');
+                    $q->where(function ($q) {
+                        $q->whereNull('collections')->orWhere('collections', '');
+                    });
                 } else {
                     $q->where('collections', $collection);
                 }
@@ -233,7 +235,9 @@ class ProductController extends Controller
                 if (is_array($category)) {
                     $q->whereIn('category', $category);
                 } elseif (is_null($category)) {
-                    $q->whereNull('category')->orWhere('category', '');
+                    $q->where(function ($q) {
+                        $q->whereNull('category')->orWhere('category', '');
+                    });
                 } else {
                     $q->where('category', $category);
                 }
@@ -243,7 +247,9 @@ class ProductController extends Controller
                 if (is_array($type)) {
                     $q->whereIn('product_type', $type);
                 } elseif (is_null($type)) {
-                    $q->whereNull('product_type')->orWhere('product_type', '');
+                    $q->where(function ($q) {
+                        $q->whereNull('product_type')->orWhere('product_type', '');
+                    });
                 } else {
                     $q->where('product_type', $type);
                 }
@@ -253,7 +259,9 @@ class ProductController extends Controller
                 if (is_array($vendor)) {
                     $q->whereIn('vendor', $vendor);
                 } elseif (is_null($vendor)) {
-                    $q->whereNull('vendor')->orWhere('vendor', '');
+                    $q->where(function ($q) {
+                        $q->whereNull('vendor')->orWhere('vendor', '');
+                    });
                 } else {
                     $q->where('vendor', $vendor);
                 }
