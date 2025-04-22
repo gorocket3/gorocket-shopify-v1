@@ -60,7 +60,25 @@ class HistoryController extends Controller
             if ($item->created_at < $cutoffDate || ($item->updated_by === 'shopify' && $planName === 'Free')) {
                 $item->old_values = '';
                 $item->new_values = '';
+                return $item;
             }
+
+            $productImages = collect($item->product?->images ?? []);
+
+            $old = json_decode($item->old_values ?? '{}', true);
+            $new = json_decode($item->new_values ?? '{}', true);
+
+            foreach ([ 'old' => &$old, 'new' => &$new ] as $type => &$values) {
+                if (array_key_exists('image_id', $values)) {
+                    $img = $productImages->firstWhere('image_id', $values['image_id']);
+                    $values['variant_image'] = $img['src'] ?? null;
+                    unset($values['image_id']);
+                }
+            }
+
+            $item->old_values = $old;
+            $item->new_values = $new;
+
             return $item;
         });
 
