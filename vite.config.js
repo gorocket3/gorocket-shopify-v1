@@ -28,7 +28,7 @@ export default defineConfig(function ({ mode }) {
                             if (id.includes('@shopify')) return 'shopify';
                             if (id.includes('ag-grid')) return 'grid';
                             if (id.includes('axios')) return 'vendor';
-                            if (id.includes('quill')) return 'quill';
+                            if (id.includes('jodit')) return 'jodit';
                             return 'vendor-other';
                         }
                     }
