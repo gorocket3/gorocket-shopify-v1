@@ -14,6 +14,12 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
         onClose();
     }
 
+    const getApplyContents = () => {
+        return selectedResources
+            .map((productId) => contents.find((content) => content.productId === productId && !content.error))
+            .filter((content => !!content));
+    }
+
     return (
         <Modal
             variant="large"
@@ -21,10 +27,8 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
             onHide={onHide}
         >
             <TitleBar title="AI SEO Information Generator">
-                <button variant="primary" onClick={async () => {
-                    await onApply(selectedResources.map((productId) => {
-                        return contents.find((content) => content.productId === productId);
-                    }));
+                <button variant="primary" disabled={selectedResources.length < 1} onClick={async () => {
+                    await onApply(getApplyContents());
                     clearSelection();
                 }}>Apply
                 </button>
@@ -91,8 +95,9 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                         <InlineStack align="center">
                                             <Button onClick={(e) => {
                                                 e.stopPropagation();
-                                                onGenerate([ { productId, title, description, tags, productType, productImg, productAlt } ]);
-                                                selectedResources.push(productId);
+                                                onGenerate([ { productId, title, description, tags, productType, productImg, productAlt } ], () => {
+                                                    selectedResources.push(productId);
+                                                });
                                             }}>
                                                 Generate
                                             </Button>

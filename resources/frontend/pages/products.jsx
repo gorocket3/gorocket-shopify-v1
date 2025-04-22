@@ -292,7 +292,7 @@ export default function ProductsPage() {
         setAiSeo((content) => ({ ...content, rows }));
     }
 
-    async function generateAiSeo(data = []) {
+    async function generateAiSeo(data = [], successCallback = null) {
         setAiSeo(cont => ({ ...cont, loading: true }));
 
         try {
@@ -324,6 +324,7 @@ export default function ProductsPage() {
             });
 
             setAiSeo((cont) => ({ ...cont, rows, loading: false }));
+            if (successCallback) successCallback(rows);
         } catch (e) {
             console.error(e);
         }
