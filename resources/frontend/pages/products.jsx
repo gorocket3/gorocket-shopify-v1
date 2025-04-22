@@ -81,9 +81,9 @@ import { useEffectWithoutInitialState } from "../utils/hooks";
 import { showInfo } from "../utils/toasts";
 
 const SORT_OPTIONS = [
-    { label: 'Published At', value: 'publish_at' },
     { label: 'Created At', value: 'created_at' },
     { label: 'Updated At', value: 'updated_at' },
+    { label: 'Published At', value: 'published_at' },
     { label: 'Price', value: 'price' },
     { label: 'Compare At Price', value: 'compare_at_price' },
     { label: 'Inventory Quantity', value: 'inventory_quantity' },
@@ -186,9 +186,9 @@ export default function ProductsPage() {
     }));
 
     // Sort
-    const [ sort, setSort ] = useState({ open: false, by: SORT_OPTIONS[0].value, desc: false });
+    const [ sort, setSort ] = useState({ open: false, by: SORT_OPTIONS[0].value, desc: true });
     const toggleSortOpen = (open) => setSort((s) => ({ ...s, open: !s.open }));
-    const setSortBy = (by) => setSort((s) => ({ ...s, by }));
+    const setSortBy = (by) => setSort((s) => ({ ...s, by: by[0] }));
     const setSortDesc = (desc) => setSort((s) => ({ ...s, desc }));
 
     async function initProducts() {
@@ -345,6 +345,8 @@ export default function ProductsPage() {
             plan_id: info.planId,
             plan_selected_limit: info.selectableLimit,
             default_per_page: searchPerPage,
+            default_sort_by: sort.by,
+            default_sort_desc: sort.desc,
             show_changes: (prd) => setHistoryInfo((info) => ({
                 ...info,
                 product: prd,

@@ -464,6 +464,7 @@ HDGrid.prototype.Request = function (url, data = '', page = -1, callback, http_m
         this.loading = true;
 
         this.requst_data = data || '';
+        this.request_obj = data || {};
         //var page_size = gridOptions.paginationPageSize;
         this.request_url = url;
         this.total = 0;
@@ -530,19 +531,8 @@ HDGrid.prototype._Request = function (callback, http_method) {
 
     let _gx = this;
     this.requst_data += '&page=' + this.page + '&total=' + _gx.total;
-    let params_object = {};
-    if (http_method === 'post') {
-        let params_data = this.requst_data;
-        params_data.split('&').forEach(data => {
-            const val = data.split('=')[1];
-
-            if (val.split(',').length > 1) {
-                params_object[data.split('=')[0]] = val.split(',');
-            } else {
-                params_object[data.split('=')[0]] = val;
-            }
-        });
-    }
+    this.request_obj.page = this.page;
+    this.request_obj.total = _gx.total;
 
     const init = {
         method: http_method,
@@ -551,7 +541,7 @@ HDGrid.prototype._Request = function (callback, http_method) {
         }
     };
     if (http_method === 'post') {
-        init.body = JSON.stringify(params_object);
+        init.body = JSON.stringify(this.request_obj);
     } else {
         this.request_url += '?' + this.requst_data;
     }

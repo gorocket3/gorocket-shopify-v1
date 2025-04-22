@@ -9,7 +9,17 @@ let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, s
 let editedCellCount = 0;
 let filterLoading = false;
 
-export async function initGrid({ plan_id, plan_selected_limit, default_per_page, show_changes, show_seo_logs, start_grid, set_selectable_count }) {
+export async function initGrid({
+    plan_id,
+    plan_selected_limit,
+    default_per_page,
+    default_sort_by,
+    default_sort_desc,
+    show_changes,
+    show_seo_logs,
+    start_grid,
+    set_selectable_count
+}) {
     pApp = new App('', { gridId: "#div-gd" });
 
     // const is_mobile = document.body.offsetWidth <= 1007;
@@ -20,7 +30,13 @@ export async function initGrid({ plan_id, plan_selected_limit, default_per_page,
     gridDiv = document.querySelector(pApp.options.gridId);
 
     initData = await getInitialData();
-    defaultData = { plan_id, plan_selected_limit, per_page: default_per_page };
+    defaultData = {
+        plan_id,
+        plan_selected_limit,
+        per_page: default_per_page,
+        sort_by: default_sort_by,
+        sort_dir: default_sort_desc ? 'desc' : 'asc'
+    };
     showChangesCallback = show_changes;
     showSeoLogsCallback = show_seo_logs;
     startGridCallback = start_grid;
@@ -529,12 +545,7 @@ function addEditedCellCount(num, reset = false) {
 }
 
 function getFilterParams(data, defaultFilter) {
-    let params = [];
-
-    for (const key in defaultFilter) {
-        const paramsKey = COLUMN_PARAMS[key];
-        params.push(paramsKey + '=' + defaultFilter[key]);
-    }
+    let params = { ...defaultFilter };
 
     for (const key in data) {
         const col = data[key];
@@ -542,39 +553,44 @@ function getFilterParams(data, defaultFilter) {
 
         if (col.filterType === 'set') {
             if (paramsKey === 'inventory_management') {
-                params.push(paramsKey + '=' + col.values.map(val => val === 'true' ? 'shopify' : '').join(','));
+                params[paramsKey] = col.values.map(val => val === 'true' ? 'shopify' : '');
             } else {
-                params.push(paramsKey + '=' + col.values.map(val => val === 'true' ? 1 : val === 'false' ? 0 : val).join(','));
+                if (col.values.length < 1) {
+                    params[paramsKey] = '__BLANK__';
+                } else {
+                    const values = col.values.map(val => val === 'true' ? '1' : val === 'false' ? '0' : val);
+                    params[paramsKey] = values.length > 1 ? values : values[0];
+                }
             }
         }
 
         if (col.filterType === 'number') {
             if (col.type === 'inRange') {
-                params.push(paramsKey + '_min=' + col.filter);
-                params.push(paramsKey + '_max=' + col.filterTo);
+                params[paramsKey + '_min'] = col.filter;
+                params[paramsKey + '_max'] = col.filterTo;
             } else if (col.type === 'equals') {
-                params.push(paramsKey + '=' + col.filter);
+                params[paramsKey] = col.filter;
             }
         }
 
         if (col.filterType === 'text') {
             if (col.type === 'blank') {
-                params.push(paramsKey + '=__BLANK__');
+                params[paramsKey] = '__BLANK__';
             } else if (col.type === 'contains') {
-                params.push(paramsKey + '=' + col.filter.replaceAll('&', ''));
+                params[paramsKey] = col.filter;
             } else if ([ 'AND', 'OR' ].includes(col.operator)) {
                 if (col.condition1) {
-                    const val = [ col.condition1.filter.replaceAll('&', ''), col.condition2?.filter.replaceAll('&', '') ].filter(Boolean).join(',');
-                    params.push(paramsKey + '=' + val);
+                    const val = [ col.condition1.filter, col.condition2?.filter ].filter(Boolean);
+                    params[paramsKey] = val;
 
                     if (key === 'product_tags') {
-                        params.push('tag_match=' + (col.operator === 'AND' ? 'all' : 'any'));
+                        params['tag_match'] = col.operator === 'AND' ? 'all' : 'any';
                     }
                 }
             }
         }
     }
-    return params.join('&');
+    return params;
 }
 
 async function handleTagPicker(tags, value, title) {

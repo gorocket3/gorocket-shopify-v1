@@ -33,7 +33,7 @@ class ProductController extends Controller
             'ai_generation_count_max' => 'nullable|integer|min:0|gte:ai_generation_count_min',
             'title' => 'nullable|string|max:512',
             'content' => 'nullable|string',
-            'collection' => 'nullable',
+            'collections' => 'nullable',
             'category' => 'nullable',
             'product_type' => 'nullable',
             'vendor' => 'nullable',
@@ -219,11 +219,11 @@ class ProductController extends Controller
                 }
             })
 
-            ->when($filters['collection'] ?? null, function ($q, $collection) {
+            ->when($filters['collections'] ?? null, function ($q, $collection) {
                 if (is_array($collection)) {
-                    $q->whereIn('collection', $collection);
+                    $q->whereIn('collections', $collection);
                 } else {
-                    $q->where('collection', $collection);
+                    $q->where('collections', $collection);
                 }
             })
             ->when($filters['category'] ?? null, function ($q, $category) {
