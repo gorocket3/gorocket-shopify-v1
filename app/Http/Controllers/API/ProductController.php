@@ -60,7 +60,7 @@ class ProductController extends Controller
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:255',
             'seo_grade' => 'nullable',
-            'sort_by' => 'nullable|in:publish_at,created_at,updated_at,price,compare_at_price,inventory_quantity,grams',
+            'sort_by' => 'nullable|in:published_at,created_at,updated_at,price,compare_at_price,inventory_quantity,grams',
             'sort_dir' => 'nullable|in:asc,desc',
             'product_img' => 'nullable|in:exists,none',
             'option_img' => 'nullable|in:exists,none'
@@ -70,7 +70,7 @@ class ProductController extends Controller
         $sortDir = $validated['sort_dir'] ?? 'desc';
 
         $sortableFields = [
-            'publish_at' => 'products.publish_at',
+            'published_at' => 'products.published_at',
             'created_at' => 'products.created_at',
             'updated_at' => 'products.updated_at',
             'price' => 'product_variants.price',
