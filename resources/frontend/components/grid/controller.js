@@ -398,6 +398,10 @@ export function setSeoContentFromLog({ productId, seoTitle, seoDescription }, ca
     if (callback) callback();
 }
 
+export function resetFilter() {
+    gx.gridOptions.api.setFilterModel(null);
+}
+
 /*
     Private Function
 */
