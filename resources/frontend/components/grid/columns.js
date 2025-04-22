@@ -1,7 +1,7 @@
 import fetchData from "../../utils/fetch";
 import { formatISOStringToReadableDate, formatTitleCase } from "../../utils/formats";
 import { showError } from "../../utils/toasts";
-import GridContentEditor from "./editor";
+import GridContentEditor from "./rich-text-editor";
 
 export default function getInitialColumns(data, showChangesModal, showSeoLogsModal, onlineStoreLinkCallback, editedCellCallback) {
     const {
@@ -75,12 +75,12 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
 
         if (oldValue === newValue) return;
 
-        if (field === 'product_body') {
-            const trimOldValue = oldValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
-            const trimNewValue = newValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
-
-            if (trimOldValue === trimNewValue) return;
-        }
+        // if (field === 'product_body') {
+        //     const trimOldValue = oldValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
+        //     const trimNewValue = newValue.replace(/<(?!img\b|video\b)[^>]*>/gi, '').replace(/\s+/g, '');
+        //
+        //     if (trimOldValue === trimNewValue) return;
+        // }
 
         if (e.data.prev[field] === newValue) {
             e.node.setDataValue(field + '_changed', false);

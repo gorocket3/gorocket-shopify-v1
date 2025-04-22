@@ -18,6 +18,8 @@
         "ag-grid-react": "^33.0.3",
         "i18next": "^24.2.3",
         "i18next-resources-to-backend": "^1.2.1",
+        "jodit": "^4.6.2",
+        "jodit-react": "^5.2.19",
         "pusher-js": "^8.4.0",
         "quill": "^2.0.3",
         "quill-image-resize": "^3.0.9",

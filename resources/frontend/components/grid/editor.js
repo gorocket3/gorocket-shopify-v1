@@ -5,6 +5,7 @@ import "quill/dist/quill.snow.css";
 window.Quill = Quill;
 Quill.register('modules/ImageResize', ImageResize);
 
+// 사용하지 않음. 추후 삭제 예정
 export default class GridContentEditor {
     constructor() {
         this.editorApp;

@@ -33,7 +33,7 @@ function formatDate(date) {
 function setArrowKeyboardEvent(e) {
     let key = e.event.key;
 
-    if (e.editing) {
+    if (e.editing && !e.column.getColDef().cellEditorPopup) {
         if (key == 'ArrowDown') {
             if (e.api.getDisplayedRowCount() > e.node.rowIndex + 1) {
                 e.api.setFocusedCell(e.node.rowIndex + 1, e.column);
