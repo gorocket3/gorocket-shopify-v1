@@ -185,7 +185,7 @@ class ProductUpdateListener implements ShouldQueue
         DB::statement('SET @DISABLE_PRODUCT_DELETE_TRIGGER = TRUE');
 
         do {
-            $deleted = Product::where('user_id', $shopId)->limit($chunk)->delete();
+            $deleted = Product::where('user_id', $shopId)->orderBy('id')->limit($chunk)->delete();
         } while ($deleted > 0);
 
         DB::statement('SET @DISABLE_PRODUCT_DELETE_TRIGGER = NULL');
