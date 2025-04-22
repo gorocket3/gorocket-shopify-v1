@@ -99,6 +99,7 @@ class ProductController extends Controller
             'requires_shipping',
             'sku',
             'barcode',
+            'taxable',
             'weight_min',
             'weight_max',
             'weight_unit',
