@@ -37,6 +37,7 @@ import {
     CheckCircleIcon,
     DeleteIcon,
     EditIcon,
+    FilterIcon,
     ImageIcon,
     MagicIcon,
     MinusIcon,
@@ -71,6 +72,7 @@ import {
     clearGlobalData,
     updateSortData,
     setSeoContentFromLog,
+    resetFilter,
 } from "../components/grid/controller";
 import { ConfirmModal } from "../components/common/confirm-modal";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
@@ -554,8 +556,15 @@ export default function ProductsPage() {
                             </InlineStack>
                             <InlineStack gap="200" align="end" blockAlign="center">
                                 <ButtonGroup variant="segmented">
-                                    <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
-                                    <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
+                                    <Tooltip content="Undo Edit" dismissOnMouseOut>
+                                        <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
+                                    </Tooltip>
+                                    <Tooltip content="Redo Edit" dismissOnMouseOut>
+                                        <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
+                                    </Tooltip>
+                                    <Tooltip content="Reset Filter" dismissOnMouseOut>
+                                        <Button icon={FilterIcon} onClick={resetFilter}></Button>
+                                    </Tooltip>
                                 </ButtonGroup>
                                 <Button icon={MagicIcon} variant="primary" onClick={startMakingAiSeo} disabled={false}>AI SEO</Button>
                                 <Popover
