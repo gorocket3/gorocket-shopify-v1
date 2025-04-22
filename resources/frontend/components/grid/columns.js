@@ -469,7 +469,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                 {
                     field: "product_published_at",
                     headerName: "Published At",
-                    width: 130,
+                    width: 135,
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
                     cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
@@ -480,7 +480,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                 {
                     field: "product_created_at",
                     headerName: "Created At",
-                    width: 130,
+                    width: 135,
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
                     cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
@@ -491,7 +491,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                 {
                     field: "product_updated_at",
                     headerName: "Updated At",
-                    width: 130,
+                    width: 135,
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
                     cellRenderer: (p) => p.data.position > 1 ? '' : formatISOStringToReadableDate(p.value || '', {
@@ -700,7 +700,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                 {
                     field: "created_at",
                     headerName: "Created At",
-                    width: 130,
+                    width: 135,
                     cellClass: 'hd-grid-code',
                     cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
                         month_numeric: true,
@@ -710,7 +710,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                 {
                     field: "updated_at",
                     headerName: "Updated At",
-                    width: 130,
+                    width: 135,
                     cellClass: 'hd-grid-code',
                     cellRenderer: (p) => formatISOStringToReadableDate(p.value || '', {
                         month_numeric: true,
