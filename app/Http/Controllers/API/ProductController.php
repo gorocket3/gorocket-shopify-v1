@@ -218,31 +218,42 @@ class ProductController extends Controller
                     $q->where('body_text', 'LIKE', "%{$content}%");
                 }
             })
-
-            ->when($filters['collections'] ?? null, function ($q, $collection) {
+            ->when(array_key_exists('collections', $filters), function ($q) use ($filters) {
+                $collection = $filters['collections'];
                 if (is_array($collection)) {
                     $q->whereIn('collections', $collection);
+                } elseif (is_null($collection)) {
+                    $q->whereNull('collections')->orWhere('collections', '');
                 } else {
                     $q->where('collections', $collection);
                 }
             })
-            ->when($filters['category'] ?? null, function ($q, $category) {
+            ->when(array_key_exists('category', $filters), function ($q) use ($filters) {
+                $category = $filters['category'];
                 if (is_array($category)) {
                     $q->whereIn('category', $category);
+                } elseif (is_null($category)) {
+                    $q->whereNull('category')->orWhere('category', '');
                 } else {
                     $q->where('category', $category);
                 }
             })
-            ->when($filters['product_type'] ?? null, function ($q, $type) {
+            ->when(array_key_exists('product_type', $filters), function ($q) use ($filters) {
+                $type = $filters['product_type'];
                 if (is_array($type)) {
                     $q->whereIn('product_type', $type);
+                } elseif (is_null($type)) {
+                    $q->whereNull('product_type')->orWhere('product_type', '');
                 } else {
                     $q->where('product_type', $type);
                 }
             })
-            ->when($filters['vendor'] ?? null, function ($q, $vendor) {
+            ->when(array_key_exists('vendor', $filters), function ($q) use ($filters) {
+                $vendor = $filters['vendor'];
                 if (is_array($vendor)) {
                     $q->whereIn('vendor', $vendor);
+                } elseif (is_null($vendor)) {
+                    $q->whereNull('vendor')->orWhere('vendor', '');
                 } else {
                     $q->where('vendor', $vendor);
                 }
