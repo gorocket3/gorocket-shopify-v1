@@ -16,14 +16,13 @@ export default class GridContentEditor {
         this.container = document.createElement('div');
         this.container.setAttribute('id', 'jodit-editor');
         this.container.setAttribute('class', 'grid-content-editor');
-        this.container.style = "width: 100%; max-width: 700px;";
     }
 
     getValue() {
         const rawHtml = this.editorApp.value;
 
         let trimmedHtml = rawHtml
-            .replace(/&nbsp;/g, ' ')
+            .replace(/&nbsp;/g, '\u00A0')
             .replace(/&#39;/g, '\'')
             .replace(/&quot;/g, '\"');
 
@@ -42,16 +41,20 @@ export default class GridContentEditor {
         this.editorApp = Jodit.make('#jodit-editor', {
             height: 400,
             readonly: false,
-            enter: 'br',
-            useDefaultInputRules: false,
-            useDefaultLineBreaks: false,
-            removeEmptyElements: false,
-            iframe: false,
-            toolbarSticky: false,
-            showCharsCounter: false,
-            showWordsCounter: false,
-            showXPathInStatusbar: false,
-            toolbarAdaptive: false,
+            enter: 'p',
+            i18n: 'en',
+            toolbar: true,
+            toolbarButtonSize: 'middle',
+            buttons: [
+                'paragraph', '|',
+                'bold', 'italic', 'underline', 'strikethrough', 'brush', '|',
+                'ul', 'ol', '|',
+                'link', 'table', 'image', '|',
+                'undo', 'redo'
+            ],
+            extraButtons: [],
+            colorPickerDefaultTab: 'color',
+            imageDefaultWidth: 300,
             cleanHTML: {
                 cleanOnPaste: false,
                 fillEmptyParagraph: false,
@@ -64,9 +67,18 @@ export default class GridContentEditor {
             autofocus: true,
             cursorAfterAutofocus: 'end',
             saveSelectionOnBlur: true,
+            useDefaultInputRules: false,
+            useDefaultLineBreaks: false,
+            removeEmptyElements: false,
+            iframe: false,
+            toolbarSticky: false,
+            showCharsCounter: false,
+            showWordsCounter: false,
+            showXPathInStatusbar: false,
+            toolbarAdaptive: false,
         });
 
-        this.editorApp.value = this.richText;
+        this.editorApp.setEditorValue(this.richText);
         this.editorApp.focus();
         this.editorApp.events.on('keydown', (event) => this.onEditorKeyDown(event));
     }

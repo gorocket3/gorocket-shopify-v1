@@ -30,8 +30,12 @@
 }
 
 /* Custom Jodit CSS */
-.jodit-container p {
-    margin: 0 0 1rem !important;
+.jodit-container {
+    max-width: 590px !important;
+}
+
+.jodit-container .jodit-wysiwyg * {
+    all: revert;
 }
 
 /* Custom CSS */
