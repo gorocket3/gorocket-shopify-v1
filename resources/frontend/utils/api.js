@@ -137,12 +137,12 @@ export async function getProductAiSeoLogs({ productId, perPage, page }) {
     }
 }
 
-export async function generateProductAiSeoContent({ productId, title, description, tags, productType }) {
+export async function generateProductAiSeoContent({ productId, title, description, tags, productType, productImg, productAlt }) {
     try {
         const { product_id: seoProductId, title: seoTitle, description: seoDescription } = await fetchData({
             method: 'POST',
             url: '/api/generate-seo',
-            body: { product_id: productId, title, description, tags, product_type: productType }
+            body: { product_id: productId, title, description, tags, product_type: productType, product_img: productImg, product_alt: productAlt }
         });
         return { seoProductId, seoTitle, seoDescription };
     } catch (e) {

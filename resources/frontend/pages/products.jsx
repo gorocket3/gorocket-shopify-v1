@@ -298,8 +298,8 @@ export default function ProductsPage() {
         try {
             const result = await Promise.all(
                 data.map(async (item) => {
-                    const { productId, title, description, tags, productType } = item;
-                    const res = await generateProductAiSeoContent({ productId, title, description, tags, productType });
+                    const { productId, title, description, tags, productType, productImg, productAlt } = item;
+                    const res = await generateProductAiSeoContent({ productId, title, description, tags, productType, productImg, productAlt });
                     return {
                         seoProductId: res.seoProductId,
                         seoTitle: res.seoTitle || '',

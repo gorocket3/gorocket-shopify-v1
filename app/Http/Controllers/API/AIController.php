@@ -83,6 +83,8 @@ class AIController extends Controller
         $productDescription = $request->input('description');
         $productTags = $request->input('tags');
         $productType = $request->input('product_type');
+        $productImg = $request->input('product_img');
+        $productAlt = $request->input('product_alt');
 
         $cleanTitle = Str::limit(trim($productTitle), 60);
         $cleanDescription = trim(strip_tags($productDescription));
@@ -90,6 +92,8 @@ class AIController extends Controller
         $tagsArray = array_filter(array_map('trim', explode(',', $productTags)));
         $limitedTags = implode(', ', array_slice($tagsArray, 0, 6));
         $productType = Str::limit(trim($productType), 60);
+        $productImageName = basename(parse_url($productImg, PHP_URL_PATH));
+        $productAlt = Str::limit(trim($productAlt), 60);
 
         if (empty($cleanTitle) || mb_strlen($cleanTitle) < 5 || empty($cleanDescription) || mb_strlen($cleanDescription) < 30) {
             return response()->json([
@@ -100,14 +104,15 @@ class AIController extends Controller
         $client = OpenAI::client(config('services.openai.key'));
         $response = $client->chat()->create([
             'model' => config('services.openai.model'),
+            'temperature' => 0.7,
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => "Write an SEO-friendly title (MAX 70 characters!) and meta description (MAX 160 characters!) for a product. Use product name, tags, and description. Make it natural, persuasive, and optimized for Google search. No keyword stuffing."
+                    'content' => "Write an SEO-friendly title (MAX 70 characters!) and meta description (MAX 160 characters!) for a product. Use product name, tags, image alt text, image filename, and description. Make it natural, persuasive, and optimized for Google search. No keyword stuffing."
                 ],
                 [
                     'role' => 'user',
-                    'content' => "Title: {$cleanTitle}\nCategory: {$productType}\nTags: {$limitedTags}\nDescription: {$shortDescription}"
+                    'content' => "Title: {$cleanTitle}\nCategory: {$productType}\nTags: {$limitedTags}\nDescription: {$shortDescription}\nImage ALT: {$productAlt}\nImage Filename: {$productImageName}"
                 ]
             ]
         ]);
@@ -144,7 +149,9 @@ class AIController extends Controller
                 'title' => $cleanTitle,
                 'product_type' => $productType,
                 'tags' => $limitedTags,
-                'description' => $shortDescription
+                'description' => $shortDescription,
+                'image_filename' => $productImageName,
+                'image_alt' => $productAlt
             ],
             'raw_response' => $response
         ]);

@@ -94,6 +94,7 @@ export function searchProducts() {
                 product_tags: item.parent.tags,
                 product_body: item.parent.body_html,
                 product_img: item.parent.featured_image || '',
+                product_alt: item.parent.images?.[0]?.alt || '',
                 product_status: item.parent.status,
                 vendor: item.parent.vendor,
                 handle: item.parent.handle,
@@ -349,6 +350,8 @@ export function getSelectedSeoContents() {
         description: row.product_body,
         tags: row.product_tags,
         productType: row.product_type,
+        productImg: row.product_img,
+        productAlt: row.product_alt
     }));
 
     return [ ...new Map(result.map(item => [item.id, item])).values() ];

@@ -46,6 +46,8 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                         description: content.description,
                                         tags: content.tags,
                                         productType: content.productType,
+                                        productImg: content.productImg,
+                                        productAlt: content.productAlt
                                     };
                                 }))
                             }
@@ -66,6 +68,8 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                            description,
                                            tags,
                                            productType,
+                                           productImg,
+                                           productAlt,
                                            seoTitle,
                                            seoDescription,
                                            error,
@@ -87,7 +91,7 @@ export function AiSeoModal({ open, onClose, contents, onGenerate, generateLoadin
                                         <InlineStack align="center">
                                             <Button onClick={(e) => {
                                                 e.stopPropagation();
-                                                onGenerate([ { productId, title, description, tags, productType } ]);
+                                                onGenerate([ { productId, title, description, tags, productType, productImg, productAlt } ]);
                                                 selectedResources.push(productId);
                                             }}>
                                                 Generate
