@@ -508,6 +508,8 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     field: "seo_logs",
                     headerName: "Logs",
                     width: 70,
+                    filter: "agNumberColumnFilter",
+                    filterParams: getDefaultFilterParams('number'),
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
                     valueGetter: (p) => p.data.seo_logs_count ?? 0,

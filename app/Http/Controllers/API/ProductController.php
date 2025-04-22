@@ -29,6 +29,8 @@ class ProductController extends Controller
             'per_page' => 'integer|min:1|max:1000',
             'logs_count_min' => 'nullable|integer|min:0',
             'logs_count_max' => 'nullable|integer|min:0|gte:logs_count_min',
+            'ai_generation_count_min' => 'nullable|integer|min:0',
+            'ai_generation_count_max' => 'nullable|integer|min:0|gte:ai_generation_count_min',
             'title' => 'nullable|string|max:512',
             'content' => 'nullable|string',
             'collection' => 'nullable',
@@ -118,6 +120,12 @@ class ProductController extends Controller
         if ($this->needsJoin($validated, ['logs_count_min', 'logs_count_max'])) {
             $productIdQuery->leftJoin('change_logs', 'products.product_id', '=', 'change_logs.product_id');
             $productIdQuery->selectRaw('COUNT(change_logs.id) as logs_count');
+            $shouldGroupBy = true;
+        }
+
+        if ($this->needsJoin($validated, ['ai_generation_count_min', 'ai_generation_count_max'])) {
+            $productIdQuery->leftJoin('ai_generations', 'products.product_id', '=', 'ai_generations.product_id');
+            $productIdQuery->selectRaw('COUNT(ai_generations.id) as ai_generation_count');
             $shouldGroupBy = true;
         }
 
@@ -366,7 +374,9 @@ class ProductController extends Controller
                 }
             })
             ->when($filters['logs_count_min'] ?? null, fn($q, $min) => $q->having('logs_count', '>=', $min))
-            ->when($filters['logs_count_max'] ?? null, fn($q, $max) => $q->having('logs_count', '<=', $max));
+            ->when($filters['logs_count_max'] ?? null, fn($q, $max) => $q->having('logs_count', '<=', $max))
+            ->when($filters['ai_generation_count_min'] ?? null, fn($q, $min) => $q->having('ai_generation_count', '>=', $min))
+            ->when($filters['ai_generation_count_max'] ?? null, fn($q, $max) => $q->having('ai_generation_count', '<=', $max));
     }
 
     /**

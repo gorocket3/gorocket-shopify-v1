@@ -12,6 +12,7 @@
     "option_img": "option_img",
     "option_name": "option_name",
     "product_category": "category",
+    "seo_logs": "ai_generation_count",
     "seo_title": "seo_title",
     "seo_description": "seo_description",
     "seo_grade": "seo_grade",
