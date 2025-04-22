@@ -560,9 +560,9 @@ function getFilterParams(data, defaultFilter) {
                 params[paramsKey] = col.values.map(val => val === 'true' ? 'shopify' : '');
             } else {
                 if (col.values.length < 1) {
-                    params[paramsKey] = '__BLANK__';
+                    params[paramsKey] = '__NONE__';
                 } else {
-                    const values = col.values.map(val => val === 'true' ? '1' : val === 'false' ? '0' : val);
+                    const values = col.values.map(val => val === 'true' ? 1 : val === 'false' ? 0 : val);
                     params[paramsKey] = values.length > 1 ? values : values[0];
                 }
             }

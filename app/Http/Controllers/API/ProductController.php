@@ -221,7 +221,17 @@ class ProductController extends Controller
             ->when(array_key_exists('collections', $filters), function ($q) use ($filters) {
                 $collection = $filters['collections'];
                 if (is_array($collection)) {
-                    $q->whereIn('collections', $collection);
+                    if (in_array(null, $collection, true)) {
+                        $q->where(function ($q) use ($collection) {
+                            foreach ($collection as $col) {
+                                $col === null
+                                    ? $q->orWhereNull('collections')
+                                    : $q->orWhere('collections', $col);
+                            }
+                        });
+                    } else {
+                        $q->whereIn('collections', $collection);
+                    }
                 } elseif (is_null($collection)) {
                     $q->where(function ($q) {
                         $q->whereNull('collections')->orWhere('collections', '');
@@ -233,7 +243,17 @@ class ProductController extends Controller
             ->when(array_key_exists('category', $filters), function ($q) use ($filters) {
                 $category = $filters['category'];
                 if (is_array($category)) {
-                    $q->whereIn('category', $category);
+                    if (in_array(null, $category, true)) {
+                        $q->where(function ($q) use ($category) {
+                            foreach ($category as $cat) {
+                                $cat === null
+                                    ? $q->orWhereNull('category')
+                                    : $q->orWhere('category', $cat);
+                            }
+                        });
+                    } else {
+                        $q->whereIn('category', $category);
+                    }
                 } elseif (is_null($category)) {
                     $q->where(function ($q) {
                         $q->whereNull('category')->orWhere('category', '');
@@ -245,7 +265,17 @@ class ProductController extends Controller
             ->when(array_key_exists('product_type', $filters), function ($q) use ($filters) {
                 $type = $filters['product_type'];
                 if (is_array($type)) {
-                    $q->whereIn('product_type', $type);
+                    if (in_array(null, $type, true)) {
+                        $q->where(function ($q) use ($type) {
+                            foreach ($type as $ty) {
+                                $ty === null
+                                    ? $q->orWhereNull('product_type')
+                                    : $q->orWhere('product_type', $ty);
+                            }
+                        });
+                    } else {
+                        $q->whereIn('product_type', $type);
+                    }
                 } elseif (is_null($type)) {
                     $q->where(function ($q) {
                         $q->whereNull('product_type')->orWhere('product_type', '');
@@ -257,7 +287,17 @@ class ProductController extends Controller
             ->when(array_key_exists('vendor', $filters), function ($q) use ($filters) {
                 $vendor = $filters['vendor'];
                 if (is_array($vendor)) {
-                    $q->whereIn('vendor', $vendor);
+                    if (in_array(null, $vendor, true)) {
+                        $q->where(function ($q) use ($vendor) {
+                            foreach ($vendor as $vd) {
+                                $vd === null
+                                    ? $q->orWhereNull('vendor')
+                                    : $q->orWhere('vendor', $vd);
+                            }
+                        });
+                    } else {
+                        $q->whereIn('vendor', $vendor);
+                    }
                 } elseif (is_null($vendor)) {
                     $q->where(function ($q) {
                         $q->whereNull('vendor')->orWhere('vendor', '');
