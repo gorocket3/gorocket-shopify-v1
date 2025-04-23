@@ -408,6 +408,8 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     cellEditorPopup: true,
                     cellEditorParams: {
                         cellEditor: GridContentEditor,
+                        // startCallback: (e) => e.api.showLoadingOverlay(),
+                        // endCallback: (e) => e.api.hideOverlay(),
                     },
                 },
                 {

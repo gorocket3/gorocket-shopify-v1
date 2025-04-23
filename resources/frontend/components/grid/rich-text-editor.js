@@ -7,11 +7,15 @@ export default class GridContentEditor {
         this.container;
         this.params;
         this.richText;
+        this.startCallback;
+        this.endCallback;
     }
 
     init(params) {
         this.params = params;
         this.richText = params.value;
+        this.startCallback = params.startCallback;
+        this.endCallback = params.endCallback;
 
         this.container = document.createElement('div');
         this.container.setAttribute('id', 'jodit-editor');
@@ -19,6 +23,8 @@ export default class GridContentEditor {
     }
 
     getValue() {
+        if (this.endCallback) this.endCallback(this.params);
+
         const rawHtml = this.editorApp.value;
 
         let trimmedHtml = rawHtml
@@ -33,15 +39,19 @@ export default class GridContentEditor {
         return this.container;
     }
 
-    getPopupPosition() {
-        return 'over'; // over(default), under
-    }
-
     afterGuiAttached() {
+        const el = document.querySelector('.ag-popup-editor');
+        if (el && el.querySelector('.grid-content-editor')) {
+            el.style.minWidth = '330px';
+            el.style.top = '50%';
+            el.style.left = '50%';
+            el.style.transform = 'translate(-50%, -50%)';
+        }
+
         this.editorApp = Jodit.make('#jodit-editor', {
             height: 400,
             readonly: false,
-            enter: 'p',
+            enter: 'br',
             i18n: 'en',
             toolbar: true,
             toolbarButtonSize: 'middle',
@@ -81,6 +91,8 @@ export default class GridContentEditor {
         this.editorApp.setEditorValue(this.richText);
         this.editorApp.focus();
         this.editorApp.events.on('keydown', (event) => this.onEditorKeyDown(event));
+
+        if (this.startCallback) this.startCallback(this.params);
     }
 
     destroy() {
