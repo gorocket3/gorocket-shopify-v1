@@ -34,7 +34,7 @@ class PlansTableSeeder extends Seeder
             [
                 'type' => 'RECURRING',
                 'name' => 'Basic',
-                'price' => '3.99',
+                'price' => '4.99',
                 'interval' => 'EVERY_30_DAYS',
                 'capped_amount' => '0.00',
                 'terms' => 'Upgrade for faster editing and more AI SEO power.',
@@ -47,7 +47,7 @@ class PlansTableSeeder extends Seeder
             [
                 'type' => 'RECURRING',
                 'name' => 'Pro',
-                'price' => '7.99',
+                'price' => '9.99',
                 'interval' => 'EVERY_30_DAYS',
                 'capped_amount' => '0.00',
                 'terms' => 'Access generous usage limits built for growing businesses.',

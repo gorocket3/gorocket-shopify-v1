@@ -13,9 +13,9 @@ return [
     */
 
     'edit_limits' => [
-        'Free'  => env('PLAN_EDIT_LIMIT_FREE', 50),
-        'Basic' => env('PLAN_EDIT_LIMIT_BASIC', 5000),
-        'Pro' => env('PLAN_EDIT_LIMIT_PRO', 10000)
+        'Free'  => env('PLAN_EDIT_LIMIT_FREE', 20),
+        'Basic' => env('PLAN_EDIT_LIMIT_BASIC', 1000),
+        'Pro' => env('PLAN_EDIT_LIMIT_PRO', 2500)
     ],
 
     /*
@@ -31,8 +31,8 @@ return [
 
     'history_days' => [
         'Free'  => env('PLAN_HISTORY_LIMIT_FREE', 7),
-        'Basic' => env('PLAN_HISTORY_LIMIT_BASIC', 180),
-        'Pro' => env('PLAN_HISTORY_LIMIT_PRO', 360)
+        'Basic' => env('PLAN_HISTORY_LIMIT_BASIC', 90),
+        'Pro' => env('PLAN_HISTORY_LIMIT_PRO', 180)
     ],
 
     /*
@@ -47,8 +47,8 @@ return [
 
     'max_selected_cell' => [
         'Free'  => env('PLAN_SELECTED_LIMIT_FREE', 10),
-        'Basic' => env('PLAN_SELECTED_LIMIT_BASIC', 250),
-        'Pro' => env('PLAN_SELECTED_LIMIT_PRO', 500)
+        'Basic' => env('PLAN_SELECTED_LIMIT_BASIC', 100),
+        'Pro' => env('PLAN_SELECTED_LIMIT_PRO', 250)
     ],
 
     /*
@@ -64,7 +64,7 @@ return [
 
     'ai_limits' => [
         'Free'  => env('PLAN_AI_LIMIT_FREE', 5),
-        'Basic' => env('PLAN_AI_LIMIT_BASIC', 250),
+        'Basic' => env('PLAN_AI_LIMIT_BASIC', 200),
         'Pro' => env('PLAN_AI_LIMIT_PRO', 500)
     ]
 ];
