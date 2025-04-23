@@ -11,6 +11,7 @@ import {
     Card,
     ChoiceList,
     Divider,
+    EmptySearchResult,
     Icon,
     InlineGrid,
     InlineStack,
@@ -78,7 +79,12 @@ import { ConfirmModal } from "../components/common/confirm-modal";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
 import { SeoLogModal } from "../components/products/seo-log-modal";
 import { getHistoryData, getMyPlanData, generateProductAiSeoContent } from "../utils/api";
-import { formatNumberWithCommas, formatISOStringToReadableDate, formatTitleCase } from "../utils/formats";
+import {
+    formatNumberWithCommas,
+    formatISOStringToReadableDate,
+    formatTitleCase,
+    formatHistories
+} from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
 import { showInfo } from "../utils/toasts";
 
@@ -149,6 +155,7 @@ export default function ProductsPage() {
         total: 0,
         loading: false,
         firstLoading: false,
+        tabRendered: false,
     });
     const [ histories, setHistories ] = useState([]);
 
@@ -217,7 +224,7 @@ export default function ProductsPage() {
         }); // data, page, lastPage, from, to, perPage, total
 
         setHistories(formatHistories(data || []));
-        setHistoryInfo((info) => ({ ...info, ...(pageInfo || {}), loading: false, firstLoading: false }));
+        setHistoryInfo((info) => ({ ...info, ...(pageInfo || {}), loading: false, firstLoading: false, tabRendered: true }));
     }
 
     const saveClick = () => {
@@ -267,26 +274,6 @@ export default function ProductsPage() {
         if (cnt < 1) {
             // setDisableRedo(true);
         }
-    }
-
-    function formatHistories(logs) {
-        const groupedLogs = {};
-
-        logs.forEach(log => {
-            const dateKey = log.created_at.split('T')[0];
-            if (!groupedLogs[dateKey]) {
-                groupedLogs[dateKey] = {
-                    created_at: dateKey,
-                    logs: []
-                };
-            }
-
-            log.old_values = JSON.parse(log.old_values || '{}');
-            log.new_values = JSON.parse(log.new_values || '{}');
-            groupedLogs[dateKey].logs.push(log);
-        });
-
-        return Object.values(groupedLogs);
     }
 
     function startMakingAiSeo() {
@@ -659,41 +646,38 @@ export default function ProductsPage() {
             <Modal
                 variant="large"
                 open={!!historyInfo.product}
-                onHide={() => setHistoryInfo((info) => ({ ...info, product: null }))}
+                onHide={() => setHistoryInfo((info) => ({ ...info, product: null, tabRendered: false }))}
             >
                 <TitleBar title={`${historyInfo.product?.product_name || ''}'s change history`}></TitleBar>
-                <Tabs tabs={[
-                    { id: 'all-history-filter-1', content: 'All' },
-                    { id: 'shopify-history-filter-1', content: 'In Shopify' },
-                    { id: 'gorocket-history-filter-1', content: 'Via App' },
-                ]} selected={historyInfo.tabId} onSelect={(num) => setHistoryInfo((i => ({ ...i, page: 1, tabId: num, loading: true })))}/>
+                {historyInfo.tabRendered ? (
+                    <Tabs tabs={[
+                        { id: 'all-history-filter-1', content: 'All' },
+                        { id: 'shopify-history-filter-1', content: 'In Shopify' },
+                        { id: 'gorocket-history-filter-1', content: 'Via App' },
+                    ]} selected={historyInfo.tabId}
+                          onSelect={(num) => setHistoryInfo((i => ({ ...i, page: 1, tabId: num, loading: true })))}/>
+                ) : (
+                    <SkeletonTabs count={3}/>
+                )}
                 {historyInfo.firstLoading ? (
-                    <Card padding="600">
+                    <Box paddingInline="400" paddingBlock="1200">
                         <BlockStack gap="800">
-                            <Box paddingBlock="400">
-                                <BlockStack gap="400">
-                                    <SkeletonDisplayText size="small"/>
-                                    <SkeletonBodyText lines={3}/>
-                                </BlockStack>
-                            </Box>
-                            <Box paddingBlock="400">
-                                <BlockStack gap="400">
-                                    <SkeletonDisplayText size="small"/>
-                                    <SkeletonBodyText lines={3}/>
-                                </BlockStack>
-                            </Box>
+                            <SkeletonDisplayText size="small"/>
+                            <SkeletonBodyText lines={4}/>
                         </BlockStack>
-                    </Card>
+                    </Box>
                 ) : (
                     <Box>
                         <ResourceList
                             resourceName={{ singular: 'log', plural: 'logs' }}
                             items={histories}
                             emptyState={
-                                <Box padding="600">
-                                    <InlineStack align="center">
-                                        <Text as="p" variant="bodyLg" tone="subdued">No change history exists.</Text>
-                                    </InlineStack>
+                                <Box paddingBlockStart="400" paddingBlockEnd="800">
+                                    <EmptySearchResult
+                                        title="No Data exists to Display"
+                                        description="There are no changes to this product."
+                                        withIllustration
+                                    />
                                 </Box>
                             }
                             loading={historyInfo.loading}
