@@ -19,12 +19,16 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
         }
     }
 
-    function updateBulking({ progress = 0, bulking = null } = {}) {
+    function updateBulking(data) {
+        const { progress = 0, bulking = null } = data;
+
         setInfo((info) => ({
             ...info,
             progress: info.bulking === 100 ? info.progress : progress,
             bulking: info.bulking === 100 ? info.bulking : bulking
         }));
+
+        if (syncCallback) syncCallback(data);
     }
 
     useEffectWithoutInitialState(() => {
@@ -51,7 +55,6 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
     useEffectWithoutInitialState(() => {
         channel.bind('product-sync', function (d) {
             updateBulking(d?.data);
-            if (syncCallback) syncCallback(d?.data);
         });
         channel.bind('product-update', function (d) {
             if (updateCallback) updateCallback(d?.data);
@@ -63,16 +66,18 @@ export default function ProgressNotifier({ syncCallback, updateCallback, deleteC
 
     useEffectWithoutInitialState(() => {
         if (!loadingToast.id && (info.progress === 100 || info.bulking === 1)) {
-            const tst = showInfo('Processing additional data... This may take a few minutes.');
+            const tst = showInfo('Processing additional data... This may take a few minutes.', { duration: 2000 });
             setLoadingToast((lt) => ({ ...lt, id: tst }));
-        } else if (loadingToast.id && info.bulking === 100) {
+        } else if (info.bulking === 100) {
+            if (loadingToast.id) {
+                shopify.toast.hide(loadingToast.id);
+            }
             setLoadingToast((lt) => ({ ...lt, id: null, dismiss: true }));
         }
     }, [ info.progress, info.bulking ]);
 
     useEffectWithoutInitialState(() => {
         if (loadingToast.dismiss) {
-            shopify.toast.hide(loadingToast.id);
             showInfo('Additional data processed successfully.  Please refresh the product.', { duration: 2000 });
         }
     }, [ loadingToast.dismiss ]);
