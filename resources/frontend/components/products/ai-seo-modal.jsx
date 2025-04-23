@@ -121,7 +121,9 @@ export function AiSeoModal({ open, onClose, contents, aiQuota, onGenerate, gener
                                                 <Button onClick={(e) => {
                                                     e.stopPropagation();
                                                     onGenerate([ { productId, title, description, tags, productType, productImg, productAlt } ], () => {
-                                                        selectedResources.push(productId);
+                                                        if (!selectedResources.includes(productId)) {
+                                                            selectedResources.push(productId);
+                                                        }
                                                     });
                                                 }}>
                                                     Generate
