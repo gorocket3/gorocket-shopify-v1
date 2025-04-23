@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         /**
-         * Custom Rate Limiter for AI usage
-         * 10 minutes, 1 request
+         * Custom Rate Limiter for Sync API
+         * 30 minutes, 1 request
          */
         RateLimiter::for('custom-throttle', function ($request) {
             $shop = $request->get('shop') ?? $request->header('X-Shopify-Shop-Domain') ?? optional($request->user())->shop_domain;
