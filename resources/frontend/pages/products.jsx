@@ -78,7 +78,7 @@ import {
 import { ConfirmModal } from "../components/common/confirm-modal";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
 import { SeoLogModal } from "../components/products/seo-log-modal";
-import { getHistoryData, getMyPlanData, generateProductAiSeoContent } from "../utils/api";
+import { getHistoryData, getMyPlanData, generateProductAiSeoContent, getAiSeoQuota } from "../utils/api";
 import {
     formatNumberWithCommas,
     formatISOStringToReadableDate,
@@ -311,6 +311,9 @@ export default function ProductsPage() {
                 }
                 return row;
             });
+
+            const quota = await getAiSeoQuota();
+            setInfo((info) => ({ ...info, aiSeoCount: quota.count }));
 
             setAiSeo((cont) => ({ ...cont, rows, loading: false }));
             if (successCallback) successCallback(rows);
@@ -641,7 +644,13 @@ export default function ProductsPage() {
                     </BlockStack>
                 </Card>
             </div>
-            <AiSeoModal open={!!aiSeo.rows && aiSeo.rows.length > 0} onClose={resetAiSeo} contents={aiSeo.rows || []} onGenerate={generateAiSeo} generateLoading={aiSeo.loading} onApply={applyAiSeo}/>
+            <AiSeoModal open={!!aiSeo.rows && aiSeo.rows.length > 0}
+                        onClose={resetAiSeo}
+                        contents={aiSeo.rows || []}
+                        aiQuota={{ count: info.aiSeoCount, limit: info.aiSeoLimit }}
+                        onGenerate={generateAiSeo}
+                        generateLoading={aiSeo.loading}
+                        onApply={applyAiSeo}/>
             <SeoLogModal seoLog={seoLog} setSeoLog={setSeoLog} onApply={applyAiSeoFromLog}/>
             <Modal
                 variant="large"

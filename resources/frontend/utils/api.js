@@ -150,6 +150,16 @@ export async function generateProductAiSeoContent({ productId, title, descriptio
     }
 }
 
+export async function getAiSeoQuota() {
+    try {
+        const { count, limit } = await fetchData({ method: 'GET', url: '/api/usage/count' });
+        return { count, limit };
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
 export async function getCompositionData() {
     try {
         const {
