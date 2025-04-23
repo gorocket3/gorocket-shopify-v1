@@ -557,7 +557,9 @@ function getFilterParams(data, defaultFilter) {
 
         if (col.filterType === 'set') {
             if (paramsKey === 'inventory_management') {
-                params[paramsKey] = col.values.map(val => val === 'true' ? 'shopify' : '');
+                params[paramsKey] = col.values.length < 1
+                    ? null
+                    : col.values.map(val => val === 'true' ? 'shopify' : 'none')[0];
             } else {
                 if (col.values.length < 1) {
                     params[paramsKey] = '__NONE__';

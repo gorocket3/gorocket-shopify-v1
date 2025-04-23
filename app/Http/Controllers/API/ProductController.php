@@ -24,7 +24,8 @@ class ProductController extends Controller
     public function list(Request $request): JsonResponse
     {
         $shop = Auth::user();
-
+        // $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/webhooks.json');
+        // dd($response);
         $validated = $request->validate([
             'per_page' => 'integer|min:1|max:1000',
             'logs_count_min' => 'nullable|integer|min:0',
@@ -342,13 +343,17 @@ class ProductController extends Controller
             ->when($filters['price_max'] ?? null, fn($q, $priceMax) => $q->where('price', '<=', $priceMax))
             ->when($filters['compare_at_price_min'] ?? null, fn($q, $compareAtPriceMin) => $q->where('compare_at_price', '>=', $compareAtPriceMin))
             ->when($filters['compare_at_price_max'] ?? null, fn($q, $compareAtPriceMax) => $q->where('compare_at_price', '<=', $compareAtPriceMax))
-            ->when(isset($filters['inventory_management']), function ($q) use ($filters) {
+            ->when(key_exists('inventory_management', $filters), function ($q) use ($filters) {
                 if ($filters['inventory_management'] === 'shopify') {
                     $q->where('inventory_management', 'shopify');
                 } else {
-                    $q->where(function ($query) {
-                        $query->where('inventory_management', '!=', 'shopify')->orWhereNull('inventory_management');
-                    });
+                    if (is_null($filters['inventory_management'])) {
+                        $q->whereRaw('0 = 1');
+                    } else {
+                        $q->where(function ($query) {
+                            $query->where('inventory_management', '!=', 'shopify')->orWhereNull('inventory_management');
+                        });
+                    }
                 }
             })
             ->when($filters['inventory_quantity_min'] ?? null, fn($q, $inventoryQuantityMin) => $q->where('inventory_quantity', '>=', $inventoryQuantityMin))
