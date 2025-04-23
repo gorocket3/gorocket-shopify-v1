@@ -21,7 +21,7 @@ import {
     Tooltip,
     VideoThumbnail
 } from "@shopify/polaris";
-import { XCircleIcon } from "@shopify/polaris-icons";
+import { AlertTriangleIcon, XCircleIcon } from "@shopify/polaris-icons";
 import ProgressNotifier from "../components/common/progress-notifier";
 import { getDashboardData, getMyPlanData, getPlanData, getTotalProductCount, syncProducts } from "../utils/api";
 import { formatNumberWithCommas } from "../utils/formats";
@@ -268,26 +268,13 @@ export default function HomePage() {
                                             progress={info.historyCount / Math.max(info.historyLimit, 1) * 100}
                                             tone={(info.historyCount / Math.max(info.historyLimit, 1) * 10) >= 8 ? 'critical' : 'primary'}/>
                                     </div>
-                                    <Tooltip
-                                        active={(info.historyCount / Math.max(info.historyLimit, 1) * 10) >= 8}
-                                        preferredPosition="below"
-                                        width="wide"
-                                        content={
-                                            <Box padding="200">
-                                                <InlineGrid columns="1fr auto" gap="200" alignItems="center">
-                                                    <Text as="span">
-                                                        Upgrade your plan if you need additional bulk editing features.
-                                                    </Text>
-                                                    <Button variant="primary" onClick={() => navigate('/plan')}>Upgrade</Button>
-                                                </InlineGrid>
-                                            </Box>
-                                        }>
+                                    <UpgradePlanTooltip active={(info.historyCount / Math.max(info.historyLimit, 1) * 10) >= 8}>
                                         <Text as="p" variant="bodyLg">
                                             <Text as="span"
                                                   fontWeight="bold">{formatNumberWithCommas(info.historyCount)}</Text>
                                             /{formatNumberWithCommas(info.historyLimit)}
                                         </Text>
-                                    </Tooltip>
+                                    </UpgradePlanTooltip>
                                 </InlineStack>
                             </BlockStack>
                         </Card>
@@ -301,26 +288,13 @@ export default function HomePage() {
                                             progress={info.aiSeoCount / Math.max(info.aiSeoLimit, 1) * 100}
                                             tone={(info.aiSeoCount / Math.max(info.aiSeoLimit, 1) * 10) >= 8 ? 'critical' : 'primary'}/>
                                     </div>
-                                    <Tooltip
-                                        active={(info.aiSeoCount / Math.max(info.aiSeoLimit, 1) * 10) >= 8}
-                                        preferredPosition="below"
-                                        width="wide"
-                                        content={
-                                            <Box padding="200">
-                                                <InlineGrid columns="1fr auto" gap="200" alignItems="center">
-                                                    <Text as="span">
-                                                        Upgrade your plan if you need additional AI SEO generation.
-                                                    </Text>
-                                                    <Button variant="primary" onClick={() => navigate('/plan')}>Upgrade</Button>
-                                                </InlineGrid>
-                                            </Box>
-                                        }>
+                                    <UpgradePlanTooltip active={(info.aiSeoCount / Math.max(info.aiSeoLimit, 1) * 10) >= 8}>
                                         <Text as="p" variant="bodyLg">
                                             <Text as="span"
                                                   fontWeight="bold">{formatNumberWithCommas(info.aiSeoCount)}</Text>
                                             /{formatNumberWithCommas(info.aiSeoLimit)}
                                         </Text>
-                                    </Tooltip>
+                                    </UpgradePlanTooltip>
                                 </InlineStack>
                             </BlockStack>
                         </Card>
@@ -402,5 +376,26 @@ export default function HomePage() {
                 <Box paddingBlock={{ xs: 1000, md: 0 }}></Box>
             </BlockStack>
         </Page>
+    );
+}
+
+function UpgradePlanTooltip({ children, active }) {
+    return (
+        <Tooltip active={active} width="wide" preferredPosition="below" persistOnClick={true}
+                 content={(
+                     <Box padding="100">
+                         <InlineGrid gap="200" columns="auto 1fr">
+                             <Box>
+                                 <Icon source={AlertTriangleIcon} tone="warning"/>
+                             </Box>
+                             <Text as="p">
+                                 You’re close to the limit for your current plan. Upgrade
+                                 plan to keep going without restrictions.
+                             </Text>
+                         </InlineGrid>
+                     </Box>
+                 )}>
+            {children}
+        </Tooltip>
     );
 }
