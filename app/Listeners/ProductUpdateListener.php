@@ -165,7 +165,7 @@ class ProductUpdateListener implements ShouldQueue
             }
             Log::info("[LISTENER][PRODUCT] Queue success - {$shopId}");
 
-            $this->runBulkProductGraphQL($shop);
+            $this->runBulkProductGraphQL($shop, $chunk, $totalProducts);
 
         } catch (Exception $e) {
             Log::error("[LISTENER][PRODUCT] Queue failed - {$shopId}, Error: {$e->getMessage()}");
@@ -196,9 +196,11 @@ class ProductUpdateListener implements ShouldQueue
      * Run bulk product GraphQL query to fetch all products.
      *
      * @param User $shop
+     * @param int $chunk
+     * @param int $totalProducts
      * @return void
      */
-    private function runBulkProductGraphQL(User $shop): void
+    private function runBulkProductGraphQL(User $shop, int $chunk, int $totalProducts): void
     {
         $bulkQuery = <<<GRAPHQL
         mutation {
@@ -253,6 +255,8 @@ class ProductUpdateListener implements ShouldQueue
             }
         }
         GRAPHQL;
+
+        sleep($totalProducts <= $chunk ? 2 : ($totalProducts <= $chunk * 2 ? 1 : 0));
 
         $response = $shop->api()->graph($bulkQuery);
         $errors = $response['body']['data']['errors'] ?? [];
