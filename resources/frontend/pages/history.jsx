@@ -303,14 +303,16 @@ export default function HistoryPage() {
                                                                                                                 <Icon source={MinusIcon} tone="critical"/>
                                                                                                             </Box>
                                                                                                             <InlineStack blockAlign="center">
-                                                                                                                {key === 'featured_image' ? (
+                                                                                                                {['featured_image', 'variant_image'].includes(key) ? (
                                                                                                                     <FeaturedImage src={old_value} alt="Old Image"/>
                                                                                                                 ) : key === 'body_html' ? (
                                                                                                                     <Box paddingBlockEnd="050" minWidth="100%" maxWidth="750px">
                                                                                                                         <HtmlViewer id={'changes_old' + log.id + changes_idx} source={old_value}/>
                                                                                                                     </Box>
                                                                                                                 ) : (
-                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>{old_value}</Text>
+                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>
+                                                                                                                        {['taxable', 'requires_shipping'].includes(key) ? (old_value === 1 ? 'true': 'false') : old_value}
+                                                                                                                    </Text>
                                                                                                                 )}
                                                                                                             </InlineStack>
                                                                                                         </InlineGrid>
@@ -325,14 +327,16 @@ export default function HistoryPage() {
                                                                                                                 <Icon source={PlusIcon} tone="success"/>
                                                                                                             </Box>
                                                                                                             <InlineStack blockAlign="center">
-                                                                                                                {key === 'featured_image' ? (
+                                                                                                                {['featured_image', 'variant_image'].includes(key) ? (
                                                                                                                     <FeaturedImage src={new_value} alt="New Image"/>
                                                                                                                 ) : key === 'body_html' ? (
                                                                                                                     <Box paddingBlockEnd="050" minWidth="100%" maxWidth="750px">
                                                                                                                         <HtmlViewer id={'changes_new' + log.id + changes_idx} source={new_value}/>
                                                                                                                     </Box>
                                                                                                                 ) : (
-                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>{new_value}</Text>
+                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>
+                                                                                                                        {['taxable', 'requires_shipping'].includes(key) ? (new_value === 1 ? 'true': 'false') : new_value}
+                                                                                                                    </Text>
                                                                                                                 )}
                                                                                                             </InlineStack>
                                                                                                         </InlineGrid>
