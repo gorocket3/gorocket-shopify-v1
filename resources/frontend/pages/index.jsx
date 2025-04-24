@@ -333,7 +333,7 @@ export default function HomePage() {
                                             </InlineStack>
                                         ) : (
                                             <Box width="140px">
-                                                <Button variant="primary" tone="success" fullWidth={true}
+                                                <Button variant="primary" fullWidth={true}
                                                         onClick={handleSyncProducts}
                                                         disabled={customAction.complete}
                                                         loading={customAction.in_progress}>
