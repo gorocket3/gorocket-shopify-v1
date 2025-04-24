@@ -42,10 +42,7 @@ export default class GridContentEditor {
     afterGuiAttached() {
         const el = document.querySelector('.ag-popup-editor');
         if (el && el.querySelector('.grid-content-editor')) {
-            el.style.minWidth = '330px';
-            el.style.top = '50%';
-            el.style.left = '50%';
-            el.style.transform = 'translate(-50%, -50%)';
+            el.setAttribute('class', 'editor-popup-container');
         }
 
         this.editorApp = Jodit.make('#jodit-editor', {
@@ -59,7 +56,7 @@ export default class GridContentEditor {
                 'paragraph', '|',
                 'bold', 'italic', 'underline', 'strikethrough', 'brush', '|',
                 'ul', 'ol', '|',
-                'link', 'table', 'image', '|',
+                'link', 'image', '|',
                 'undo', 'redo'
             ],
             extraButtons: [],

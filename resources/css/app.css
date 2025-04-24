@@ -30,6 +30,13 @@
 }
 
 /* Custom Jodit CSS */
+.editor-popup-container {
+    min-width: 330px !important;
+    position: absolute;
+    top: 25% !important;
+    left: 25% !important;
+}
+
 .jodit-container {
     max-width: 590px !important;
 }
@@ -61,4 +68,23 @@
 .index-col.col-lg {
     width: 50%;
     min-width: 120px;
+}
+
+/* Media Queries */
+@media (max-width: 960px) {
+    .editor-popup-container {
+        left: 10% !important;
+    }
+}
+
+@media (max-width: 784px) {
+    .editor-popup-container {
+        left: 5% !important;
+    }
+}
+
+@media (max-width: 705px) {
+    .editor-popup-container {
+        left: 0% !important;
+    }
 }
