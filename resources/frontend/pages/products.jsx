@@ -76,6 +76,8 @@ import {
     resetFilter,
 } from "../components/grid/controller";
 import { ConfirmModal } from "../components/common/confirm-modal";
+import { FeaturedImage } from "../components/history/featured-image";
+import { HtmlViewer } from "../components/history/html-viewer";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
 import { SeoLogModal } from "../components/products/seo-log-modal";
 import { getHistoryData, getMyPlanData, generateProductAiSeoContent, getAiSeoQuota } from "../utils/api";
@@ -778,25 +780,23 @@ export default function ProductsPage() {
                                                                                                     <Box
                                                                                                         paddingBlock="200"
                                                                                                         paddingInline="300"
-                                                                                                        borderColor="border"
-                                                                                                        borderWidth="025"
-                                                                                                        background="bg-surface-critical">
-                                                                                                        <InlineGrid gap="200" columns="14px auto">
+                                                                                                        borderColor="border-critical"
+                                                                                                        borderWidth="050">
+                                                                                                        <InlineGrid gap="200" columns="20px auto">
                                                                                                             <Box>
                                                                                                                 <Icon source={MinusIcon} tone="critical"/>
                                                                                                             </Box>
                                                                                                             <InlineStack blockAlign="center">
-                                                                                                                {key === 'featured_image' ? (
-                                                                                                                    <Thumbnail
-                                                                                                                        source={old_value || ImageIcon}
-                                                                                                                        size="large"
-                                                                                                                        alt="Previous Image"/>
+                                                                                                                {['featured_image', 'variant_image'].includes(key) ? (
+                                                                                                                    <FeaturedImage src={old_value} alt="Previous Image"/>
                                                                                                                 ) : key === 'body_html' ? (
-                                                                                                                    <Box paddingBlockEnd="050">
-                                                                                                                        <div dangerouslySetInnerHTML={{ __html: old_value }}></div>
+                                                                                                                    <Box paddingBlockEnd="050" minWidth="100%" maxWidth="750px">
+                                                                                                                        <HtmlViewer id={'changes_old' + log.id + changes_idx} source={old_value}/>
                                                                                                                     </Box>
                                                                                                                 ) : (
-                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>{old_value}</Text>
+                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>
+                                                                                                                        {['taxable', 'requires_shipping'].includes(key) ? (old_value === 1 ? 'true': 'false') : old_value}
+                                                                                                                    </Text>
                                                                                                                 )}
                                                                                                             </InlineStack>
                                                                                                         </InlineGrid>
@@ -804,25 +804,23 @@ export default function ProductsPage() {
                                                                                                     <Box
                                                                                                         paddingBlock="200"
                                                                                                         paddingInline="300"
-                                                                                                        borderColor="border"
-                                                                                                        borderWidth="025"
-                                                                                                        background="bg-surface-success">
-                                                                                                        <InlineGrid gap="200" columns="14px auto">
+                                                                                                        borderColor="border-success"
+                                                                                                        borderWidth="050">
+                                                                                                        <InlineGrid gap="200" columns="20px auto">
                                                                                                             <Box>
                                                                                                                 <Icon source={PlusIcon} tone="success"/>
                                                                                                             </Box>
                                                                                                             <InlineStack blockAlign="center">
-                                                                                                                {key === 'featured_image' ? (
-                                                                                                                    <Thumbnail
-                                                                                                                        source={new_value || ImageIcon}
-                                                                                                                        size="large"
-                                                                                                                        alt="New Image"/>
+                                                                                                                {['featured_image', 'variant_image'].includes(key) ? (
+                                                                                                                    <FeaturedImage src={new_value} alt="New Image"/>
                                                                                                                 ) : key === 'body_html' ? (
-                                                                                                                    <Box paddingBlockEnd="050">
-                                                                                                                        <div dangerouslySetInnerHTML={{ __html: new_value }}></div>
+                                                                                                                    <Box paddingBlockEnd="050" minWidth="100%" maxWidth="750px">
+                                                                                                                        <HtmlViewer id={'changes_new' + log.id + changes_idx} source={new_value}/>
                                                                                                                     </Box>
                                                                                                                 ) : (
-                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>{new_value}</Text>
+                                                                                                                    <Text as="p" variant="bodySm" tone="base" breakWord={true}>
+                                                                                                                        {['taxable', 'requires_shipping'].includes(key) ? (new_value === 1 ? 'true': 'false') : new_value}
+                                                                                                                    </Text>
                                                                                                                 )}
                                                                                                             </InlineStack>
                                                                                                         </InlineGrid>
