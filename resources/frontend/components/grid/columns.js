@@ -373,13 +373,6 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     onCellClicked: (p) => p.data.position > 1 ? null : showTagsModal(p.data),
                     onCellValueChanged: (e) => changeCellState('product_tags', e),
                     // editable: (p) => p.data.position < 2,
-                    // cellEditor: GridFieldMultipleEditor,
-                    // cellEditorPopup: true,
-                    // cellEditorParams: {
-                    //     cellEditor: GridFieldMultipleEditor,
-                    //     values: tags.map((tag) => ({ id: tag, label: tag })),
-                    //     width: "120px",
-                    // },
                 },
                 {
                     field: "product_name",
