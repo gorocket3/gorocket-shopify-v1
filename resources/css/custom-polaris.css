@@ -3,7 +3,7 @@
 }
 
 .Polaris-Button--pressed.Polaris-Button--pressed {
-    background-color: rgba(0,0,0,.08);
+    background-color: rgba(0, 0, 0, .08);
 }
 
 .Polaris-Button--pressed:hover {
@@ -12,4 +12,8 @@
 
 .Polaris-Text--break {
     white-space: normal;
+}
+
+.custom-choice-list .Polaris-BlockStack.Polaris-BlockStack--listReset {
+    gap: 0.5rem;
 }

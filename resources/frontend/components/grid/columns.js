@@ -3,7 +3,7 @@ import { formatISOStringToReadableDate, formatTitleCase } from "../../utils/form
 import { showError } from "../../utils/toasts";
 import GridContentEditor from "./rich-text-editor";
 
-export default function getInitialColumns(data, showChangesModal, showSeoLogsModal, onlineStoreLinkCallback, editedCellCallback) {
+export default function getInitialColumns(data, showChangesModal, showSeoLogsModal, showTagsModal, onlineStoreLinkCallback, editedCellCallback) {
     const {
         collections = [],
         categories = [],
@@ -370,8 +370,9 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                             ${p.value.split(', ').map((tag) => `<span class="grid-badge Polaris-Badge--toneInfo" style="display:inline-block;line-height:normal;">${tag || ''}</span>`).join('')}
                         </div>
                     `),
+                    onCellClicked: (p) => p.data.position > 1 ? null : showTagsModal(p.data),
                     onCellValueChanged: (e) => changeCellState('product_tags', e),
-                    editable: (p) => p.data.position < 2,
+                    // editable: (p) => p.data.position < 2,
                     // cellEditor: GridFieldMultipleEditor,
                     // cellEditorPopup: true,
                     // cellEditorParams: {

@@ -5,7 +5,7 @@ import { showError, showInfo } from "../../utils/toasts";
 import getInitialColumns from "./columns";
 import COLUMN_PARAMS from "./cols.json";
 
-let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, showSeoLogsCallback, startGridCallback, setSelectableCount;
+let pApp, gx, gridDiv, initData, defaultData, filterData, showChangesCallback, showSeoLogsCallback, showTagsCallback, startGridCallback, setSelectableCount;
 let editedCellCount = 0;
 let filterLoading = false;
 
@@ -17,9 +17,10 @@ export async function initGrid({
     default_sort_desc,
     show_changes,
     show_seo_logs,
+    show_tags,
     start_grid,
     set_selectable_count
-}) {
+}, callback = null) {
     pApp = new App('', { gridId: "#div-gd" });
 
     // const is_mobile = document.body.offsetWidth <= 1007;
@@ -39,9 +40,12 @@ export async function initGrid({
     };
     showChangesCallback = show_changes;
     showSeoLogsCallback = show_seo_logs;
+    showTagsCallback = show_tags;
     startGridCallback = start_grid;
     setSelectableCount = set_selectable_count;
-    refreshGrid(initData, defaultData, showChangesCallback, showSeoLogsCallback, startGridCallback);
+    refreshGrid(initData, defaultData, showChangesCallback, showSeoLogsCallback, showTagsCallback, startGridCallback);
+
+    if (callback) callback({ tags: initData.tags });
 }
 
 export function clearGlobalData() {
@@ -345,7 +349,7 @@ export async function resetColumns(e) {
 
         showInfo('Column information has been reset.');
         gx.gridOptions.api.destroy();
-        refreshGrid(initData, defaultData, showChangesCallback, showSeoLogsCallback, startGridCallback);
+        refreshGrid(initData, defaultData, showChangesCallback, showSeoLogsCallback, showTagsCallback, startGridCallback);
     } catch (error) {
         console.error('Error fetching personal column:', error);
     }
@@ -402,12 +406,21 @@ export function resetFilter() {
     gx.gridOptions.api.setFilterModel(null);
 }
 
+export function setTags(productId, newTags) {
+    const newTagValue = (newTags || []).join(', ');
+    gx.gridOptions.api.forEachNode((node) => {
+        if (node.data.product_id === productId && newTags.length > 0 && newTagValue !== node.data.product_tags) {
+            node.setDataValue('product_tags', newTagValue);
+        }
+    });
+}
+
 /*
     Private Function
 */
 
-async function refreshGrid(data, defaultData, showChangesModal, showSeoLogsModal, startGrid) {
-    const default_columns = [ ...getInitialColumns(data, showChangesModal, showSeoLogsModal, openOnlineStoreLink, addEditedCellCount) ];
+async function refreshGrid(data, defaultData, showChangesModal, showSeoLogsModal, showTagsModal, startGrid) {
+    const default_columns = [ ...getInitialColumns(data, showChangesModal, showSeoLogsModal, showTagsModal, openOnlineStoreLink, addEditedCellCount) ];
     const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
 
     gx = new HDGrid(gridDiv, my_columns, {

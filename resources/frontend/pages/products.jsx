@@ -74,12 +74,14 @@ import {
     updateSortData,
     setSeoContentFromLog,
     resetFilter,
+    setTags,
 } from "../components/grid/controller";
 import { ConfirmModal } from "../components/common/confirm-modal";
 import { FeaturedImage } from "../components/history/featured-image";
 import { HtmlViewer } from "../components/history/html-viewer";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
 import { SeoLogModal } from "../components/products/seo-log-modal";
+import { TagSelectModal } from "../components/products/tag-select-modal";
 import { getHistoryData, getMyPlanData, generateProductAiSeoContent, getAiSeoQuota } from "../utils/api";
 import {
     formatNumberWithCommas,
@@ -144,6 +146,15 @@ export default function ProductsPage() {
     // Undo/Redo
     const [ disableUndo, setDisableUndo ] = useState(false);
     const [ disableRedo, setDisableRedo ] = useState(false);
+
+    // Tags
+    const [ tagInfo, setTagInfo ] = useState({
+        productId: null,
+        productName: null,
+        allTags: [],
+        selectedTags: [],
+        addedTags: [],
+    });
 
     // History
     const [ historyInfo, setHistoryInfo ] = useState({
@@ -335,6 +346,10 @@ export default function ProductsPage() {
     }
 
     useEffectWithoutInitialState(() => {
+        const initGridCallback = ({ tags = [] }) => {
+            setTagInfo((inf) => ({ ...inf, allTags: tags.sort() }));
+        }
+
         initGrid({
             plan_id: info.planId,
             plan_selected_limit: info.selectableLimit,
@@ -354,9 +369,16 @@ export default function ProductsPage() {
                 title: prd.seo_title,
                 description: prd.seo_description
             }),
+            show_tags: (prd) => setTagInfo((inf) => ({
+                ...inf,
+                productId: prd.product_id,
+                productName: prd.product_name,
+                selectedTags: prd.product_tags.split(', '),
+                addedTags: [],
+            })),
             start_grid: () => setGridSetUp(true),
             set_selectable_count: setSelectableCount,
-        });
+        }, initGridCallback);
     }, [ info.shopId ]);
 
     useEffectWithoutInitialState(() => {
@@ -646,6 +668,7 @@ export default function ProductsPage() {
                     </BlockStack>
                 </Card>
             </div>
+            <TagSelectModal info={tagInfo} setInfo={setTagInfo} onApply={setTags}/>
             <AiSeoModal open={!!aiSeo.rows && aiSeo.rows.length > 0}
                         onClose={resetAiSeo}
                         contents={aiSeo.rows || []}
