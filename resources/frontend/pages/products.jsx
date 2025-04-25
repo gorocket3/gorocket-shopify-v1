@@ -81,7 +81,7 @@ import { FeaturedImage } from "../components/history/featured-image";
 import { HtmlViewer } from "../components/history/html-viewer";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
 import { SeoLogModal } from "../components/products/seo-log-modal";
-import { TagSelectModal } from "../components/products/tag-select-modal";
+// import { TagSelectModal } from "../components/products/tag-select-modal";
 import { getHistoryData, getMyPlanData, generateProductAiSeoContent, getAiSeoQuota } from "../utils/api";
 import {
     formatNumberWithCommas,
@@ -668,7 +668,7 @@ export default function ProductsPage() {
                     </BlockStack>
                 </Card>
             </div>
-            <TagSelectModal info={tagInfo} setInfo={setTagInfo} onApply={setTags}/>
+            {/*<TagSelectModal info={tagInfo} setInfo={setTagInfo} onApply={setTags}/>*/}
             <AiSeoModal open={!!aiSeo.rows && aiSeo.rows.length > 0}
                         onClose={resetAiSeo}
                         contents={aiSeo.rows || []}
