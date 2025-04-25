@@ -17,3 +17,12 @@
 .custom-choice-list .Polaris-BlockStack.Polaris-BlockStack--listReset {
     gap: 0.5rem;
 }
+
+.Polaris-Button[aria-controls='info'],
+.Polaris-Button[aria-controls='info']:hover {
+    color: rgba(0, 91, 211, 1);
+}
+
+.Polaris-Button[aria-controls='info'] .Polaris-Icon > svg {
+    fill: rgba(0, 91, 211, 1) !important;
+}

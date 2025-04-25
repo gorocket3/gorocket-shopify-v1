@@ -945,7 +945,7 @@ async function getMyColumns(gridCallback, gridDiv, default_columns, grid_number 
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const res = await response.json();
-        if (!res.columns) return default_columns;
+        if (!res.columns) return { empty: true, columns: default_columns };
 
         let stored = typeof res.columns === 'string'
             ? JSON.parse(res.columns?.[0] || '')
@@ -971,11 +971,16 @@ async function getMyColumns(gridCallback, gridDiv, default_columns, grid_number 
             return null;
         }).filter(Boolean);
 
-        return resultColumns.length > 0 ? resultColumns : default_columns;
-
+        return resultColumns.length > 0 ? {
+            empty: false,
+            columns: resultColumns
+        } : {
+            empty: true,
+            columns: default_columns
+        };
     } catch (error) {
         console.error('Error fetching personal column:', error);
-        return default_columns;
+        return { empty: true, columns: default_columns };
     }
 }
 

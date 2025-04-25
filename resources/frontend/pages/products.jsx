@@ -40,13 +40,14 @@ import {
     EditIcon,
     FilterIcon,
     ImageIcon,
+    LayoutColumns3Icon,
     MagicIcon,
     MinusIcon,
+    PlusCircleIcon,
     PlusIcon,
     ProductIcon,
     RedoIcon,
     SearchIcon,
-    SettingsIcon,
     SortIcon,
     UndoIcon,
     VariantIcon,
@@ -137,6 +138,7 @@ export default function ProductsPage() {
     const [ isGridSetUp, setGridSetUp ] = useState(false);
     const [ gridCustomPopoverActive, setGridCustomPopoverActive ] = useState(false);
     const toggleGridCustomPopover = () => setGridCustomPopoverActive((active) => !active);
+    const [ gridColumnSaved, setGridColumnSaved ] = useState(false);
 
     // Search
     const [ searchPerPage, setSearchPerPage ] = useState(25);
@@ -376,7 +378,10 @@ export default function ProductsPage() {
                 selectedTags: prd.product_tags.split(', '),
                 addedTags: [],
             })),
-            start_grid: () => setGridSetUp(true),
+            start_grid: ({ columnSaved }) => {
+                setGridSetUp(true);
+                setGridColumnSaved(columnSaved);
+            },
             set_selectable_count: setSelectableCount,
         }, initGridCallback);
     }, [ info.shopId ]);
@@ -632,25 +637,23 @@ export default function ProductsPage() {
                                 </Popover>
                                 <Popover
                                     active={gridCustomPopoverActive}
-                                    activator={<Button icon={SettingsIcon} onClick={toggleGridCustomPopover}></Button>}
+                                    activator={<Button icon={LayoutColumns3Icon} onClick={toggleGridCustomPopover}></Button>}
                                     onClose={toggleGridCustomPopover}
                                 >
-                                    <ActionList
-                                        actionRole="menuitem"
-                                        onActionAnyItem={toggleGridCustomPopover}
-                                        items={[
-                                            {
-                                                content: 'Save Columns',
-                                                onAction: () => setConfirmType('save_columns'),
-                                                disabled: productAction.inProgress
-                                            },
-                                            {
-                                                content: 'Reset Columns',
-                                                onAction: () => setConfirmType('reset_columns'),
-                                                disabled: productAction.inProgress
-                                            }
-                                        ]}
-                                    />
+                                    <Box paddingBlock="200" paddingInline="150">
+                                        <BlockStack gap="100">
+                                            <Button icon={gridColumnSaved ? EditIcon : PlusCircleIcon} variant="tertiary" textAlign="left" tone="success" ariaControls={gridColumnSaved ? 'info' : ''}
+                                                    disabled={productAction.inProgress}
+                                                    onClick={() => setConfirmType('save_columns')}>
+                                                <Text as="span">{gridColumnSaved ? 'Edit Columns' : 'Save Columns'}</Text>
+                                            </Button>
+                                            <Button icon={DeleteIcon} variant="tertiary" textAlign="left" tone="critical"
+                                                    disabled={productAction.inProgress}
+                                                    onClick={() => setConfirmType('reset_columns')}>
+                                                <Text as="span">Reset Columns</Text>
+                                            </Button>
+                                        </BlockStack>
+                                    </Box>
                                 </Popover>
                                 <Button id="search_product"
                                         variant="primary"
@@ -899,7 +902,7 @@ export default function ProductsPage() {
 
                     switch (confirmType) {
                         case 'save_columns':
-                            await saveColumns();
+                            await saveColumns(() => setGridColumnSaved(true));
                             break;
                         case 'reset_columns':
                             await resetColumns();
