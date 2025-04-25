@@ -46,6 +46,7 @@ export default function HomePage() {
     const customActionInterval = useRef();
     const [ customActionDuration, setCustomActionDuration ] = useState(1);
     const [ customAction, setCustomAction ] = useState({ type: '', progress: 0, in_progress: false, complete: false });
+    const [ customActionError, setCustomActionError ] = useState(false);
     const startCustomAction = (type, progress = 0) => setCustomAction((action) => ({
         ...action,
         type,
@@ -90,10 +91,12 @@ export default function HomePage() {
 
     async function handleSyncProducts() {
         try {
+            if (customActionError) setCustomActionError(false);
             startCustomAction('connect');
             await syncProducts();
         } catch (e) {
             resetCustomAction();
+            setCustomActionError(true);
         }
     }
 
@@ -315,7 +318,7 @@ export default function HomePage() {
                                 {info.shopId ? (
                                     <InlineGrid columns="1fr auto" gap="200" alignItems="center">
                                         <Button onClick={() => navigate('/products')}>Manage Products</Button>
-                                        {customAction.in_progress ? (
+                                        {!customActionError && customAction.in_progress ? (
                                             <InlineStack gap="100" blockAlign="center">
                                                 <Box width="140px">
                                                     <ProgressBar progress={Math.max(customAction.progress, 3)}
@@ -335,9 +338,9 @@ export default function HomePage() {
                                             <Box width="140px">
                                                 <Button variant="primary" tone="success" fullWidth={true}
                                                         onClick={handleSyncProducts}
-                                                        disabled={customAction.complete}
-                                                        loading={customAction.in_progress}>
-                                                    {customAction.complete ? 'Completed!' : 'Connect Products'}
+                                                        disabled={(!customActionError && customAction.complete)}
+                                                        loading={!customActionError && customAction.in_progress}>
+                                                    {(!customActionError && customAction.complete) ? 'Completed!' : 'Connect Products'}
                                                 </Button>
                                             </Box>
                                         )}
