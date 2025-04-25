@@ -15,7 +15,7 @@ class PlansTableSeeder extends Seeder
      */
     public function run(): void
     {
-        $isTestMode = env('APP_ENV') !== 'production';
+        $isTestMode = config('app.env') !== 'production';
 
         DB::table('plans')->insert([
             [
