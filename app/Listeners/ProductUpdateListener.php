@@ -72,7 +72,10 @@ class ProductUpdateListener implements ShouldQueue
             do {
                 $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
                     'limit' => $chunk,
-                    'page_info' => $nextPage
+                    'page_info' => $nextPage,
+                ], [
+                    'timeout' => 30,
+                    'connect_timeout' => 10
                 ]);
 
                 if (($response['errors'] ?? false) || !isset($response['body']['products'])) {
