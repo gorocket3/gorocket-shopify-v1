@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Modal, TitleBar } from "@shopify/app-bridge-react";
 import {
     Box,
@@ -11,56 +11,136 @@ import {
     Scrollable
 } from "@shopify/polaris";
 import { PlusCircleIcon, SearchIcon } from "@shopify/polaris-icons";
+import { useEffectWithoutInitialState } from "../../utils/hooks";
 
-export function TagSelectModal({ info, setInfo, onApply }) {
+export function TagSelectModal({ tagInfo, resetTagInfo, allTags, onApply }) {
     const [ keyword, setKeyword ] = useState('');
+    const [ fullTags, setFullTags ] = useState([]);
+    const [ selectedTags, setSelectedTags ] = useState([]);
+    const [ unselectedTags, setUnselectedTags ] = useState([]);
+    const [ addedTags, setAddedTags ] = useState([]);
+    const [ visibleCount, setVisibleCount ] = useState(50);
+    const [ isPending, startTransition ] = useTransition();
 
-    const resetInfo = () => setInfo((inf) => ({
-        ...inf,
-        productId: null,
-        allTags: Array.from(new Set([ ...inf.allTags, ...inf.addedTags ]))
-    }));
-    const selectTag = (tags) => setInfo((inf) => ({
-        ...inf,
-        selectedTags: Array.from(new Set([ ...inf.selectedTags, tags[0] ]))
-    }));
-    const unselectTag = (tags) => setInfo((inf) => ({ ...inf, selectedTags: tags }));
-    const addTag = () => setInfo((inf) => ({
-        ...inf,
-        addedTags: Array.from(new Set([ ...inf.addedTags, ...keyword.split(',') ]))
-    }));
-    const removeAddedTag = (tags) => setInfo((inf) => ({ ...inf, addedTags: tags }));
+    function getArrayIntersection(prevArray, newItems) {
+        const arraySet = new Set(prevArray);
 
-    function getUnselectedTags() {
-        return info.allTags.filter(item => !info.selectedTags.includes(item));
+        return newItems.filter(item => arraySet.has(item));
     }
 
-    function filterTagsByKeyword(array, equal = false) {
-        if (equal) return array.filter(str => str === keyword);
-        return array.filter(str => str.toLowerCase().includes(keyword));
+    function getArrayWithoutDuplicates(prevArray, newItems) {
+        const arraySet = new Set(prevArray);
+
+        if (Array.isArray(newItems)) {
+            newItems.forEach(item => {
+                if (!arraySet.has(item)) arraySet.add(item);
+            });
+        } else {
+            if (!arraySet.has(newItems)) arraySet.add(newItems);
+        }
+
+        return Array.from(arraySet);
     }
 
-    function handleAddKeyword() {
-        addTag();
+    function getArrayDifference(prevArray, newItems) {
+        const arraySet = new Set(newItems);
+        const result = [];
+
+        for (let i = 0; i < prevArray.length; i++) {
+            if (!arraySet.has(prevArray[i])) {
+                result.push(prevArray[i]);
+            }
+        }
+
+        return result;
+    }
+
+    const selectOneTag = (newTags) => {
+        startTransition(() => {
+            setSelectedTags((prevTags) => getArrayWithoutDuplicates(prevTags, newTags[0]));
+        });
+    }
+
+    const unselectOneTag = (newTags) => {
+        startTransition(() => {
+            setSelectedTags((prevTags) => getArrayIntersection(prevTags, newTags));
+        });
+    }
+
+    const addNewTag = () => {
+        startTransition(() => {
+            setAddedTags((prevTags) => getArrayWithoutDuplicates(prevTags, keyword.split(',')));
+            setKeyword('');
+        });
+    }
+
+    const removeAddedTag = (newTags) => {
+        startTransition(() => {
+            setAddedTags((prevTags) => getArrayIntersection(prevTags, newTags));
+        });
+    }
+
+    const closeModal = () => {
+        resetTagInfo();
         setKeyword('');
     }
 
-    function closeModal() {
-        resetInfo();
-        setKeyword('');
+    const filterTagsByKeyword = (array, equal = false) => {
+        if (keyword === '') return array;
+
+        const lowerKeyword = keyword.toLowerCase();
+        const result = [];
+
+        for (let i = 0, len = array.length; i < len; i++) {
+            const item = array[i];
+
+            if (equal) {
+                if (item == keyword) {
+                    result.push(item);
+                }
+            } else {
+                if (item.toLowerCase().includes(lowerKeyword)) {
+                    result.push(item);
+                }
+            }
+        }
+
+        return result;
     }
+
+    const saveTags = () => {
+        startTransition(() => {
+            const newTags = getArrayWithoutDuplicates(selectedTags, addedTags);
+            onApply(tagInfo.productId, newTags);
+            setFullTags((prevTags) => getArrayWithoutDuplicates(prevTags, addedTags));
+            closeModal();
+        });
+    }
+
+    useEffectWithoutInitialState(() => {
+        setFullTags(allTags);
+    }, [ allTags ]);
+
+    useEffectWithoutInitialState(() => {
+        setSelectedTags([ ...tagInfo.selectedTags ]);
+        setAddedTags([]);
+    }, [ tagInfo.selectedTags ]);
+
+    useEffectWithoutInitialState(() => {
+        startTransition(() => {
+            const difference = getArrayDifference(fullTags, selectedTags);
+            setUnselectedTags(difference);
+        });
+    }, [ selectedTags ]);
 
     return (
         <Modal
             variant="base"
-            open={!!info.productId}
+            open={!!tagInfo.productId}
             onHide={closeModal}
         >
-            <TitleBar title={`${info.productName || ''}'s Tags`}>
-                <button variant="primary" onClick={() => {
-                    onApply(info.productId, [ ...info.selectedTags, ...info.addedTags ]);
-                    closeModal();
-                }}>Save
+            <TitleBar title={`${tagInfo.productName || ''}'s Tags`}>
+                <button variant="primary" onClick={saveTags}>Save
                 </button>
                 <button onClick={closeModal}>Cancel</button>
             </TitleBar>
@@ -70,7 +150,7 @@ export function TagSelectModal({ info, setInfo, onApply }) {
                         activator={
                             <Combobox.TextField
                                 prefix={<Icon source={SearchIcon}/>}
-                                onChange={(v) => setKeyword(v)}
+                                onChange={setKeyword}
                                 label="Search tags"
                                 labelHidden
                                 value={keyword}
@@ -80,13 +160,13 @@ export function TagSelectModal({ info, setInfo, onApply }) {
                         }
                     />
                 </Box>
-                {keyword !== '' && filterTagsByKeyword([ ...info.allTags, ...info.addedTags ], true).length < 1 && (
+                {keyword !== '' && filterTagsByKeyword([ ...fullTags, ...addedTags ], true).length < 1 && (
                     <Button icon={PlusCircleIcon} variant="tertiary" textAlign="start" fullWidth
-                            onClick={handleAddKeyword}>
+                            onClick={addNewTag}>
                         Add "{keyword}"
                     </Button>
                 )}
-                {info.addedTags.length < 1 && filterTagsByKeyword(info.allTags).length < 1 ? (
+                {addedTags.length < 1 && filterTagsByKeyword(fullTags).length < 1 ? (
                     <Box paddingBlock="400" minHeight="368px">
                         <Text as="p" alignment="center" tone="subdued">Tag not found</Text>
                     </Box>
@@ -94,50 +174,56 @@ export function TagSelectModal({ info, setInfo, onApply }) {
                     <Scrollable style={{ height: '400px' }} scrollbarGutter="stable" scrollbarWidth="thin">
                         <Box paddingBlock="200">
                             <BlockStack gap="400">
-                                <div className={`custom-choice-list ${info.addedTags.length < 1 ? 'hidden' : ''}`}>
+                                <div className={`custom-choice-list ${addedTags.length < 1 ? 'hidden' : ''}`}>
                                     <ChoiceList
                                         allowMultiple
                                         title={<Box paddingBlockEnd="200">
                                             <Text as="h6" fontWeight="semibold">Newly Added</Text>
                                         </Box>}
-                                        choices={info.addedTags.map(tag => ({
+                                        choices={addedTags.map(tag => ({
                                             label: tag,
                                             value: tag
                                         }))}
-                                        selected={info.addedTags}
-                                        onChange={(tags) => removeAddedTag(tags)}
+                                        selected={addedTags}
+                                        onChange={removeAddedTag}
                                     />
                                 </div>
                                 <div
-                                    className={`custom-choice-list ${filterTagsByKeyword(info.selectedTags).length < 1 ? 'hidden' : ''}`}>
+                                    className={`custom-choice-list ${filterTagsByKeyword(selectedTags).length < 1 ? 'hidden' : ''}`}>
                                     <ChoiceList
                                         allowMultiple
                                         title={<Box paddingBlockEnd="200">
                                             <Text as="h6" fontWeight="semibold">Add</Text>
                                         </Box>}
-                                        choices={filterTagsByKeyword(info.selectedTags).map(tag => ({
+                                        choices={filterTagsByKeyword(selectedTags).map(tag => ({
                                             label: tag,
                                             value: tag
                                         }))}
-                                        selected={info.selectedTags}
-                                        onChange={(tags) => unselectTag(tags)}
+                                        selected={selectedTags}
+                                        onChange={unselectOneTag}
                                     />
                                 </div>
                                 <div
-                                    className={`custom-choice-list ${filterTagsByKeyword(getUnselectedTags()).length < 1 ? 'hidden' : ''}`}>
+                                    className={`custom-choice-list ${filterTagsByKeyword(unselectedTags).length < 1 ? 'hidden' : ''}`}>
                                     <ChoiceList
                                         allowMultiple
                                         title={<Box paddingBlockEnd="200">
                                             <Text as="h6" fontWeight="semibold">Available</Text>
                                         </Box>}
-                                        choices={filterTagsByKeyword(getUnselectedTags()).map(tag => ({
+                                        choices={filterTagsByKeyword(unselectedTags).slice(0, visibleCount).map(tag => ({
                                             label: tag,
                                             value: tag
                                         }))}
                                         selected={[]}
-                                        onChange={(tags) => selectTag(tags)}
+                                        onChange={selectOneTag}
                                     />
                                 </div>
+                                {visibleCount < filterTagsByKeyword(unselectedTags).length && (
+                                    <Button variant="tertiary" textAlign="start" fullWidth
+                                            onClick={() => setVisibleCount((count) => count + 50)}>
+                                        <Text as="span" tone="subdued" fontWeight="semibold">Show more</Text>
+                                    </Button>
+                                )}
                             </BlockStack>
                         </Box>
                     </Scrollable>

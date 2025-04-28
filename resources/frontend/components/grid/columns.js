@@ -372,7 +372,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     `),
                     onCellClicked: (p) => p.data.position > 1 ? null : showTagsModal(p.data),
                     onCellValueChanged: (e) => changeCellState('product_tags', e),
-                    editable: (p) => p.data.position < 2,
+                    // editable: (p) => p.data.position < 2,
                 },
                 {
                     field: "product_name",

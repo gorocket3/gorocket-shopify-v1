@@ -82,7 +82,7 @@ import { FeaturedImage } from "../components/history/featured-image";
 import { HtmlViewer } from "../components/history/html-viewer";
 import { AiSeoModal } from "../components/products/ai-seo-modal";
 import { SeoLogModal } from "../components/products/seo-log-modal";
-// import { TagSelectModal } from "../components/products/tag-select-modal";
+import { TagSelectModal } from "../components/products/tag-select-modal";
 import { getHistoryData, getMyPlanData, generateProductAiSeoContent, getAiSeoQuota } from "../utils/api";
 import {
     formatNumberWithCommas,
@@ -153,10 +153,10 @@ export default function ProductsPage() {
     const [ tagInfo, setTagInfo ] = useState({
         productId: null,
         productName: null,
-        allTags: [],
         selectedTags: [],
-        addedTags: [],
     });
+    const [ allTags, setAllTags ] = useState([]);
+    const resetTagInfo = () => setTagInfo((tagInf) => ({ ...tagInf, productId: null }));
 
     // History
     const [ historyInfo, setHistoryInfo ] = useState({
@@ -349,7 +349,7 @@ export default function ProductsPage() {
 
     useEffectWithoutInitialState(() => {
         const initGridCallback = ({ tags = [] }) => {
-            setTagInfo((inf) => ({ ...inf, allTags: tags.sort() }));
+            setAllTags(tags.sort());
         }
 
         initGrid({
@@ -376,7 +376,6 @@ export default function ProductsPage() {
                 productId: prd.product_id,
                 productName: prd.product_name,
                 selectedTags: prd.product_tags.split(', '),
-                addedTags: [],
             })),
             start_grid: ({ columnSaved }) => {
                 setGridSetUp(true);
@@ -671,7 +670,7 @@ export default function ProductsPage() {
                     </BlockStack>
                 </Card>
             </div>
-            {/*<TagSelectModal info={tagInfo} setInfo={setTagInfo} onApply={setTags}/>*/}
+            <TagSelectModal tagInfo={tagInfo} resetTagInfo={resetTagInfo} allTags={allTags} onApply={setTags}/>
             <AiSeoModal open={!!aiSeo.rows && aiSeo.rows.length > 0}
                         onClose={resetAiSeo}
                         contents={aiSeo.rows || []}
