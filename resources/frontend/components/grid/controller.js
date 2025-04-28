@@ -1,6 +1,6 @@
 import { getCompositionData, isFreePlan } from "../../utils/api";
 import fetchData from "../../utils/fetch";
-import { formatNumberWithCommas } from "../../utils/formats";
+import { formatNumberWithCommas, sortIgnoreCase } from "../../utils/formats";
 import { showError, showInfo } from "../../utils/toasts";
 import getInitialColumns from "./columns";
 import COLUMN_PARAMS from "./cols.json";
@@ -103,6 +103,7 @@ export function searchProducts() {
         }, []);
 
         const result = data.map((item, index) => {
+            const sortedTags = sortIgnoreCase(item.parent.tags.split(', ')).join(', ');
             const cur_data = {
                 ...item,
                 group_id: item.parent.product_id,
@@ -111,7 +112,7 @@ export function searchProducts() {
                 collections: item.parent.collections,
                 product_type: item.parent.product_type,
                 product_category: item.parent.category,
-                product_tags: item.parent.tags,
+                product_tags: sortedTags,
                 product_body: item.parent.body_html,
                 product_img: item.parent.featured_image || '',
                 product_alt: item.parent.images?.[0]?.alt || '',
@@ -187,12 +188,13 @@ export function getProductsToUpdate() {
         if (prev) {
             prev.variants.push(variant);
         } else {
+            const sortedTags = sortIgnoreCase(data.product_tags.split(', ')).join(', ');
             const product = {
                 id: data.product_id,
                 title: data.product_name,
                 status: data.product_status,
                 body_html: data.product_body,
-                tags: data.product_tags,
+                tags: sortedTags,
                 product_type: data.product_type,
                 category: data.product_category,
                 vendor: data.vendor,
@@ -410,7 +412,7 @@ export function resetFilter() {
 export function setTags(productId, newTags) {
     const newTagValue = (newTags || []).join(', ');
     gx.gridOptions.api.forEachNode((node) => {
-        if (node.data.product_id === productId && newTags.length > 0 && newTagValue !== node.data.product_tags) {
+        if (node.data.product_id === productId && newTagValue !== node.data.product_tags) {
             node.setDataValue('product_tags', newTagValue);
         }
     });

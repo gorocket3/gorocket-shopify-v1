@@ -88,7 +88,8 @@ import {
     formatNumberWithCommas,
     formatISOStringToReadableDate,
     formatTitleCase,
-    formatHistories
+    formatHistories,
+    sortIgnoreCase
 } from "../utils/formats";
 import { useEffectWithoutInitialState } from "../utils/hooks";
 import { showInfo } from "../utils/toasts";
@@ -349,7 +350,7 @@ export default function ProductsPage() {
 
     useEffectWithoutInitialState(() => {
         const initGridCallback = ({ tags = [] }) => {
-            setAllTags(tags.sort());
+            setAllTags(sortIgnoreCase(tags, 'asc'));
         }
 
         initGrid({
@@ -375,7 +376,7 @@ export default function ProductsPage() {
                 ...inf,
                 productId: prd.product_id,
                 productName: prd.product_name,
-                selectedTags: prd.product_tags.split(', '),
+                selectedTags: prd.product_tags?.split(', ') || [],
             })),
             start_grid: ({ columnSaved }) => {
                 setGridSetUp(true);

@@ -11,6 +11,7 @@ import {
     Scrollable
 } from "@shopify/polaris";
 import { PlusCircleIcon, SearchIcon } from "@shopify/polaris-icons";
+import { sortIgnoreCase } from "../../utils/formats";
 import { useEffectWithoutInitialState } from "../../utils/hooks";
 
 export function TagSelectModal({ tagInfo, resetTagInfo, allTags, onApply }) {
@@ -69,7 +70,7 @@ export function TagSelectModal({ tagInfo, resetTagInfo, allTags, onApply }) {
 
     const addNewTag = () => {
         startTransition(() => {
-            setAddedTags((prevTags) => getArrayWithoutDuplicates(prevTags, keyword.split(',')));
+            setAddedTags((prevTags) => getArrayWithoutDuplicates(keyword.split(','), prevTags));
             setKeyword('');
         });
     }
@@ -122,7 +123,7 @@ export function TagSelectModal({ tagInfo, resetTagInfo, allTags, onApply }) {
     }, [ allTags ]);
 
     useEffectWithoutInitialState(() => {
-        setSelectedTags([ ...tagInfo.selectedTags ]);
+        setSelectedTags([ ...(tagInfo.selectedTags.filter(Boolean) || []) ]);
         setAddedTags([]);
     }, [ tagInfo.selectedTags ]);
 
@@ -140,8 +141,7 @@ export function TagSelectModal({ tagInfo, resetTagInfo, allTags, onApply }) {
             onHide={closeModal}
         >
             <TitleBar title={`${tagInfo.productName || ''}'s Tags`}>
-                <button variant="primary" onClick={saveTags}>Save
-                </button>
+                <button variant="primary" onClick={saveTags}>Save</button>
                 <button onClick={closeModal}>Cancel</button>
             </TitleBar>
             <Box padding="400" paddingBlockEnd="200">

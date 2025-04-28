@@ -40,6 +40,20 @@ export function formatTitleCase(str) {
     return (str || '').replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
+export function sortIgnoreCase(array, orderBy = 'desc') {
+    return [...array].sort(function (a, b) {
+        const upperCaseA = a.toUpperCase();
+        const upperCaseB = b.toUpperCase();
+
+        if (upperCaseA === upperCaseB) return 0;
+        if (orderBy === 'asc') {
+            return upperCaseA > upperCaseB ? 1 : -1;
+        } else {
+            return upperCaseA < upperCaseB ? 1 : -1;
+        }
+    });
+}
+
 export function formatHistories(logs) {
     const groupedLogs = {};
 
