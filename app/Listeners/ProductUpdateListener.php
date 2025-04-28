@@ -35,7 +35,7 @@ class ProductUpdateListener implements ShouldQueue
         try {
             $shopId = $event->shopId->toNative();
             $shop = User::find($shopId);
-            $chunk = 100;
+            $chunk = 250;
 
             if (!$shop) {
                 Log::error("[LISTENER][PRODUCT] Shop not found - {$shopId}");
@@ -267,7 +267,7 @@ class ProductUpdateListener implements ShouldQueue
         }
         GRAPHQL;
 
-        sleep($totalProducts > $chunk * 5 ? 0 : ($totalProducts > $chunk * 3 ? 1 : 2));
+        sleep($totalProducts <= $chunk * 3 ? 2 : ($totalProducts <= $chunk * 5 ? 1 : 0));
 
         $response = $shop->api()->graph($bulkQuery);
         $errors = $response['body']['data']['errors'] ?? [];
