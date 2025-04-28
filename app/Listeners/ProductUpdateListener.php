@@ -35,7 +35,7 @@ class ProductUpdateListener implements ShouldQueue
         try {
             $shopId = $event->shopId->toNative();
             $shop = User::find($shopId);
-            $chunk = 250;
+            $chunk = 100;
 
             if (!$shop) {
                 Log::error("[LISTENER][PRODUCT] Shop not found - {$shopId}");
@@ -70,7 +70,8 @@ class ProductUpdateListener implements ShouldQueue
             $batch = [];
             $nextPage = null;
 
-            $this->deleteDBProducts($shopId, $chunk);
+            $batchSize = min($chunk * 10, 1000);
+            $this->deleteDBProducts($shopId, $batchSize);
 
             do {
                 $response = retry(3, function () use ($shop, $chunk, $nextPage) {
@@ -78,10 +79,10 @@ class ProductUpdateListener implements ShouldQueue
                         'limit' => $chunk,
                         'page_info' => $nextPage,
                     ], [
-                        'timeout' => 30,
-                        'connect_timeout' => 10,
+                        'timeout' => 60,
+                        'connect_timeout' => 20
                     ]);
-                }, 1000, function (Throwable $exception) use ($shopId) {
+                }, 2000, function (Throwable $exception) use ($shopId) {
                     Log::warning("[LISTENER][PRODUCT] API retry failed - {$shopId}, Error: {$exception->getMessage()}");
                 });
 
@@ -190,7 +191,7 @@ class ProductUpdateListener implements ShouldQueue
      * @param int $chunk
      * @return void
      */
-    private function deleteDBProducts(int $shopId, int $chunk = 250): void
+    private function deleteDBProducts(int $shopId, int $chunk): void
     {
         DB::statement('SET @DISABLE_PRODUCT_DELETE_TRIGGER = TRUE');
 
@@ -266,7 +267,7 @@ class ProductUpdateListener implements ShouldQueue
         }
         GRAPHQL;
 
-        sleep($totalProducts <= $chunk ? 2 : ($totalProducts <= $chunk * 2 ? 1 : 0));
+        sleep($totalProducts > $chunk * 5 ? 0 : ($totalProducts > $chunk * 3 ? 1 : 2));
 
         $response = $shop->api()->graph($bulkQuery);
         $errors = $response['body']['data']['errors'] ?? [];
