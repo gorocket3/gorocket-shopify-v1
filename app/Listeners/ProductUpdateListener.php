@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
+use Throwable;
+use function retry;
 
 class ProductUpdateListener implements ShouldQueue
 {
@@ -26,6 +28,7 @@ class ProductUpdateListener implements ShouldQueue
      *
      * @param AppInstalledEvent $event
      * @return void
+     * @throws Throwable
      */
     public function handle(AppInstalledEvent $event): void
     {
@@ -70,13 +73,17 @@ class ProductUpdateListener implements ShouldQueue
             $this->deleteDBProducts($shopId, $chunk);
 
             do {
-                $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
-                    'limit' => $chunk,
-                    'page_info' => $nextPage,
-                ], [
-                    'timeout' => 30,
-                    'connect_timeout' => 10
-                ]);
+                $response = retry(3, function () use ($shop, $chunk, $nextPage) {
+                    return $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
+                        'limit' => $chunk,
+                        'page_info' => $nextPage,
+                    ], [
+                        'timeout' => 30,
+                        'connect_timeout' => 10,
+                    ]);
+                }, 1000, function (Throwable $exception) use ($shopId) {
+                    Log::warning("[LISTENER][PRODUCT] API retry failed - {$shopId}, Error: {$exception->getMessage()}");
+                });
 
                 if (($response['errors'] ?? false) || !isset($response['body']['products'])) {
                     Log::error("[LISTENER][PRODUCT] API failed - {$shopId}");
