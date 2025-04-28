@@ -286,7 +286,7 @@ export async function connectProducts(errorCallback = null) {
     }
 }
 
-export async function saveColumns(e) {
+export async function saveColumns(callback) {
     const columnDefs = gx.gridOptions.api.getColumnDefs();
     const newColumnList = [];
 
@@ -329,6 +329,7 @@ export async function saveColumns(e) {
 
         const res = await response.json();
         showInfo('Column information has been saved.');
+        callback();
     } catch (error) {
         console.error('Error saving personal column:', error);
     }
@@ -421,7 +422,7 @@ export function setTags(productId, newTags) {
 
 async function refreshGrid(data, defaultData, showChangesModal, showSeoLogsModal, showTagsModal, startGrid) {
     const default_columns = [ ...getInitialColumns(data, showChangesModal, showSeoLogsModal, showTagsModal, openOnlineStoreLink, addEditedCellCount) ];
-    const my_columns = await getMyColumns(() => gx, gridDiv, default_columns);
+    const { empty, columns: my_columns } = await getMyColumns(() => gx, gridDiv, default_columns);
 
     gx = new HDGrid(gridDiv, my_columns, {
         suppressRowTransform: true,
@@ -488,7 +489,7 @@ async function refreshGrid(data, defaultData, showChangesModal, showSeoLogsModal
             e.api.setFilterModel(filterData);
         },
         onGridReady: (e) => {
-            startGrid();
+            startGrid({ columnSaved: !empty });
         }
     });
 
