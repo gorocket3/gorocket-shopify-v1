@@ -324,7 +324,7 @@ export default function HomePage() {
                                                 <Text as="span" variant="bodySm" tone="success" fontWeight="bold" style={{ minWidth: '32px', textAlign: 'right', letterSpacing: '-0.2px' }}>
                                                     {Math.round(Math.max(customAction.progress, 3))}%
                                                 </Text>
-                                                {customActionDuration >= 180 && (
+                                                {customActionDuration >= 3600 && (
                                                     <div style={{ cursor: 'pointer' }}
                                                          onClick={() => resetCustomAction()}>
                                                         <Icon source={XCircleIcon} tone="primary"/>
