@@ -283,7 +283,7 @@ class SyncProcessJob implements ShouldQueue
         }
         GRAPHQL;
 
-        sleep($totalProducts <= $chunk * 3 ? 2 : ($totalProducts <= $chunk * 5 ? 1 : 0));
+        sleep($totalProducts <= $chunk * 3 ? 5 : ($totalProducts <= $chunk * 5 ? 2 : 0));
 
         $response = $shop->api()->graph($bulkQuery);
         $errors = $response['body']['data']['errors'] ?? [];
