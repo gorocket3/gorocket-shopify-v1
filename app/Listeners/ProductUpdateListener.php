@@ -75,14 +75,14 @@ class ProductUpdateListener implements ShouldQueue
 
             do {
                 $response = retry(3, function () use ($shop, $chunk, $nextPage) {
-                    return $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
+                    return $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . 'products.json', [
                         'limit' => $chunk,
                         'page_info' => $nextPage,
                     ], [
-                        'timeout' => 60,
-                        'connect_timeout' => 20
+                        'timeout' => 30,
+                        'connect_timeout' => 10
                     ]);
-                }, 2000, function (Throwable $exception) use ($shopId) {
+                }, 1000, function (Throwable $exception) use ($shopId) {
                     Log::warning("[LISTENER][PRODUCT] API retry failed - {$shopId}, Error: {$exception->getMessage()}");
                 });
 
