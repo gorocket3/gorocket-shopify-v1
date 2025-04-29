@@ -75,7 +75,7 @@ class ProductUpdateListener implements ShouldQueue
 
             do {
                 $response = retry(3, function () use ($shop, $chunk, $nextPage) {
-                    return $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . 'products.json', [
+                    return $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/products.json', [
                         'limit' => $chunk,
                         'page_info' => $nextPage,
                     ], [
