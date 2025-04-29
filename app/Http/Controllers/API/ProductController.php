@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 use Osiset\ShopifyApp\Messaging\Events\AppInstalledEvent;
 use Osiset\ShopifyApp\Objects\Values\ShopId;
 
@@ -470,6 +471,11 @@ class ProductController extends Controller
     {
         $shop = Auth::user();
         $shopId = new ShopId($shop->id);
+
+        $syncStatus = Redis::hgetall("shop:{$shop->id}:product_sync");
+        if (!empty($syncStatus)) {
+            abort(429);
+        }
 
         $listener->handle(new AppInstalledEvent($shopId));
 

@@ -281,7 +281,7 @@ export async function connectProducts(errorCallback = null) {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
         if (e?.status === 429) {
-            showError('Connect request limit exceeded. (Once every 30 minutes)');
+            showError('Product sync is still in progress. Please wait until it completes.');
         } else {
             showError('An error occurred while connecting products. Please try again.');
         }

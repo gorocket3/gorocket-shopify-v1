@@ -175,6 +175,9 @@ class SyncProcessJob implements ShouldQueue
                     $batch[] = $data;
                     $processedProducts++;
                     $progress = min(100, round(($processedProducts / $totalProducts) * 100));
+                    if ($processedProducts === $totalProducts) {
+                        $progress = 100;
+                    }
 
                     if (count($batch) >= $chunk) {
                         ProductUpdateJob::dispatch($batch, $this->shopId, $progress);
