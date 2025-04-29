@@ -325,7 +325,7 @@ export default function HomePage() {
                                                                  tone="success"/>
                                                 </Box>
                                                 <Text as="span" variant="bodySm" tone="success" fontWeight="bold" style={{ minWidth: '32px', textAlign: 'right', letterSpacing: '-0.2px' }}>
-                                                    {Math.round(Math.max(customAction.progress, 3))}%
+                                                    {Math.round(customAction.progress)}%
                                                 </Text>
                                                 {customActionDuration >= 3600 && (
                                                     <div style={{ cursor: 'pointer' }}
