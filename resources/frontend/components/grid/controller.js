@@ -468,16 +468,16 @@ async function refreshGrid(data, defaultData, showChangesModal, showSeoLogsModal
                 });
             }
         },
-        onCellEditingStarted: async (e) => {
-            if (e.colDef.field === 'product_tags') {
-                const newTags = await handleTagPicker(data.tags, e.value, e.data.product_name);
-                const newTagValue = (newTags || []).join(', ');
-                if (newTags.length > 0 && newTagValue !== e.value) {
-                    e.node.setDataValue(e.colDef.field, newTagValue);
-                }
-                e.api.stopEditing(true);
-            }
-        },
+        // onCellEditingStarted: async (e) => {
+        //     if (e.colDef.field === 'product_tags') {
+        //         const newTags = await handleTagPicker(data.tags, e.value, e.data.product_name);
+        //         const newTagValue = (newTags || []).join(', ');
+        //         if (newTags.length > 0 && newTagValue !== e.value) {
+        //             e.node.setDataValue(e.colDef.field, newTagValue);
+        //         }
+        //         e.api.stopEditing(true);
+        //     }
+        // },
         onFilterChanged: (e) => {
             if (filterLoading) {
                 filterLoading = false;
@@ -615,31 +615,31 @@ function getFilterParams(data, defaultFilter) {
     return params;
 }
 
-async function handleTagPicker(tags, value, title) {
-    const selectedTags = value.split(', ');
-
-    const sortedTags = tags
-        .slice()
-        .sort((a, b) => a.localeCompare(b))
-        .sort((a, b) => {
-            const aSelected = selectedTags.includes(a);
-            const bSelected = selectedTags.includes(b);
-            return aSelected === bSelected ? 0 : aSelected ? -1 : 1;
-        });
-
-    const picker = await shopify.picker({
-        heading: `Select ${title}'s Tags`,
-        multiple: true,
-        headers: [ { content: 'Tags' } ],
-        items: sortedTags.map((tag) => ({
-            id: tag,
-            heading: tag,
-            selected: selectedTags.includes(tag),
-        }))
-    });
-
-    return await picker.selected;
-}
+// async function handleTagPicker(tags, value, title) {
+//     const selectedTags = value.split(', ');
+//
+//     const sortedTags = tags
+//         .slice()
+//         .sort((a, b) => a.localeCompare(b))
+//         .sort((a, b) => {
+//             const aSelected = selectedTags.includes(a);
+//             const bSelected = selectedTags.includes(b);
+//             return aSelected === bSelected ? 0 : aSelected ? -1 : 1;
+//         });
+//
+//     const picker = await shopify.picker({
+//         heading: `Select ${title}'s Tags`,
+//         multiple: true,
+//         headers: [ { content: 'Tags' } ],
+//         items: sortedTags.map((tag) => ({
+//             id: tag,
+//             heading: tag,
+//             selected: selectedTags.includes(tag),
+//         }))
+//     });
+//
+//     return await picker.selected;
+// }
 
 function setCustomFilter(filters) {
     Object.keys(filters).forEach((key) => {
