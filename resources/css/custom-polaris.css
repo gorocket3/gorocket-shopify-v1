@@ -10,6 +10,10 @@
     background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
+.Polaris-Text--info {
+    color: var(--p-color-text-emphasis);
+}
+
 .Polaris-Text--break {
     white-space: normal;
 }

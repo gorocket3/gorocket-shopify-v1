@@ -123,6 +123,7 @@ export function searchProducts() {
                 seo_title: item.parent.seo_title,
                 seo_description: item.parent.seo_description,
                 seo_grade: item.parent.ai_score?.grade ?? 'bad',
+                seo_score: item.parent.ai_score?.total_score ?? 0,
                 product_published_at: item.parent.published_at,
                 product_created_at: item.parent.created_at,
                 product_updated_at: item.parent.updated_at,

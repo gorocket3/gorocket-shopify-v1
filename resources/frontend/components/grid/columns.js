@@ -29,17 +29,18 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
     }, {});
 
     const seo_grade_values = {
-        excellent: [ 'Excellent', 'Polaris-Badge--toneSuccess' ],
-        good: [ 'Good', 'Polaris-Badge--toneInfo' ],
-        medium: [ 'Medium', 'Polaris-Badge--toneAttention' ],
-        poor: [ 'Poor', 'Polaris-Badge--toneCritical' ],
-        bad: [ 'Bad', 'Polaris-Badge--toneDefault' ]
+        excellent: [ 'Excellent', 'Polaris-Text--success', 'var(--p-color-bg-fill-success)' ],
+        good: [ 'Good', 'Polaris-Text--info', 'var(--p-color-bg-fill-info)' ],
+        medium: [ 'Medium', 'Polaris-Text--caution', 'var(--p-color-bg-fill-warning)' ],
+        poor: [ 'Poor', 'Polaris-Text--critical', 'var(--p-color-bg-fill-critical)' ],
+        bad: [ 'Bad', 'Polaris-Text--subdued', 'var(--p-color-bg-fill-tertiary)' ]
     };
 
     const GRADE_STATUS = grades.reduce((acc, key) => {
         acc[key] = {
             label: seo_grade_values[key]?.[0] || '-',
-            className: seo_grade_values[key]?.[1] || '',
+            textColorClass: seo_grade_values[key]?.[1] || '',
+            bgColorStyle: seo_grade_values[key]?.[2] || '',
         }
         return acc;
     }, {});
@@ -570,11 +571,25 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     }),
                     cellStyle: cellMergeStyling,
                     cellClass: 'hd-grid-code',
-                    cellRenderer: (p) =>
-                        p.data.position > 1
-                            ? ''
-                            : `<span class="grid-badge ${GRADE_STATUS[p.value]?.className || ''} Polaris-Text--bold">${GRADE_STATUS[p.value]?.label || ''}</span>`,
-                    editable: false
+                    cellRenderer: (p) => p.data.position > 1 ? '' : `
+                        <div class="inline-block relative top-1">
+                            <div class="DonutProgress" style="position: relative; width: 40px; height: 40px;">
+                                <svg viewBox="0 0 180 180" width="40" height="40">
+                                    <circle stroke="#F2F7FE" stroke-width="24" fill="none" cx="90" cy="90" r="80"></circle>
+                                    <circle stroke-width="20" stroke-linecap="round" fill="none" cx="90" cy="90" r="80"
+                                        style="transform: rotate(-90deg); transform-origin: center center; transition: stroke-dasharray 0.6s cubic-bezier(0.58, 0.16, 0.5, 1.14) 0.3s;"
+                                        stroke="${GRADE_STATUS[p.value]?.bgColorStyle}"
+                                        stroke-dasharray="${p.data.seo_score / 100 * (2 * 80 * Math.PI)}, ${2 * 80 * Math.PI}"
+                                    ></circle>
+                                </svg>
+                                <div class="DonutProgress-Center" style="position: absolute; top: 0; left: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; line-height: 40px;">
+                                    <span class="flex flex-col Polaris-Text--root Polaris-Text--bodyXs">
+                                        <small class="font-bold ${GRADE_STATUS[p.value]?.textColorClass}">${GRADE_STATUS[p.value]?.label || ''}</small>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `,
                 }
             ]
         },
