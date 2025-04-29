@@ -36,7 +36,8 @@ class AppServiceProvider extends ServiceProvider
             $shop = Str::lower($shop ?? 'unknown');
             $whitelist = [
                 'gorockettest.myshopify.com',
-                'jokebear-test.myshopify.com'
+                'jokebear-test.myshopify.com',
+                'jokebear-test2.myshopify.com'
             ];
 
             if (in_array($shop, $whitelist)) {
