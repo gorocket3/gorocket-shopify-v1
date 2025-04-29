@@ -18,7 +18,6 @@ import {
     Link as PolarisLink,
     Page,
     Popover,
-    ProgressBar,
     ResourceItem,
     ResourceList,
     Scrollable,
@@ -52,7 +51,6 @@ import {
     UndoIcon,
     VariantIcon,
     ViewIcon,
-    XCircleIcon
 } from "@shopify/polaris-icons";
 import ProgressNotifier from "../components/common/progress-notifier";
 import productAttributes from "../components/grid/attributes.json";
@@ -260,6 +258,7 @@ export default function ProductsPage() {
     }
 
     const deleteAfterConfirm = async () => {
+        shopify.loading(true);
         startProductAction('delete');
         removeProducts(selectedRows || [], resetProductAction);
     }
@@ -396,6 +395,8 @@ export default function ProductsPage() {
 
     useEffectWithoutInitialState(() => {
         if (productAction.progress === 100) {
+            if (productAction.type === 'delete') shopify.loading(false);
+
             setTimeout(() => {
                 resetProductAction();
                 if (productAction.type !== 'update') searchClick();
@@ -448,67 +449,52 @@ export default function ProductsPage() {
         <Page
             title="Products"
             fullWidth={true}
-            secondaryActions={
-                <InlineStack gap="200" blockAlign="center">
-                    {/*{(!!productAction.inProgress && productAction.type === 'connect') && (*/}
-                    {/*    <InlineStack gap="100">*/}
-                    {/*        <Box width="60px">*/}
-                    {/*            <ProgressBar progress={Math.max(productAction.progress, 5)} tone="success"/>*/}
-                    {/*        </Box>*/}
-                    {/*        {productActionDuration >= 30 && (*/}
-                    {/*            <div className="cursor-pointer" onClick={resetProductAction}>*/}
-                    {/*                <Icon source={XCircleIcon} tone="primary"/>*/}
-                    {/*            </div>*/}
-                    {/*        )}*/}
-                    {/*    </InlineStack>*/}
-                    {/*)}*/}
-                    {/*<Button variant="secondary"*/}
-                    {/*        tone="success"*/}
-                    {/*        onClick={connectClick}*/}
-                    {/*        disabled={productAction.inProgress}*/}
-                    {/*        loading={(productAction.type === 'connect' && productAction.inProgress)}>*/}
-                    {/*    Connect*/}
-                    {/*</Button>*/}
-                    {(!!productAction.inProgress && productAction.type === 'delete') && (
-                        <InlineStack gap="100">
-                            <Box width="60px">
-                                <ProgressBar progress={Math.max(productAction.progress, 5)} tone="critical"/>
-                            </Box>
-                            {productActionDuration >= 30 && (
-                                <div className="cursor-pointer" onClick={resetProductAction}>
-                                    <Icon source={XCircleIcon} tone="primary"/>
-                                </div>
-                            )}
-                        </InlineStack>
-                    )}
-                    <Button variant="secondary"
-                            tone="critical"
-                            onClick={deleteClick}
-                            disabled={productAction.inProgress}
-                            loading={(productAction.type === 'delete' && productAction.inProgress)}>
-                        Delete
-                    </Button>
-                    {/*{(!!productAction.inProgress && productAction.type === 'update') && (*/}
-                    {/*    <InlineStack gap="200">*/}
-                    {/*        <Box width="60px">*/}
-                    {/*            <ProgressBar progress={Math.max(productAction.progress, 5)} tone="highlight"/>*/}
-                    {/*        </Box>*/}
-                    {/*        {productActionDuration >= 30 && (*/}
-                    {/*            <div className="cursor-pointer" onClick={resetProductAction}>*/}
-                    {/*                <Icon source={XCircleIcon} tone="primary"/>*/}
-                    {/*            </div>*/}
-                    {/*        )}*/}
-                    {/*    </InlineStack>*/}
-                    {/*)}*/}
-                    {/*<Button*/}
-                    {/*    variant="primary"*/}
-                    {/*    onClick={saveClick}*/}
-                    {/*    disabled={productAction.inProgress}*/}
-                    {/*    loading={(productAction.type === 'update' && productAction.inProgress)}>*/}
-                    {/*    Save*/}
-                    {/*</Button>*/}
+            backAction={{ onAction: () => navigate(-1) }}
+            titleMetadata={
+                <InlineStack gap="200">
+                    <UpgradePlanTooltip active={(info.editableCount / info.editableLimit) * 10 >= 8}>
+                        <Badge size="large"
+                               tone={(info.editableCount / info.editableLimit) >= 1 ? 'critical' : ((info.editableCount / info.editableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                            <Text as="strong" fontWeight="bold">{info.editableCount}</Text>/{formatNumberWithCommas(info.editableLimit || 0)} edited
+                        </Badge>
+                    </UpgradePlanTooltip>
+                    <UpgradePlanTooltip active={(info.selectableCount / info.selectableLimit) * 10 >= 8}>
+                        <Badge size="large"
+                               tone={(info.selectableCount / info.selectableLimit) >= 1 ? 'critical' : ((info.selectableCount / info.selectableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                            <Text as="strong" fontWeight="bold">{info.selectableCount}</Text>/{formatNumberWithCommas(info.selectableLimit || 0)} selected
+                        </Badge>
+                    </UpgradePlanTooltip>
+                    <UpgradePlanTooltip active={(info.aiSeoCount / info.aiSeoLimit) * 10 >= 8}>
+                        <Badge size="large"
+                               tone={(info.aiSeoCount / info.aiSeoLimit) >= 1 ? 'critical' : ((info.aiSeoCount / info.aiSeoLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
+                            <Text as="strong" fontWeight="bold">{info.aiSeoCount}</Text>/{formatNumberWithCommas(info.aiSeoLimit || 0)} seo generated
+                        </Badge>
+                    </UpgradePlanTooltip>
                 </InlineStack>
             }
+            primaryAction={{
+                icon: SearchIcon,
+                content: 'Search',
+                accessibilityLabel: 'Search products by filter',
+                disabled: productAction.inProgress,
+                onAction: searchClick
+            }}
+            secondaryActions={[
+                {
+                    icon: MagicIcon,
+                    content: 'AI SEO',
+                    disabled: productAction.inProgress,
+                    onAction: startMakingAiSeo,
+                },
+                {
+                    icon: DeleteIcon,
+                    content: 'Delete',
+                    destructive: true,
+                    disabled: productAction.inProgress,
+                    loading: (productAction.type === 'delete' && productAction.inProgress),
+                    onAction: deleteClick,
+                }
+            ]}
         >
             <ProgressNotifier
                 syncCallback={(d) => updateProductAction(d?.progress || 0)}
@@ -542,129 +528,102 @@ export default function ProductsPage() {
                 </Card>
             </div>
             <div className={isGridSetUp ? '' : 'hidden'}>
-                <Card>
+                <Card padding="0">
                     <BlockStack gap="200">
-                        <InlineGrid columns={{ xs: 1, md: "1fr auto" }} gap="200">
-                            <InlineStack gap="200" blockAlign="center">
+                        <Box paddingBlockStart="300" paddingInlineStart="400" paddingInlineEnd="300">
+                            <InlineGrid columns={{ xs: 1, sm: "1fr auto" }} gap="200" alignItems="center">
                                 <Text as="h2" variant="bodyLg">
                                     Showing{' '}
                                     <Text as="strong" id="gd-current" tone="success" fontWeight="bold">0</Text> of{' '}
                                     <Text as="strong" id="gd-total" fontWeight="bold">0</Text>{' '}
                                     Product Variants
                                 </Text>
-                                <InlineStack gap="200">
-                                    <UpgradePlanTooltip active={(info.editableCount / info.editableLimit) * 10 >= 8}>
-                                        <Badge size="large"
-                                               tone={(info.editableCount / info.editableLimit) >= 1 ? 'critical' : ((info.editableCount / info.editableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
-                                            <Text as="strong" fontWeight="bold">{info.editableCount}</Text>/{formatNumberWithCommas(info.editableLimit || 0)} edited
-                                        </Badge>
-                                    </UpgradePlanTooltip>
-                                    <UpgradePlanTooltip active={(info.selectableCount / info.selectableLimit) * 10 >= 8}>
-                                        <Badge size="large"
-                                               tone={(info.selectableCount / info.selectableLimit) >= 1 ? 'critical' : ((info.selectableCount / info.selectableLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
-                                            <Text as="strong" fontWeight="bold">{info.selectableCount}</Text>/{formatNumberWithCommas(info.selectableLimit || 0)} selected
-                                        </Badge>
-                                    </UpgradePlanTooltip>
-                                    <UpgradePlanTooltip active={(info.aiSeoCount / info.aiSeoLimit) * 10 >= 8}>
-                                        <Badge size="large"
-                                               tone={(info.aiSeoCount / info.aiSeoLimit) >= 1 ? 'critical' : ((info.aiSeoCount / info.aiSeoLimit) * 10 >= 8 ? 'warning' : 'enabled')}>
-                                            <Text as="strong" fontWeight="bold">{info.aiSeoCount}</Text>/{formatNumberWithCommas(info.aiSeoLimit || 0)} seo generated
-                                        </Badge>
-                                    </UpgradePlanTooltip>
-                                </InlineStack>
-                            </InlineStack>
-                            <InlineStack gap="200" align="end" blockAlign="center">
-                                <ButtonGroup variant="segmented">
-                                    <Tooltip content="Undo Edit" dismissOnMouseOut>
-                                        <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
-                                    </Tooltip>
-                                    <Tooltip content="Redo Edit" dismissOnMouseOut>
-                                        <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
-                                    </Tooltip>
+                                <InlineStack gap="200" align="end" blockAlign="center">
+                                    <ButtonGroup variant="segmented">
+                                        <Tooltip content="Undo Edit" dismissOnMouseOut>
+                                            <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
+                                        </Tooltip>
+                                        <Tooltip content="Redo Edit" dismissOnMouseOut>
+                                            <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
+                                        </Tooltip>
+                                    </ButtonGroup>
                                     <Tooltip content="Reset Filter" dismissOnMouseOut>
-                                        <Button icon={FilterIcon} onClick={resetFilter}></Button>
+                                        <div className="filter-cancel-badge">
+                                            <Button icon={FilterIcon} onClick={resetFilter} tone="critical"/>
+                                        </div>
                                     </Tooltip>
-                                </ButtonGroup>
-                                <Button icon={MagicIcon} variant="primary" onClick={startMakingAiSeo} disabled={false}>AI SEO</Button>
-                                <Popover
-                                    active={searchPerPagePopoverActive}
-                                    activator={
-                                        <Button icon={ViewIcon} onClick={toggleSearchPerPagePopover}>{searchPerPage}</Button>
-                                    }
-                                    onClose={toggleSearchPerPagePopover}
-                                >
-                                    <Box padding="300" paddingBlockEnd="050" paddingInlineEnd="800">
-                                        <Text as="span" variant="headingMd" fontWeight="regular" alignment="start">Per page</Text>
-                                    </Box>
-                                    <ActionList
-                                        actionRole="menuitem"
-                                        onActionAnyItem={toggleSearchPerPagePopover}
-                                        items={[ 25, 50, 100, 200, 500 ].map((item) => ({
-                                            content: item,
-                                            onAction: () => setSearchPerPage(item),
-                                            active: searchPerPage === item
-                                        }))}
-                                    />
-                                </Popover>
-                                <Popover
-                                    active={sort.open}
-                                    activator={<Button icon={SortIcon} onClick={toggleSortOpen}></Button>}
-                                    onClose={toggleSortOpen}
-                                >
-                                    <Scrollable shadow style={{ height: '300px' }} focusable scrollbarGutter="stable" scrollbarWidth="thin">
-                                        <Box padding="300">
-                                            <ChoiceList
-                                                title={<Text as="span" variant="headingMd" fontWeight="regular">Sort by</Text>}
-                                                choices={SORT_OPTIONS}
-                                                selected={sort.by}
-                                                onChange={(v) => setSortBy(v)}
-                                            />
+                                    <Popover
+                                        active={searchPerPagePopoverActive}
+                                        activator={
+                                            <Button icon={ViewIcon} onClick={toggleSearchPerPagePopover}>{searchPerPage}</Button>
+                                        }
+                                        onClose={toggleSearchPerPagePopover}
+                                    >
+                                        <Box padding="300" paddingBlockEnd="050" paddingInlineEnd="800">
+                                            <Text as="span" variant="headingMd" fontWeight="regular" alignment="start">Per page</Text>
                                         </Box>
-                                        <Divider/>
+                                        <ActionList
+                                            actionRole="menuitem"
+                                            onActionAnyItem={toggleSearchPerPagePopover}
+                                            items={[ 25, 50, 100, 200, 500 ].map((item) => ({
+                                                content: item,
+                                                onAction: () => setSearchPerPage(item),
+                                                active: searchPerPage === item
+                                            }))}
+                                        />
+                                    </Popover>
+                                    <Popover
+                                        active={sort.open}
+                                        activator={<Button icon={SortIcon} onClick={toggleSortOpen}></Button>}
+                                        onClose={toggleSortOpen}
+                                    >
+                                        <Scrollable shadow style={{ height: '300px' }} focusable scrollbarGutter="stable" scrollbarWidth="thin">
+                                            <Box padding="300">
+                                                <ChoiceList
+                                                    title={<Text as="span" variant="headingMd" fontWeight="regular">Sort by</Text>}
+                                                    choices={SORT_OPTIONS}
+                                                    selected={sort.by}
+                                                    onChange={(v) => setSortBy(v)}
+                                                />
+                                            </Box>
+                                            <Divider/>
+                                            <Box paddingBlock="200" paddingInline="150">
+                                                <BlockStack gap="100">
+                                                    <Button icon={ArrowUpIcon} variant="tertiary" textAlign="left"
+                                                            pressed={!sort.desc} onClick={() => setSortDesc(false)}>
+                                                        <Text as="span" fontWeight="regular">Ascending</Text>
+                                                    </Button>
+                                                    <Button icon={ArrowDownIcon} variant="tertiary" textAlign="left"
+                                                            pressed={sort.desc} onClick={() => setSortDesc(true)}>
+                                                        <Text as="span" fontWeight="regular">Descending</Text>
+                                                    </Button>
+                                                </BlockStack>
+                                            </Box>
+                                        </Scrollable>
+                                    </Popover>
+                                    <Popover
+                                        active={gridCustomPopoverActive}
+                                        activator={<Button icon={LayoutColumns3Icon} onClick={toggleGridCustomPopover}></Button>}
+                                        onClose={toggleGridCustomPopover}
+                                    >
                                         <Box paddingBlock="200" paddingInline="150">
                                             <BlockStack gap="100">
-                                                <Button icon={ArrowUpIcon} variant="tertiary" textAlign="left"
-                                                        pressed={!sort.desc} onClick={() => setSortDesc(false)}>
-                                                    <Text as="span" fontWeight="regular">Ascending</Text>
+                                                <Button icon={gridColumnSaved ? EditIcon : PlusCircleIcon} variant="tertiary" textAlign="left" tone="success" ariaControls={gridColumnSaved ? 'info' : ''}
+                                                        disabled={productAction.inProgress}
+                                                        onClick={() => setConfirmType('save_columns')}>
+                                                    <Text as="span">{gridColumnSaved ? 'Edit Columns' : 'Save Columns'}</Text>
                                                 </Button>
-                                                <Button icon={ArrowDownIcon} variant="tertiary" textAlign="left"
-                                                        pressed={sort.desc} onClick={() => setSortDesc(true)}>
-                                                    <Text as="span" fontWeight="regular">Descending</Text>
+                                                <Button icon={DeleteIcon} variant="tertiary" textAlign="left" tone="critical"
+                                                        disabled={productAction.inProgress}
+                                                        onClick={() => setConfirmType('reset_columns')}>
+                                                    <Text as="span">Reset Columns</Text>
                                                 </Button>
                                             </BlockStack>
                                         </Box>
-                                    </Scrollable>
-                                </Popover>
-                                <Popover
-                                    active={gridCustomPopoverActive}
-                                    activator={<Button icon={LayoutColumns3Icon} onClick={toggleGridCustomPopover}></Button>}
-                                    onClose={toggleGridCustomPopover}
-                                >
-                                    <Box paddingBlock="200" paddingInline="150">
-                                        <BlockStack gap="100">
-                                            <Button icon={gridColumnSaved ? EditIcon : PlusCircleIcon} variant="tertiary" textAlign="left" tone="success" ariaControls={gridColumnSaved ? 'info' : ''}
-                                                    disabled={productAction.inProgress}
-                                                    onClick={() => setConfirmType('save_columns')}>
-                                                <Text as="span">{gridColumnSaved ? 'Edit Columns' : 'Save Columns'}</Text>
-                                            </Button>
-                                            <Button icon={DeleteIcon} variant="tertiary" textAlign="left" tone="critical"
-                                                    disabled={productAction.inProgress}
-                                                    onClick={() => setConfirmType('reset_columns')}>
-                                                <Text as="span">Reset Columns</Text>
-                                            </Button>
-                                        </BlockStack>
-                                    </Box>
-                                </Popover>
-                                <Button id="search_product"
-                                        variant="primary"
-                                        icon={SearchIcon}
-                                        accessibilityLabel="Search"
-                                        disabled={productAction.inProgress}
-                                        onClick={searchClick}>
-                                    Search
-                                </Button>
-                            </InlineStack>
-                        </InlineGrid>
+                                    </Popover>
+                                </InlineStack>
+                            </InlineGrid>
+                        </Box>
                         <div className="table-responsive">
                             <div id="div-gd" className="ag-theme-balham"></div>
                         </div>

@@ -43,6 +43,11 @@
 /*    text-overflow: initial;*/
 /*}*/
 
+.ag-theme-balham .ag-root-wrapper {
+    border-left-color: var(--p-color-border-secondary);
+    border-right-color: var(--p-color-border-secondary);
+}
+
 .ag-theme-balham .ag-header-cell {
     padding: 0 3px;
 }
@@ -54,6 +59,7 @@
 .ag-theme-balham .ag-row {
     border-top: 0;
     border-bottom: 0;
+    border-left: 0;
 }
 
 .ag-theme-balham .ag-row:not(.ag-row-selected) {

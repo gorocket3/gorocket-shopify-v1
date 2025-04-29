@@ -70,6 +70,15 @@
     min-width: 120px;
 }
 
+.filter-cancel-badge > button::after {
+    content: "/";
+    position: absolute;
+    top: 3px;
+    left: 1px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
 /* Media Queries */
 @media (max-width: 960px) {
     .editor-popup-container {

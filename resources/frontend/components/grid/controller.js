@@ -23,10 +23,9 @@ export async function initGrid({
 }, callback = null) {
     pApp = new App('', { gridId: "#div-gd" });
 
-    // const is_mobile = document.body.offsetWidth <= 1007;
-    const grid_height = 170;
+    const screenWidth = document.body.offsetWidth <= 489 ? 'sm' : document.body.offsetWidth <= 767 ? 'md' : 'lg';
+    const grid_height = screenWidth === 'sm' ? 210 : screenWidth === 'md' ? 170 : 140;
     pApp.ResizeGrid(grid_height);
-    pApp.BindSearchEnter('#search_product');
 
     gridDiv = document.querySelector(pApp.options.gridId);
 
