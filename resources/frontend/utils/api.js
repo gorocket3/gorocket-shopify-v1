@@ -114,7 +114,7 @@ export async function syncProducts() {
         await fetchData({ method: 'POST', url: '/api/products/sync' });
     } catch (e) {
         if (e?.status === 429) {
-            showError('Product sync is still in progress. Please wait until it completes.');
+            showError('Connect Products is still in progress. Please wait until it completes.');
         } else {
             showError('An error occurred while connecting products. Please try again.');
         }
