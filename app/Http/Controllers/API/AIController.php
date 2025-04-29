@@ -87,7 +87,7 @@ class AIController extends Controller
         $productAlt = $request->input('product_alt');
 
         $cleanTitle = Str::limit(trim($productTitle), 60);
-        $cleanDescription = trim(strip_tags($productDescription));
+        $cleanDescription = trim(strip_tags($productDescription ?? ''));
         $shortDescription = Str::limit($cleanDescription, 250);
         $tagsArray = array_filter(array_map('trim', explode(',', $productTags)));
         $limitedTags = implode(', ', array_slice($tagsArray, 0, 6));
