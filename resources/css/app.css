@@ -108,6 +108,13 @@
     .exclude-sm {
         display: none;
     }
+
+    .filter-cancel-badge > button::after {
+        top: 4px;
+        left: 0;
+        font-size: 1.3rem;
+        font-weight: 400;
+    }
 }
 
 @media (max-width: 705px) {
