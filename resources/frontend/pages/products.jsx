@@ -539,6 +539,10 @@ export default function ProductsPage() {
                                     Product Variants
                                 </Text>
                                 <InlineStack gap="200" align="end" blockAlign="center">
+                                    <div className="only-sm">
+                                        <Button icon={MagicIcon} onClick={startMakingAiSeo}
+                                                disabled={productAction.inProgress} variant="primary"/>
+                                    </div>
                                     <ButtonGroup variant="segmented">
                                         <Tooltip content="Undo Edit" dismissOnMouseOut>
                                             <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
