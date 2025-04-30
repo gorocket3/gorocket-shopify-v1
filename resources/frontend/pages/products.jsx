@@ -473,27 +473,39 @@ export default function ProductsPage() {
                 </InlineStack>
             }
             primaryAction={{
-                // icon: SearchIcon,
-                // content: 'Search',
-                // accessibilityLabel: 'Search products by filter',
-                // disabled: productAction.inProgress,
-                // onAction: searchClick
                 icon: MagicIcon,
                 content: 'AI SEO',
                 accessibilityLabel: 'Generate SEO by AI',
                 disabled: productAction.inProgress,
                 onAction: startMakingAiSeo,
             }}
-            secondaryActions={[
-                {
-                    icon: DeleteIcon,
-                    content: 'Delete',
-                    destructive: true,
-                    disabled: productAction.inProgress,
-                    loading: (productAction.type === 'delete' && productAction.inProgress),
-                    onAction: deleteClick,
-                }
-            ]}
+            secondaryActions={
+                <>
+                    <div className="only-sm">
+                        <Button icon={DeleteIcon} tone="critical"
+                                disabled={productAction.inProgress}
+                                loading={(productAction.type === 'delete' && productAction.inProgress)}
+                                onClick={deleteClick}/>
+                    </div>
+                    <div className="exclude-sm">
+                        <Button icon={DeleteIcon} tone="critical"
+                                disabled={productAction.inProgress}
+                                loading={(productAction.type === 'delete' && productAction.inProgress)}
+                                onClick={deleteClick}>
+                            Delete
+                        </Button>
+                    </div>
+                </>
+            }
+            // secondaryActions={[
+            //     {
+            //         icon: SearchIcon,
+            //         content: 'Search',
+            //         accessibilityLabel: 'Search products by filter',
+            //         disabled: productAction.inProgress,
+            //         onAction: searchClick
+            //     },
+            // ]}
         >
             <ProgressNotifier
                 syncCallback={(d) => updateProductAction(d?.progress || 0)}
@@ -538,10 +550,6 @@ export default function ProductsPage() {
                                     Product Variants
                                 </Text>
                                 <InlineStack gap="200" align="end" blockAlign="center">
-                                    {/*<div className="only-sm">*/}
-                                    {/*    <Button icon={MagicIcon} onClick={startMakingAiSeo}*/}
-                                    {/*            disabled={productAction.inProgress} variant="primary"/>*/}
-                                    {/*</div>*/}
                                     <ButtonGroup variant="segmented">
                                         <Tooltip content="Undo Edit" dismissOnMouseOut>
                                             <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>

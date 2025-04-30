@@ -83,6 +83,10 @@
     display: none;
 }
 
+.exclude-sm {
+    display: inline-block;
+}
+
 /* Media Queries */
 @media (max-width: 960px) {
     .editor-popup-container {
@@ -99,6 +103,10 @@
 @media (max-width: 767px) {
     .only-sm {
         display: inline-block;
+    }
+
+    .exclude-sm {
+        display: none;
     }
 }
 
