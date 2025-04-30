@@ -473,19 +473,18 @@ export default function ProductsPage() {
                 </InlineStack>
             }
             primaryAction={{
-                icon: SearchIcon,
-                content: 'Search',
-                accessibilityLabel: 'Search products by filter',
+                // icon: SearchIcon,
+                // content: 'Search',
+                // accessibilityLabel: 'Search products by filter',
+                // disabled: productAction.inProgress,
+                // onAction: searchClick
+                icon: MagicIcon,
+                content: 'AI SEO',
+                accessibilityLabel: 'Generate SEO by AI',
                 disabled: productAction.inProgress,
-                onAction: searchClick
+                onAction: startMakingAiSeo,
             }}
             secondaryActions={[
-                {
-                    icon: MagicIcon,
-                    content: 'AI SEO',
-                    disabled: productAction.inProgress,
-                    onAction: startMakingAiSeo,
-                },
                 {
                     icon: DeleteIcon,
                     content: 'Delete',
@@ -539,10 +538,10 @@ export default function ProductsPage() {
                                     Product Variants
                                 </Text>
                                 <InlineStack gap="200" align="end" blockAlign="center">
-                                    <div className="only-sm">
-                                        <Button icon={MagicIcon} onClick={startMakingAiSeo}
-                                                disabled={productAction.inProgress} variant="primary"/>
-                                    </div>
+                                    {/*<div className="only-sm">*/}
+                                    {/*    <Button icon={MagicIcon} onClick={startMakingAiSeo}*/}
+                                    {/*            disabled={productAction.inProgress} variant="primary"/>*/}
+                                    {/*</div>*/}
                                     <ButtonGroup variant="segmented">
                                         <Tooltip content="Undo Edit" dismissOnMouseOut>
                                             <Button icon={UndoIcon} onClick={undoGridClick} disabled={disableUndo}></Button>
