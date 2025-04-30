@@ -553,13 +553,13 @@ export default function ProductsPage() {
                                     </ButtonGroup>
                                     <Tooltip content="Reset Filter" dismissOnMouseOut>
                                         <div className="filter-cancel-badge">
-                                            <Button icon={FilterIcon} onClick={resetFilter} tone="critical"/>
+                                            <Button icon={FilterIcon} onClick={resetFilter} tone="critical" disabled={productAction.inProgress}/>
                                         </div>
                                     </Tooltip>
                                     <Popover
                                         active={searchPerPagePopoverActive}
                                         activator={
-                                            <Button icon={ViewIcon} onClick={toggleSearchPerPagePopover}>{searchPerPage}</Button>
+                                            <Button icon={ViewIcon} onClick={toggleSearchPerPagePopover} disabled={productAction.inProgress}>{searchPerPage}</Button>
                                         }
                                         onClose={toggleSearchPerPagePopover}
                                     >
@@ -578,7 +578,7 @@ export default function ProductsPage() {
                                     </Popover>
                                     <Popover
                                         active={sort.open}
-                                        activator={<Button icon={SortIcon} onClick={toggleSortOpen}></Button>}
+                                        activator={<Button icon={SortIcon} onClick={toggleSortOpen} disabled={productAction.inProgress}/>}
                                         onClose={toggleSortOpen}
                                     >
                                         <Scrollable shadow style={{ height: '300px' }} focusable scrollbarGutter="stable" scrollbarWidth="thin">
@@ -607,7 +607,7 @@ export default function ProductsPage() {
                                     </Popover>
                                     <Popover
                                         active={gridCustomPopoverActive}
-                                        activator={<Button icon={LayoutColumns3Icon} onClick={toggleGridCustomPopover}></Button>}
+                                        activator={<Button icon={LayoutColumns3Icon} onClick={toggleGridCustomPopover} disabled={productAction.inProgress}/>}
                                         onClose={toggleGridCustomPopover}
                                     >
                                         <Box paddingBlock="200" paddingInline="150">
