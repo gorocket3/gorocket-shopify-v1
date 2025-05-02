@@ -102,7 +102,7 @@ export function searchProducts() {
         }, []);
 
         const result = data.map((item, index) => {
-            const sortedTags = sortIgnoreCase(item.parent.tags.split(', ')).join(', ');
+            const sortedTags = sortIgnoreCase(item.parent.tags?.split(', ') || []).join(', ');
             const cur_data = {
                 ...item,
                 group_id: item.parent.product_id,
@@ -188,7 +188,7 @@ export function getProductsToUpdate() {
         if (prev) {
             prev.variants.push(variant);
         } else {
-            const sortedTags = sortIgnoreCase(data.product_tags.split(', ')).join(', ');
+            const sortedTags = sortIgnoreCase(data.product_tags?.split(', ') || []).join(', ');
             const product = {
                 id: data.product_id,
                 title: data.product_name,
