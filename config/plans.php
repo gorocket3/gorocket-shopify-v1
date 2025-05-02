@@ -13,7 +13,7 @@ return [
     */
 
     'edit_limits' => [
-        'Free'  => env('PLAN_EDIT_LIMIT_FREE', 20),
+        'Free'  => env('PLAN_EDIT_LIMIT_FREE', 50),
         'Basic' => env('PLAN_EDIT_LIMIT_BASIC', 1000),
         'Pro' => env('PLAN_EDIT_LIMIT_PRO', 2500)
     ],
