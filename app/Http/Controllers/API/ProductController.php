@@ -25,8 +25,7 @@ class ProductController extends Controller
     public function list(Request $request): JsonResponse
     {
         $shop = Auth::user();
-        // $response = $shop->api()->rest('GET', '/admin/api/' . env('SHOPIFY_API_VERSION') . '/webhooks.json');
-        // dd($response);
+
         $validated = $request->validate([
             'per_page' => 'integer|min:1|max:1000',
             'logs_count_min' => 'nullable|integer|min:0',
