@@ -46,7 +46,7 @@ import {
     PlusIcon,
     ProductIcon,
     RedoIcon,
-    SearchIcon,
+    RefreshIcon,
     SortIcon,
     UndoIcon,
     VariantIcon,
@@ -558,6 +558,9 @@ export default function ProductsPage() {
                                             <Button icon={RedoIcon} onClick={redoGridClick} disabled={disableRedo}></Button>
                                         </Tooltip>
                                     </ButtonGroup>
+                                    <Tooltip content="Refresh Products" dismissOnMouseOut>
+                                        <Button icon={RefreshIcon} onClick={searchClick} tone="success" disabled={productAction.inProgress}/>
+                                    </Tooltip>
                                     <Tooltip content="Reset Filter" dismissOnMouseOut>
                                         <div className="filter-cancel-badge">
                                             <Button icon={FilterIcon} onClick={resetFilter} tone="critical" disabled={productAction.inProgress}/>
