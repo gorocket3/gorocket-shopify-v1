@@ -244,9 +244,9 @@ export default function HomeMain() {
                             <BlockStack gap="200">
                                 <Text as="h2" variant="headingMd">Total Product Count</Text>
                                 <Box paddingBlockStart={200}>
-                                    <Text as="p" variant="headingXl">{formatNumberWithCommas(info.totalProductCount)}
-                                        <Text
-                                            as="span" variant="bodySm" tone="subdued">products</Text></Text>
+                                    <Text as="span" variant="headingXl">{formatNumberWithCommas(info.totalProductCount)}
+                                        <Text as="span" variant="bodySm" tone="subdued"> products</Text>
+                                    </Text>
                                 </Box>
                             </BlockStack>
                         </Card>
