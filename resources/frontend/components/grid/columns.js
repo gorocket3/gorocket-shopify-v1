@@ -231,7 +231,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                             <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
                                 <a href="shopify://admin/products/${p.data.group_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
                                     ${!!p.data.product_img ? `
-                                        <img alt="${p.data.product_name}" src="${p.data.product_img}">
+                                        <img alt="${p.data.product_name}" src="${p.data.product_img}" loading="lazy">
                                     ` : `
                                         <span class="Polaris-Icon">
                                             <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>
@@ -613,7 +613,7 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                             <div style='display:flex;justify-content:center;align-items:center;padding:3px 0;'>
                                 <a href="shopify://admin/products/${p.data.group_id}/variants/${p.data.variant_id}" class="Polaris-Thumbnail Polaris-Thumbnail--sizeSmall">
                                     ${!!p.data.option_img ? `
-                                        <img alt="${p.data.option_name}" src="${p.data.option_img}">
+                                        <img alt="${p.data.option_name}" src="${p.data.option_img}" loading="lazy">
                                     ` : `
                                         <span class="Polaris-Icon">
                                             <span class="Polaris-Text--root Polaris-Text--visuallyHidden">None Image</span>

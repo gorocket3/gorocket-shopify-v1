@@ -14,7 +14,7 @@ export function FeaturedImage({ src, alt, size = "large" }) {
         </div>
     ) : (
         <div className="flex justify-center items-center overflow-hidden border rounded-lg">
-            <Image source={src} width={80} alt={alt} onError={(e) => setError(true)}/>
+            <Image defer source={src} width={80} alt={alt} onError={(e) => setError(true)}/>
         </div>
     )
 }
