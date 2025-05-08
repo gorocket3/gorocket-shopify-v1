@@ -12,11 +12,11 @@ Route::middleware(['auth.webhook'])->group(function () {
     Route::post('handle/bulk-finish', [WebhookController::class, 'handleBulkFinish']);
 });
 
-Route::middleware(['verify.shopify', 'verify.scopes', 'billable'])->group(function () {
-    Route::view('', 'index')->name('home');
-    Route::view('products', 'index')->name('products');
-    Route::view('plan', 'index')->name('plan');
-    Route::view('history', 'index')->name('history');
-});
+// Route::middleware(['verify.shopify', 'verify.scopes', 'billable'])->group(function () {
+    // Route::view('', 'index')->name('home');
+    // Route::view('products', 'index')->name('products');
+    // Route::view('plan', 'index')->name('plan');
+    // Route::view('history', 'index')->name('history');
+// });
 
 Route::view('privacy-policy', 'privacy')->name('privacy.policy');

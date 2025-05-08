@@ -301,7 +301,7 @@ export default function HomeMain() {
                 <Card>
                     <Box>
                         <BlockStack inlineAlign="center" gap="100">
-                            <Image alt='Empty Products'
+                            <Image defer alt='Empty Products'
                                    source={'https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png'}/>
                             <Text as="h2" variant="headingMd">Connect and manage your products</Text>
                             <p className="animated-stripes">

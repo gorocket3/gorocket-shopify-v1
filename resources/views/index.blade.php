@@ -8,14 +8,14 @@
 
     <!-- Shopify -->
     <meta name="shopify-api-key" content="{{ config('services.shopify.key') }}"/>
-    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" crossorigin></script>
     <!-- // Shopify -->
 
     <!-- CDN -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
             integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" crossorigin>
     <!-- // CDN -->
 
     <!-- AG-GRID -->
@@ -37,7 +37,7 @@
     <!-- // Vite -->
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.gtag.id') }}"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.gtag.id') }}" crossorigin></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
