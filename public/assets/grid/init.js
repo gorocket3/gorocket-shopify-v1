@@ -38,7 +38,6 @@ App.prototype.ResizeGrid = function (grid_height_margin, height, areaId = '') {
     //var grid_height = $(window).height() - $('#search-area').height() - height;
     //grid.css('height',$(window).height() - $('#search-area').height() - height);
     var minus_height = this.options.grid_height_margin;
-    //console.log(minus_height);
 
     if (areaId === '') areaId = "search-area";
 
@@ -47,15 +46,8 @@ App.prototype.ResizeGrid = function (grid_height_margin, height, areaId = '') {
     }
 
     if ($('div.page-content').length) {
-
-        //console.log(minus_height);
         minus_height += parseInt($('div.page-content').css("padding-top"));
-        //console.log(minus_height);
         minus_height += parseInt($('div.page-content').css("padding-bottom"));
-
-        //console.log($('div.page-content').css("padding-top"));
-        //console.log($('div.page-content').css("padding-bottom"));
-        //console.log(minus_height);
     }
 
     if (height === undefined) {
@@ -63,17 +55,6 @@ App.prototype.ResizeGrid = function (grid_height_margin, height, areaId = '') {
     } else {
         $(this.options.gridId).css({ 'height': height });
     }
-};
-
-App.prototype.BindSearchEnter = function (btn = '#search_sbtn') {
-    $('.search-enter').keypress(function (event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if (keycode === 13) {
-            $(btn).click();
-            event.preventDefault();
-            return false;
-        }
-    });
 };
 
 $(document).ready(function () {
@@ -152,13 +133,3 @@ $(document).ready(function () {
         }
     }
 });
-
-
-// UI: Grid Resize
-function resizeGrid(timeout = 0) {
-    if (pApp.options.grid_resize == true) {
-        setTimeout(function () {
-            pApp.ResizeGrid(pApp.options?.height || 225);
-        }, timeout);
-    }
-}
