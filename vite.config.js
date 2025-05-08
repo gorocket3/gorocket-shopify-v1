@@ -18,13 +18,7 @@ export default defineConfig(function ({ mode }) {
         resolve: {
             preserveSymlinks: true,
         },
-        css: {
-            devSourcemap: true,
-        },
         build: {
-            cssCodeSplit: true,
-            minify: 'esbuild',
-            sourcemap: false,
             chunkSizeWarningLimit: 1000,
             rollupOptions: {
                 output: {
