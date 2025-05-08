@@ -172,10 +172,10 @@ export default function HomeMain() {
                                 onAction: () => window.open('https://youtu.be/zt2i6OD8T0w?si=2x10QGgHLLsD3yxR', '_blank'),
                             }}
                             description={`A quick guide to using GoRocket Editor for managing your Shopify product content. Learn how to edit descriptions, manage tags, and customize HTML—step by step.`}
-                            popoverActions={[ {
-                                content: 'Dismiss',
-                                onAction: () => setIntroCard((card) => ({ ...card, banner2: false }))
-                            } ]}
+                            // popoverActions={[ {
+                            //     content: 'Dismiss',
+                            //     onAction: () => setIntroCard((card) => ({ ...card, banner2: false }))
+                            // } ]}
                         >
                             <VideoThumbnail
                                 videoLength={256}
