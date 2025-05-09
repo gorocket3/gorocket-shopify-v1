@@ -430,15 +430,15 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     cellClass: 'hd-grid-left',
                     cellClassRules: changedCellClassRules('vendor'),
                     cellRenderer: (p) => p.data.position > 1 ? '' : p.value,
-                    onCellValueChanged: (e) => changeCellState('vendor', e),
-                    editable: (p) => p.data.position < 2,
-                    cellEditor: GridFieldEditor,
-                    cellEditorPopup: true,
-                    cellEditorParams: {
-                        cellEditor: GridFieldEditor,
-                        values: vendor.map((v) => ({ id: v, label: v })),
-                        width: "120px",
+                    onCellClicked: async (p) => {
+                        if (p.data.position > 1) return null;
+                        let selectedVendor = await handleVendorPicker(vendor, p.value, p.data.product_name);
+                        selectedVendor = selectedVendor[0] || '';
+                        if (p.value !== selectedVendor) {
+                            p.node.setDataValue(p.colDef.field, selectedVendor);
+                        }
                     },
+                    onCellValueChanged: (e) => changeCellState('vendor', e),
                 },
                 {
                     field: "handle",
@@ -864,4 +864,19 @@ async function checkIsHandleDuplicate(newHandle) {
     } catch (e) {
         return null;
     }
+}
+
+async function handleVendorPicker(vendors, value, title) {
+    const picker = await shopify.picker({
+        heading: `${title}'s Vendor`,
+        multiple: false,
+        headers: [ { content: 'Vendor' } ],
+        items: vendors.map((vd) => ({
+            id: vd,
+            heading: vd,
+            selected: value === vd,
+        }))
+    });
+
+    return await picker.selected;
 }
