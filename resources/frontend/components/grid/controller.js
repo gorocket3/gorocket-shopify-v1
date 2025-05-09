@@ -557,6 +557,8 @@ function addEditedCellCount(num, reset = false) {
 
     if (editedCellCount > 0) {
         shopify.saveBar.show('products-save-bar');
+    } else {
+        shopify.saveBar.hide('products-save-bar');
     }
 
     if (editedCellCount > defaultData.plan_selected_limit) {

@@ -433,8 +433,8 @@ export default function getInitialColumns(data, showChangesModal, showSeoLogsMod
                     onCellClicked: async (p) => {
                         if (p.data.position > 1) return null;
                         let selectedVendor = await handleVendorPicker(vendor, p.value, p.data.product_name);
-                        selectedVendor = selectedVendor[0] || '';
-                        if (p.value !== selectedVendor) {
+                        selectedVendor = selectedVendor?.[0] || '';
+                        if (selectedVendor !== '' && selectedVendor !== p.value) {
                             p.node.setDataValue(p.colDef.field, selectedVendor);
                         }
                     },
